@@ -233,48 +233,56 @@ PImage IPA__Point_combine(HV *profile)
     return oimg;
 }
 
+static double 
+imgmax( PImage img)
+{
+   if ( img-> type & imRealNumber) {
+      return 1e37;
+   } else {
+      switch ( img-> type) {
+      case imLong:  return 0x7fffffff;
+      case imShort: return 0x7ffff;
+      default:
+      return (double)(1 << (img->type&imBPP))-1;
+      }
+   }
+}
+
+static double 
+imgmin( PImage img)
+{
+   if ( img-> type & imRealNumber) {
+      return 1e-37;
+   } else {
+      switch ( img-> type) {
+      case imLong:  return -0x7ffffffe;
+      case imShort: return -0x7fffe;
+      default: return 0;
+      }
+   }
+}
+
 PImage IPA__Point_threshold(PImage img,HV *profile)
 {
     const char *method="IPA::Point::threshold";
-    int minvalue,maxvalue=255;
-    unsigned char lookup_table[256];
+    double minvalue=imgmin(img),maxvalue=imgmax(img);
+    Bool preserve = 0;
+    double val0 = 0;
+    double val1 = 255;
+    PImage out;
 
     if ( !img || !kind_of(( Handle) img, CImage))
        croak("%s: not an image passed", method);
 
-    if (img->type!=imByte) {
-        croak("%s: unsupported image type",method);
-    }
-    if (pexist(minvalue)) {
-        minvalue=pget_i(minvalue);
-        if (minvalue<0 || minvalue>256) {
-            croak("%s: incorrect minvalue %d",method,minvalue);
-        }
-    }
-    else {
-        croak("%s: minvalue required",method);
-    }
-    if (pexist(maxvalue)) {
-        maxvalue=pget_i(maxvalue);
-        if (maxvalue<0 || maxvalue>255) {
-            croak("%s: incorrect maxvalue %d",method,minvalue);
-        }
-        if (maxvalue<minvalue && minvalue!=256) {
-            croak("%s: maxvalue(%d) less than minvalue(%d)",method,maxvalue,minvalue);
-        }
-    }
-
-    if (minvalue>0) {
-        memset(lookup_table,0,minvalue);
-    }
-    if (minvalue<256) {
-        memset(lookup_table+minvalue,255,maxvalue-minvalue+1);
-        if (maxvalue<255) {
-            memset(lookup_table+maxvalue+1,0,255-maxvalue);
-        }
-    }
-
-    return color_remap(method,img,lookup_table);
+    if (pexist(minvalue)) minvalue=pget_f(minvalue);
+    if (pexist(maxvalue)) maxvalue=pget_f(maxvalue);
+    if (pexist(true))     val1=pget_f(true);
+    if (pexist(false))    val0=pget_f(false);
+    if (pexist(preserve)) preserve=pget_B(preserve);
+   
+    out = create_compatible_image( img, false);
+    PIX_SRC_DST( img, out, *dst = ((*src < minvalue||*src > maxvalue)?val0:(preserve?*src:val1)) );
+    return out;
 }
 
 PImage IPA__Point_gamma(PImage img,HV *profile)
@@ -381,6 +389,8 @@ PImage IPA__Point_subtract(PImage img1,PImage img2,HV *profile)
     if (img2->type!=imByte) {
         croak("%s: unsupported format of second image",method);
     }
+    if ( img1->w != img2->w || img1->h != img2->h)
+       croak("%s: image dimensions mismatch", method);
 
     if (pexist(conversionType)) {
         conversionType=pget_i(conversionType);

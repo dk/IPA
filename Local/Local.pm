@@ -31,6 +31,8 @@ $VERSION = '0.01';
                 nms
                 scale
                 ridge
+                convolution
+                zerocross
                );
 %EXPORT_TAGS = (enhancement => [qw(crispening)], 
                 edgedetect => [qw(sobel GEF SDEF deriche hysteresis canny)]);

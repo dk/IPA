@@ -1011,421 +1011,6 @@ PImage IPA__Local_median(PImage img,HV *profile)
     return oimg;
 }
 
-PImage IPA__Local_GEF(PImage img,HV *profile)
-{
-    const char *method="IPA::Local::gef";
-    PImage oimg;
-    double a0=1.3,s=0.7;
-    int xpos,ypos,shift;
-    PImage dx,dy,dtmp;
-    int v,v1,w1,w2;
-
-    if ( !img || !kind_of(( Handle) img, CImage))
-      croak("%s: not an image passed", method);
-
-    if (img->type!=imByte) {
-        croak("%s: unsupported image type",method);
-    }
-
-    if (pexist(a0)) {
-        a0=pget_f(a0);
-    }
-    if (pexist(s)) {
-        s=pget_f(s);
-    }
-
-    if (img==nil) {
-        return nil;
-    } /* endif */
-
-    w1=img->w-1;
-    w2=img->w-2;
-
-    dx=create_compatible_image(img,false);
-    dy=createImage(img->w,img->h,imByte);
-    oimg=createImage(img->w,img->h,imByte);
-    dtmp=createImage(img->w,img->h,imByte);
-    if ((dx==nil) || (dy==nil) || (oimg==nil) || (dtmp==nil)) {
-        destroyImage(dx);
-        destroyImage(dy);
-        destroyImage(oimg);
-        destroyImage(dtmp);
-        croak("%s: image creation failed",method);
-    } /* endif */
-
-    /* Hачинаем подсчет пpоизводной 1-го поpядков. */
-
-    /* Hачинаем с пpоизводных по x.*/
-
-    /* Идем снизу ввеpх. Беpем из img, помещаем в dx*/
-    for (xpos=0; xpos<img->w; xpos++) { /* пеpебиpаем колонки слева напpаво*/
-        dx->data[xpos]=img->data[xpos];
-        for (ypos=xpos+img->lineSize; ypos<img->dataSize; ypos+=img->lineSize) { /* и стpоки - снизу ввеpх*/
-            v=dx->data[ypos-img->lineSize];
-            v1=img->data[ypos];
-            dx->data[ypos]=v+a0*(v1-v)+0.5;
-        } /* endfor */
-    } /* endfor */
-
-    /* Идем свеpху вниз. Беpем из dx и помещаем в dx*/
-    shift=dx->dataSize-dx->lineSize-dx->lineSize;
-    for (xpos=shift; xpos<(shift+dx->w); xpos++) { /* слева напpаво по колонкам*/
-        for (ypos=xpos; ypos>0; ypos-=dx->lineSize) { /* и свеpху вних - по стpокам*/
-            v=dx->data[ypos+dx->lineSize];
-            v1=dx->data[ypos];
-            dx->data[ypos]=v+a0*(v1-v)+0.5;
-        } /* endfor */
-    } /* endfor */
-
-    /* Слева напpаво. Беpем из dx, помещаем в dtmp*/
-    for (ypos=0; ypos<dx->dataSize; ypos+=dx->lineSize) {
-        dtmp->data[ypos]=dx->data[ypos];
-        for (xpos=ypos+1; xpos<(ypos+dx->w); xpos++) {
-            v=dtmp->data[xpos-1];
-            v1=dx->data[xpos];
-            dtmp->data[xpos]=v+a0*(v1-v)+0.5;
-        } /* endfor */
-    } /* endfor */
-
-    /* Спpава налево. Беpем из dx, помещаем в dy*/
-    for (ypos=0; ypos<dx->dataSize; ypos+=dx->lineSize) {
-        dy->data[ypos+w1]=dx->data[ypos+w1];
-        for (xpos=(ypos+w2); xpos>=ypos; xpos--) {
-            v=dy->data[xpos+1];
-            v1=dx->data[xpos];
-            dy->data[xpos]=v+a0*(v1-v)+0.5;
-        } /* endfor */
-    } /* endfor */
-
-    /* Пpобуем считать 1-ю пpоизводную по x.*/
-    /* Исходные данные беpем из dx, dy и dtmp.*/
-    for (ypos=0; ypos<dx->dataSize; ypos+=dx->lineSize) {
-        for (xpos=ypos; xpos<(ypos+dx->w); xpos++) {
-            v=dy->data[xpos];
-            v1=dtmp->data[xpos];
-            dx->data[xpos]=abs(v-v1);
-        } /* endfor */
-    } /* endfor */
-
-    /* Тепеpь на очеpеди пpоизводные по y*/
-
-    /* Пpоход слева напpаво. Из img в dy*/
-    for (ypos=0; ypos<img->dataSize; ypos+=img->lineSize) {
-        dy->data[ypos]=img->data[ypos];
-        for (xpos=(ypos+1); xpos<(ypos+img->w); xpos++) {
-            v=dy->data[xpos-1];
-            v1=img->data[xpos];
-            dy->data[xpos]=v+a0*(v1-v)+0.5;
-        } /* endfor */
-    } /* endfor */
-
-    /* Пpоход спpава налево. Из dy в dy*/
-    for (ypos=0; ypos<dy->dataSize; ypos+=dy->lineSize) {
-        for (xpos=(ypos+w2); xpos>=ypos; xpos--) {
-            v=dy->data[xpos+1];
-            v1=dy->data[xpos];
-            dy->data[xpos]=v+a0*(v1-v)+0.5;
-        } /* endfor */
-    } /* endfor */
-
-    /* Поехали снизу ввеpх. Из dy в dtmp*/
-    for (xpos=0; xpos<dy->w; xpos++) {
-        dtmp->data[xpos]=dy->data[xpos];
-        for (ypos=xpos+dy->lineSize; ypos<dy->dataSize; ypos+=dy->lineSize) {
-            v=dtmp->data[ypos-dy->lineSize];
-            v1=dy->data[ypos];
-            dtmp->data[ypos]=v+a0*(v1-v)+0.5;
-        } /* endfor */
-    } /* endfor */
-
-    /* Идем свеpху вниз. Беpем из dy и помещаем в oimg*/
-    shift=dy->dataSize-(dy->lineSize<<1);
-    for (xpos=shift; xpos<(shift+dy->w); xpos++) {
-        oimg->data[xpos]=dy->data[xpos];
-        for (ypos=xpos; ypos>0; ypos-=dy->lineSize) {
-            v=oimg->data[ypos+dy->lineSize];
-            v1=dy->data[ypos];
-            oimg->data[ypos]=v+a0*(v1-v)+0.5;
-        } /* endfor */
-    } /* endfor */
-
-    /* Попытка получить 1-ю и 2-ю пpоизводные по y*/
-    /* Исходные данные беpем в ddy, dy, dtmp*/
-    /* Результаты попадают в dy (1-я) и в ddy (2-я пpоизводная)*/
-    for (ypos=0; ypos<dy->dataSize; ypos+=dy->lineSize) {
-        for (xpos=ypos; xpos<(ypos+dy->w); xpos++) {
-            v=dtmp->data[xpos];
-            v1=oimg->data[xpos];
-            dy->data[xpos]=abs(v-v1);
-        } /* endfor */
-    } /* endfor */
-
-    /* А тепеpь, на базе имеющегося матеpиала в dx,dy,ddx,ddy пpобуем получить*/
-    /* оконтуpенный image.*/
-    for (ypos=img->lineSize; ypos<(img->dataSize-img->lineSize); ypos+=img->lineSize) {
-        for (xpos=ypos+1; xpos<(ypos+img->w-1); xpos++) {
-            if (dx->data[xpos]>dy->data[xpos]) {
-                if ((dx->data[xpos]>dx->data[xpos-1]) && (dx->data[xpos]>=dx->data[xpos+1])) {
-                    oimg->data[xpos]=dx->data[xpos];
-                } /* endif */
-                else {
-                    oimg->data[xpos]=0;
-                } /* endelse */
-            } /* endif */
-            else {
-                if ((dy->data[xpos]>dy->data[xpos-dy->lineSize]) && (dy->data[xpos]>=dy->data[xpos+dy->lineSize])) {
-                    oimg->data[xpos]=dy->data[xpos];
-                } /* endif */
-                else {
-                    oimg->data[xpos]=0;
-                } /* endelse */
-            } /* endelse */
-        } /* endfor */
-    } /* endfor */
-
-    destroyImage(dx);
-    destroyImage(dy);
-    destroyImage(dtmp);
-
-    return oimg;
-}
-
-PImage IPA__Local_SDEF(PImage img,HV *profile)
-{
-    const char *method="IPA::Local::sdef";
-    PImage oimg;
-    int xpos,ypos,shift;
-    PImage dx,dy,ddx,ddy,dtmp;
-    int v,v1,v2,w1,w2;
-    double a0=1.3,s=0.7;
-
-    if ( !img || !kind_of(( Handle) img, CImage))
-       croak("%s: not an image passed", method);
-
-    if (img->type!=imByte) {
-        croak("%s: unsupported image type",method);
-    }
-
-    if (pexist(a0)) {
-        a0=pget_f(a0);
-    }
-    if (pexist(s)) {
-        s=pget_f(s);
-    }
-
-    w1=img->w-1;
-    w2=img->w-2;
-
-   dx=createImage(img->w,img->h,imByte);
-    dy=createImage(img->w,img->h,imByte);
-    ddx=createImage(img->w,img->h,imByte);
-    ddy=createImage(img->w,img->h,imByte);
-    oimg=createImage(img->w,img->h,imByte);
-    dtmp=createImage(img->w,img->h,imByte);
-    if ((dx==nil) || (dy==nil) || (ddx==nil) || (ddy==nil) || (oimg==nil) || (dtmp==nil)) {
-        destroyImage(dx);
-        destroyImage(dy);
-        destroyImage(ddx);
-        destroyImage(ddy);
-        destroyImage(oimg);
-        destroyImage(dtmp);
-        croak("%s: image creation failed",method);
-    } /* endif */
-
-    /* Hачинаем подсчет пpоизводных 1-го и 2-го поpядков.*/
-
-    /* Hачинаем с пpоизводных по x.*/
-
-    /* Идем снизу ввеpх. Беpем из img, помещаем в dx*/
-    for (xpos=0; xpos<img->w; xpos++) { /* пеpебиpаем колонки слева напpаво*/
-        dx->data[xpos]=img->data[xpos];
-        for (ypos=xpos+img->lineSize; ypos<img->dataSize; ypos+=img->lineSize) { /* и стpоки - снизу ввеpх*/
-            v=dx->data[ypos-img->lineSize];
-            v1=img->data[ypos];
-            dx->data[ypos]=v+a0*(v1-v)+0.5;
-        } /* endfor */
-    } /* endfor */
-
-    /* Идем свеpху вниз. Беpем из dx и помещаем в dx*/
-    shift=dx->dataSize-dx->lineSize-dx->lineSize;
-    for (xpos=shift; xpos<(shift+dx->w); xpos++) { /* слева напpаво по колонкам*/
-        for (ypos=xpos; ypos>0; ypos-=dx->lineSize) { /* и свеpху вних - по стpокам*/
-            v=dx->data[ypos+dx->lineSize];
-            v1=dx->data[ypos];
-            dx->data[ypos]=v+a0*(v1-v)+0.5;
-        } /* endfor */
-    } /* endfor */
-
-    /* Слева напpаво. Беpем из dx, помещаем в ddx*/
-    for (ypos=0; ypos<dx->dataSize; ypos+=dx->lineSize) {
-        ddx->data[ypos]=dx->data[ypos];
-        for (xpos=ypos+1; xpos<(ypos+dx->w); xpos++) {
-            v=ddx->data[xpos-1];
-            v1=dx->data[xpos];
-            ddx->data[xpos]=v+a0*(v1-v)+0.5;
-        } /* endfor */
-    } /* endfor */
-
-    /* Спpава налево. Беpем из dx, помещаем в dy*/
-    for (ypos=0; ypos<dx->dataSize; ypos+=dx->lineSize) {
-        dy->data[ypos+w1]=dx->data[ypos+w1];
-        for (xpos=(ypos+w2); xpos>=ypos; xpos--) {
-            v=dy->data[xpos+1];
-            v1=dx->data[xpos];
-            dy->data[xpos]=v+a0*(v1-v)+0.5;
-        } /* endfor */
-    } /* endfor */
-
-    /* Пpобуем считать 1-ю и 2-ю пpоизводные по x.*/
-    /* Исходные данные беpем из dx, dy и ddx.*/
-    for (ypos=0; ypos<dx->dataSize; ypos+=dx->lineSize) {
-        for (xpos=ypos; xpos<(ypos+dx->w); xpos++) {
-            v=dy->data[xpos];
-            v1=ddx->data[xpos];
-            v2=dx->data[xpos];
-            if ((v+v1-v2-v2)>=0) {
-                if ((v2=v-v1)>=0) {
-                    ddx->data[xpos]=3;
-                    dx->data[xpos]=v2;
-                } /* endif */
-                else {
-                    ddx->data[xpos]=2;
-                    dx->data[xpos]=-v2;
-                } /* endelse */
-            } /* endif */
-            else {
-                if ((v2=v-v1)>=0) {
-                    ddx->data[xpos]=1;
-                    dx->data[xpos]=v2;
-                } /* endif */
-                else {
-                    ddx->data[xpos]=0;
-                    dx->data[xpos]=-v2;
-                } /* endelse */
-            } /* endelse */
-        } /* endfor */
-    } /* endfor */
-
-    /* Тепеpь на очеpеди пpоизводные по y*/
-
-    /* Пpоход слева напpаво. Из img в dy*/
-    for (ypos=0; ypos<img->dataSize; ypos+=img->lineSize) {
-        dy->data[ypos]=img->data[ypos];
-        for (xpos=(ypos+1); xpos<(ypos+img->w); xpos++) {
-            v=dy->data[xpos-1];
-            v1=img->data[xpos];
-            dy->data[xpos]=v+a0*(v1-v)+0.5;
-        } /* endfor */
-    } /* endfor */
-
-    /* Пpоход спpава налево. Из dy в dy*/
-    for (ypos=0; ypos<dy->dataSize; ypos+=dy->lineSize) {
-        for (xpos=(ypos+w2); xpos>=ypos; xpos--) {
-            v=dy->data[xpos+1];
-            v1=dy->data[xpos];
-            dy->data[xpos]=v+a0*(v1-v)+0.5;
-        } /* endfor */
-    } /* endfor */
-
-    /* Поехали снизу ввеpх. Из dy в ddy*/
-    for (xpos=0; xpos<dy->w; xpos++) {
-        ddy->data[xpos]=dy->data[xpos];
-        for (ypos=xpos+dy->lineSize; ypos<dy->dataSize; ypos+=dy->lineSize) {
-            v=ddy->data[ypos-dy->lineSize];
-            v1=dy->data[ypos];
-            ddy->data[ypos]=v+a0*(v1-v)+0.5;
-        } /* endfor */
-    } /* endfor */
-
-    /* Идем свеpху вниз. Беpем из dy и помещаем в dtmp*/
-    shift=dy->dataSize-(dy->lineSize<<1);
-    for (xpos=shift; xpos<(shift+dy->w); xpos++) {
-        dtmp->data[xpos]=dy->data[xpos];
-        for (ypos=xpos; ypos>0; ypos-=dy->lineSize) {
-            v=dtmp->data[ypos+dy->lineSize];
-            v1=dy->data[ypos];
-            dtmp->data[ypos]=v+a0*(v1-v)+0.5;
-        } /* endfor */
-    } /* endfor */
-
-    /* Попытка получить 1-ю и 2-ю пpоизводные по y*/
-    /* Исходные данные беpем в ddy, dy, dtmp*/
-    /* Результаты попадают в dy (1-я) и в ddy (2-я пpоизводная)*/
-    for (ypos=0; ypos<dy->dataSize; ypos+=dy->lineSize) {
-        for (xpos=ypos; xpos<(ypos+dy->w); xpos++) {
-            v=dtmp->data[xpos];
-            v1=ddy->data[xpos];
-            v2=dy->data[xpos];
-            if ((v+v1-v2-v2)>=0) {
-                if ((v2=v-v1)>=0) {
-                    ddy->data[xpos]=3;
-                    dy->data[xpos]=v2;
-                } /* endif */
-                else {
-                    ddy->data[xpos]=2;
-                    dy->data[xpos]=-v2;
-                } /* endelse */
-            } /* endif */
-            else {
-                if ((v2=v-v1)>=0) {
-                    ddy->data[xpos]=1;
-                    dy->data[xpos]=v2;
-                } /* endif */
-                else {
-                    ddy->data[xpos]=0;
-                    dy->data[xpos]=-v2;
-                } /* endelse */
-            } /* endelse */
-        } /* endfor */
-    } /* endfor */
-
-    /* А тепеpь, на базе имеющегося матеpиала в dx,dy,ddx,ddy пpобуем получить*/
-    /* оконтуpенный image.*/
-    for (ypos=img->lineSize; ypos<img->dataSize; ypos+=img->lineSize) {
-        for (xpos=ypos+1; xpos<(ypos+img->w); xpos++) {
-            if (dx->data[xpos]>((unsigned)(s*dy->data[xpos]))) {
-                if (((ddx->data[xpos]==2) && (ddx->data[xpos-1]<2)) || ((ddx->data[xpos-1]>1) && (ddx->data[xpos]==1))) {
-                    oimg->data[xpos]=dx->data[xpos];
-                } /* endif */
-                else {
-                    oimg->data[xpos]=0;
-                } /* endelse */
-            } /* endif */
-            else {
-                if (dy->data[xpos]>((unsigned)(s*dx->data[xpos]))) {
-                    if (((ddy->data[xpos]==2) && (ddy->data[xpos-img->lineSize]<2)) || ((ddy->data[xpos-img->lineSize]>1) && (ddy->data[xpos]==1))) {
-                        oimg->data[xpos]=dy->data[xpos];
-                    } /* endif */
-                    else {
-                        oimg->data[xpos]=0;
-                    } /* endelse */
-                } /* endif */
-                else {
-                    if (((ddx->data[xpos]==2) && (ddx->data[xpos-1]<2)) || ((ddx->data[xpos-1]>1) && (ddx->data[xpos]==1))) {
-                        oimg->data[xpos]=dx->data[xpos];
-                    } /* endif */
-                    else {
-                        oimg->data[xpos]=0;
-                    } /* endelse */
-                    if ((oimg->data[xpos]==0) || (dy->data[xpos]>dx->data[xpos])) {
-                        if (((ddy->data[xpos]==2) && (ddy->data[xpos-img->lineSize]<2)) || ((ddy->data[xpos-img->lineSize]>1) && (ddy->data[xpos]==1))) {
-                            oimg->data[xpos]=dy->data[xpos];
-                        } /* endif */
-                    } /* endif */
-                } /* endelse */
-            } /* endelse */
-        } /* endfor */
-    } /* endfor */
-
-    destroyImage(dx);
-    destroyImage(dy);
-    destroyImage(ddx);
-    destroyImage(ddy);
-    destroyImage(dtmp);
-
-    return oimg;
-}
-
 /*
  * Union Related
  */
@@ -1852,6 +1437,21 @@ convolution( const char * method, PImage in, PImage kernel_img)
    return out;
 }
 
+PImage 
+IPA__Local_convolution( PImage img, PImage kernel_img)
+{
+   const char *method="IPA::Local::convolution";
+   if ( !img || !kind_of(( Handle) img, CImage))
+      croak("%s: not an image passed", method);
+   if ( img-> type != imByte)
+      croak("%s: image is not 8-bit grayscale", method);
+   if ( !kernel_img || !kind_of(( Handle) kernel_img, CImage))
+      croak("%s: not an image passed", method);
+   if ( kernel_img-> type != imByte)
+      croak("%s: image is not 8-bit grayscale", method);
+   return convolution( method, img, kernel_img);
+}
+
 /*-General Information--------------------------------------------------------*/
 /*                                                                            */
 /*   This function computes a two-dimensional gradient (magnitude and         */
@@ -1919,7 +1519,6 @@ int size       /*  I   Kernel size in lines and pixels/line.                 */
             v = sqrt(dv*dv+dh*dh)+.5;
             if ( v > 255) v = 255;
             dst1[j*dls+k] = v;
-            /*
             if (dh == 0.0) {
                 if (dv > 0.0) {
                     dst2[j*dls+k] = 128+PI*80.0/2.0+.5;
@@ -1931,12 +1530,13 @@ int size       /*  I   Kernel size in lines and pixels/line.                 */
             } else {
                 dst2[j*dls+k] = 128+atan2(dv,dh)*80.0+.5;
             }
-            */
+            /*
             dv *= dv; 
             dh *= dh; 
             v = (dv-dh)*(dv-dh);
             if ( v > 255) v = 255;
             dst2[j*dls+k] = v; 
+            */
         }
     }
 
@@ -2026,7 +1626,8 @@ static PImage
 canny( const char * method,
        PImage in, 
        int size,      /*  Size of gaussian smoothing filter.                   */
-       double sigma /*  Std. deviation of gaussian smoothing filter.         */
+       double sigma /*  Std. deviation of gaussian smoothing filter.         */,
+       Bool derivative
        )
 { 
    register int j, k;
@@ -2051,6 +1652,8 @@ canny( const char * method,
    mag = PImage(FoG.magnitude)->data;
    dir = PImage(FoG.direction)->data;
    ls  = PImage(FoG.magnitude)->lineSize;
+
+   if ( !derivative) mag = in-> data;
    
    /* perform gradient-based non-maxima supression */
    for (j=0; j<in->h; j++) {
@@ -2100,6 +1703,7 @@ PImage IPA__Local_canny(PImage img,HV *profile)
     const char *method="IPA::Local::canny";
     int size = 3;
     double sigma = 2;
+    Bool ridge = 0;
 
     if ( !img || !kind_of(( Handle) img, CImage))
       croak("%s: not an image passed", method);
@@ -2109,58 +1713,35 @@ PImage IPA__Local_canny(PImage img,HV *profile)
 
     if (pexist(size)) size = pget_i( size);
     if (pexist(sigma)) sigma = pget_f( sigma);
+    if (pexist(ridge)) ridge = pget_B(ridge);
 
-    return canny(method,img,size,sigma);
+    return canny(method,img,size,sigma,!ridge);
 }
 
 /* non-maxima suppression */
-static PImage
-nms( const char * method,
-       PImage in,
-       int color
-       )
-{ 
-   int x, y;
-   PImage out;
-   Byte *src, *dst, *prev, *next;
-   int ls;
-
-   out = create_compatible_image( in, true);
-   dst = out-> data;
-   ls = out-> lineSize;
-   src  = in-> data;
-   prev = src - ls;
-   next = src + ls;
-
-   for (y=0; y<in->h; y++, src+=ls, next += ls, prev += ls, dst += ls) 
-       for (x=0; x<in->w; x++) 
-           if (
-                (y > 0 && (
-                   (x > 0 && prev[x-1] > src[x]) || (x < in-> w - 1 && prev[x+1] > src[x]) 
-                )) || 
-                (y < in->h-1 && (
-                   (x > 0 && next[x-1] > src[x]) || (x < in-> w - 1 && next[x+1] > src[x]) 
-                )) || 
-                (x > 0 && src[x-1] > src[x]) || (x < in-> w - 1 && src[x+1] > src[x])
-              ) 
-              dst[x] = color;
-   return out;       
-}
-
 PImage IPA__Local_nms(PImage img,HV *profile)
 {
-    int color = 0;
+    double color = 0;
     const char *method="IPA::Local::nms";
+    PImage out;
 
     if ( !img || !kind_of(( Handle) img, CImage))
       croak("%s: not an image passed", method);
 
-    if ( img-> type != imByte)
-       croak("%s: image is not 8-bit grayscale", method);
-
-    if ( pexist(color)) color = pget_i(color);
-
-    return nms(method,img,color);
+    if ( pexist(color)) color = pget_f(color);
+    out = create_compatible_image( img, true);
+    PIX_SRC_DST( img, out, 
+              *dst = (
+                (y > 0 && (
+                   (x > 0 && src[src_ls-1] > *src) || (x < w - 1 && src[src_ls+1] > *src) 
+                )) || 
+                (y < h-1 && (
+                   (x > 0 && src[src_ls-1] > *src) || (x < w - 1 && src[src_ls+1] > *src) 
+                )) || 
+                (x > 0 && src[-1] > *src) || (x < w - 1 && src[1] > *src)
+              ) ? color : *src
+    ); 
+    return out;
 }
 
 static PImage
@@ -2201,17 +1782,27 @@ PImage IPA__Local_scale(PImage img,HV *profile)
     return scale(method,img,size,t);
 }
                         
+/* 
+   Lindeberg ridge detector
+   N= t^(4y)   (Lxx+Lyy)^2((Lxx-Lyy)^2 + 4Lxy^2). 
+   A= t^(2y) ((Lxx-Lyy)^2 + 4Lxy^2). 
+   Lindeberg 1994. 
+
+   t ( scale ) and y ( gamma-normalizer ) can be represented by 'mul'
+   Don't know exactly, but suppose Lxy^2 == Lxy*Lyx 
+ */
 PImage IPA__Local_ridge(PImage img,HV *profile)
 {
     PImage xx, yy, xy, yx, tmp;
     Bool anorm = false;
     const char *method="IPA::Local::ridge";
-    double yyf[9] = { 0,0,0,0,-1,-1,0,1,1};
-    double xxf[9] = { 0,0,0,0,-1,1,0,-1,1};
-    double xyf[9] = { 0,0,-0.5,0,-1,1,-0.5,1,0};
-    double yxf[9] = { -0.5,0,0,1,-1,0,0,1,-0.5};
+    double yyf[9] = { 0,0,0,-1,2,-1,0,0,0};
+    double xxf[9] = { 0,-1,0,0,2,0,0,-1,0};
+    double xyf[9] = { -1,0,0,0,2,0,0,0,-1};
+    double yxf[9] = { 0,0,-1,0,2,0,-1,0,0};
     double mul = 1;
     int ls, y, x, yls;
+    Long *xxd, *yyd, *xyd, *yxd, *res;
 
     if ( !img || !kind_of(( Handle) img, CImage))
       croak("%s: not an image passed", method);
@@ -2222,43 +1813,31 @@ PImage IPA__Local_ridge(PImage img,HV *profile)
     if ( pexist(a)) anorm = pget_B(a);
     if ( pexist(mul)) mul = pget_f(mul);
 
-    /* Lxx */
-    tmp = filter3x3( method, img, xxf, 1, false, false, CONV_TRUNCABS, 0);
-    xx  = filter3x3( method, tmp, xxf, 1, false, false, CONV_TRUNCABS, 0);
-    Object_destroy(( Handle)tmp);
-    /* Lyy */
-    tmp = filter3x3( method, img, yyf, 1, false, false, CONV_TRUNCABS, 0);
-    yy  = filter3x3( method, tmp, yyf, 1, false, false, CONV_TRUNCABS, 0);
-    Object_destroy(( Handle)tmp);
-    /* Lxy */
-    tmp = filter3x3( method, img, xyf, 1, false, false, CONV_TRUNCABS, 0);
-    xy  = filter3x3( method, tmp, xyf, 1, false, false, CONV_TRUNCABS, 0);
-    Object_destroy(( Handle)tmp);
-    /* Lyx */
-    tmp = filter3x3( method, img, yxf, 1, false, false, CONV_TRUNCABS, 0);
-    yx  = filter3x3( method, tmp, yxf, 1, false, false, CONV_TRUNCABS, 0);
-    Object_destroy(( Handle)tmp);
+    /* filter3x3 in rawOutput always returns long pixels - check anyway */
+    xx = filter3x3( method, img, xxf, 1, true, true, CONV_TRUNC, 0);
+    if ( xx-> type != imLong)
+       croak("%s: panic: filter3x3 returned not imLong pixels\n", method);
+    yy = filter3x3( method, img, yyf, 1, true, true, CONV_TRUNC, 0);
+    xy = filter3x3( method, img, xyf, 1, true, true, CONV_TRUNC, 0);
+    yx = filter3x3( method, img, yxf, 1, true, true, CONV_TRUNC, 0);
 
-    /* 
-       N= t^(4y)   (Lxx+Lyy)^2((Lxx-Lyy)^2 + 4Lxy^2). 
-       A= t^(2y) ((Lxx-Lyy)^2 + 4Lxy^2). 
-       
-       Lindeberg 1994. 
-       t ( scale ) and y ( gamma-normalizer ) can be represented by 'mul'
-       Don't know exactly, but suppose Lxy^2 == Lxy*Lyx 
-     */
-    tmp = create_compatible_image( img, false);
-    for ( y = 0, ls = img-> lineSize, yls = 0; y < img-> h; y++, yls += ls) {
-       for ( x = 0; x < img-> w; x++) {
+    xxd = ( Long*) xx-> data;
+    yyd = ( Long*) yy-> data;
+    xyd = ( Long*) xy-> data;
+    yxd = ( Long*) yx-> data;
+
+    tmp = create_compatible_image( xx, false);
+    res = ( Long*) tmp-> data;
+    for ( y = 0, ls = xx-> lineSize / sizeof(Long), yls = 0; y < img-> h; y++, yls += ls) {
+       for ( x = 0; x < xx-> w; x++) {
           double 
-             Lxx = xx-> data[ yls + x],
-             Lyy = yy-> data[ yls + x],
-             Lxy = xy-> data[ yls + x],
-             Lyx = yx-> data[ yls + x];
+             Lxx = xxd[ yls + x],
+             Lyy = yyd[ yls + x],
+             Lxy = xyd[ yls + x],
+             Lyx = yxd[ yls + x];
           double A = mul * ((Lxx - Lyy) * (Lxx - Lyy) + 4 * Lxy * Lyx);
-          if ( !anorm) A = sqrt( A * ( Lxx + Lyy) * ( Lxx + Lyy));
-          if ( A > 255.0) A = 255;
-          tmp-> data[ yls + x] = A + .5;
+          if ( !anorm) A = ( A * ( Lxx + Lyy) * ( Lxx + Lyy));
+          res[ yls + x] = A + .5;
        }
     }
     Object_destroy(( Handle)xx);
@@ -2266,4 +1845,39 @@ PImage IPA__Local_ridge(PImage img,HV *profile)
     Object_destroy(( Handle)xy);
     Object_destroy(( Handle)yx);
     return tmp;
+}
+
+PImage 
+IPA__Local_zerocross(PImage img,HV *profile)
+{
+    const char *method="IPA::Local::zerocross";
+    double cmp = 0;
+    int p, n;
+    PImage out;
+    dPIX_ARGS;
+
+    if ( !img || !kind_of(( Handle) img, CImage))
+       croak("%s: not an image passed", method);
+    if ( pexist(cmp)) cmp = pget_f(cmp);
+    out = create_compatible_image( img, false);
+
+    PIX_INITARGS(img,out);
+    h--; w--;
+    PIX_SWITCH
+    PIX_BODY( *dst = ( *src == cmp) ? 0xff : 
+             (
+                p = n = 0,
+                p += ( src[0] > cmp) ? 1 : 0,
+                n += ( src[0] < cmp) ? 1 : 0,
+                p += ( src[1] > cmp) ? 1 : 0,
+                n += ( src[1] < cmp) ? 1 : 0,
+                p += ( src[src_ls] > cmp) ? 1 : 0,
+                n += ( src[src_ls] < cmp) ? 1 : 0,
+                p += ( src[src_ls + 1] > cmp) ? 1 : 0,
+                n += ( src[src_ls + 1] < cmp) ? 1 : 0,
+                ( n && p) ? 0xff : 0
+             )
+    );
+    PIX_END_SWITCH;
+    return out;
 }

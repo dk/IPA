@@ -22,5 +22,7 @@ package IPA::Local {
    PImage nms( PImage input, HV*profile);
    PImage scale( PImage input, HV*profile);
    PImage ridge( PImage input, HV*profile);
+   PImage convolution( PImage input, PImage kernel);
+   PImage zerocross( PImage input, HV * profile);
 }
 
