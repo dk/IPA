@@ -69,7 +69,7 @@ IPA__Global_fft(PImage img,HV *profile)
       goto EXIT;
    }   
 
-   fft_2d(( double *) ret-> data, ret-> w, ret-> h, inverse ? -1 : 1, buffer);
+   fft_2d(( double *) ret-> data, ret-> w, ret-> h, inverse ? 1 : -1, buffer);
 EXIT:  
    free( buffer); 
    if ( ret)
@@ -306,14 +306,14 @@ IPA__Global_band_filter(PImage img,HV *profile)
          failed = 1;
          goto EXIT;
       }   
-      fft_2d( data, ret-> w, ret-> h, 1, buffer);
+      fft_2d( data, ret-> w, ret-> h, -1, buffer);
    }   
 
    butterworth( data, ret-> w, ret-> h, MinVal, homomorph, LowPass, Power, CutOff, Boost);
 
    /* inverse fft */
    if ( spatial) {
-      fft_2d( data, ret-> w, ret-> h, -1, buffer);
+      fft_2d( data, ret-> w, ret-> h, 1, buffer);
       free( buffer);
       buffer = nil;
    }   
