@@ -1,3 +1,20 @@
+/*
+
+   fft.c - Global operators.
+   Fourier transform and Butterworth band filter routines.
+
+   created by Dmitry Karasik <dk@plab.ku.dk>
+   routines fft_2d, fft_1d and butter are modified code from KUIM sources
+
+   
+No place for beginners or sensitive hearts
+When sentiment is left to chance
+No place to be ending but somewhere to start 
+No need to ask
+He's a smooth operator
+                /Sade
+*/   
+
 #include "IPAsupp.h"
 #include "Global.h"
 #include <math.h>
@@ -267,6 +284,8 @@ IPA__Global_band_filter(PImage img,HV *profile)
    if ( pexist( low))    LowPass = pget_i( low);
    if ( homomorph && !spatial)
       croak("%s:Cannot perform the homomorph equalization in the spatial domain");
+   if ( LowPass && ( CutOff == 0.0))
+      croak("%s:cutoff cannot be 0 for low pass");
    
    if ( !spatial && (( img-> type & imCategory) != imComplexNumber))
       croak("%s: not an im::DComplex image passed", METHOD); 
