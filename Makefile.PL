@@ -188,61 +188,21 @@ CPBIN=$^X Makefile.PL --cpbin
 
 install: all
 \t\@\$(CPBIN) iterm.pl $iterm_dest
-\t\@\$(CP) \\
 EOF
 
-    $make = "";
-    my ( $i, $maxcnt) = ( 1, 10);
-    for ( $i = 0; $i < @allsubtargets; $i++) {
-       if ( ( $i % $maxcnt) == 5) {
-          $make .= "\n\t\@\$(CP)";
-       }
-       $make .= "\t$allsubtargets[$i] $PREFIX/$subtargetsdirs[$i] \\\n";
-       if ( $Win32 || $OS2) { # libs additional to dll
-          $make .= "\t$alllibtargets[$i] $PREFIX/$subtargetsdirs[$i] \\\n";
-       }
-    }
-    print MAKE $make;
-
-    ( $i, $maxcnt) = ( 1, 10);
-    for ( @prjdirs) {
-       my $dir = $_;
-       while ( <$dir/*.pm>) {
-          print MAKE "\t", qd( "$_ $PREFIX/$PRJ");
-          print MAKE "\n\t\@\$(CP)";
-       }
-    }
-    while ( scalar @allinstall) {
-        my ( $src, $dst) = ( shift @allinstall, shift @allinstall);
-        print MAKE "\t$src $dst";
-        if ( ( $i % $maxcnt) == 0) {
-            print MAKE "\n\t\@\$(CP)";
-        }
-        $i++;
-        print MAKE " \\\n";
-    }
-    while ( <include/*.h>) {
-        my ( $dsth) = $_;
-        $dsth =~ s/^include/CORE/;
-        print MAKE "\t$_ ", dirname( qd( "$INSTALL_LIB/$dsth"));
-        if ( ( $i % $maxcnt) == 0) {
-            print MAKE "\n\t\@\$(CP)";
-        }
-        $i++;
-        print MAKE " \\\n";
-    }
-    print MAKE "\t$PRJ.pm $PREFIX\n";
-
-    print MAKE "\t\@\$(CPBIN)";
-    $i = 1;
-    while ( scalar @allbins) {
-        my ( $src, $dst) = ( shift @allbins, shift @allbins);
-        if ( ( $i % $maxcnt) == 0) {
-            print MAKE "\n\t\@\$(CPBIN)";
-        }
-        $dst = qd( "$dst/" . basename( $src, '.pl')) . $Prima::Config::Config{scriptext};
-        print MAKE " \\\n\t$src $dst"
-    }
+    print MAKE dump_command( sub { "$allsubtargets[$_[0]] $PREFIX/$subtargetsdirs[$_[0]]" }, 
+        'CP', 0 .. $#allsubtargets);
+    print MAKE dump_command( sub { "$alllibtargets[$_[0]] $PREFIX/$subtargetsdirs[$_[0]]" }, 
+        'CP', 0 .. $#allsubtargets) if $Win32 || $OS2;
+    print MAKE dump_command( sub { qd "$_[0] $PREFIX/$PRJ" }, 'CP', map { <$_/*.pm> } @prjdirs);
+    print MAKE dump_command( sub { "@{$_[0]}" }, 'CP', 
+         map {[@allinstall[$_*2,$_*2+1]]} 0..$#allinstall/2);
+    print MAKE dump_command( sub { 
+            my $dsth = $_[0];
+            $dsth =~ s/^include/CORE/;
+            return "$_[0] " . dirname ( qd( "$INSTALL_LIB/$dsth"));
+         }, 'CP', <include/*.h>);
+    print MAKE dump_command( sub { "$PRJ.pm $PREFIX" }, 'CP', 1);
     print MAKE "\n";
 
     print MAKE <<EOF;
