@@ -1,0 +1,9 @@
+; $Id$
+LIBRARY Local
+DESCRIPTION 'Image Processing Modules, Copyright (C) the Protein Laboratory 1999'
+CODE LOADONCALL
+DATA LOADONCALL NONSHARED MULTIPLE
+EXPORTS
+	boot_IPA__Local
+	_boot_IPA__Local = boot_IPA__Local
+

@@ -1,0 +1,9 @@
+; $Id$
+LIBRARY Misc
+DESCRIPTION 'Image Processing Modules, Copyright (C) the Protein Laboratory 1999'
+CODE LOADONCALL
+DATA LOADONCALL NONSHARED MULTIPLE
+EXPORTS
+	boot_IPA__Misc
+	_boot_IPA__Misc = boot_IPA__Misc
+

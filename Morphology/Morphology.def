@@ -1,0 +1,9 @@
+; $Id$
+LIBRARY Morphology
+DESCRIPTION 'Image Processing Modules, Copyright (C) the Protein Laboratory 1999'
+CODE LOADONCALL
+DATA LOADONCALL NONSHARED MULTIPLE
+EXPORTS
+	boot_IPA__Morphology
+	_boot_IPA__Morphology = boot_IPA__Morphology
+
