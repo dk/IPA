@@ -91,10 +91,10 @@ sub window
    my $w = Prima::Window-> create(
       name => "Image \$i[$z]",
       menuItems => [['~Image' => [
-           [ '~Import' => 'Shift+Ins' => km::Shift | kb::Insert => sub { 
+           [ '~Import' , 'Shift+Ins' , km::Shift | kb::Insert , sub { 
               $_[0]-> Image-> image( $i[ $_[0]->{id}] = $i-> dup); 
            }],
-           [ '~Export' => 'Ctrl+Ins' => km::Ctrl | kb::Insert => sub { 
+           [ '~Export' , 'Ctrl+Ins' , km::Ctrl | kb::Insert , sub { 
               my $x = $_[0]-> Image-> image; 
               return unless $x;
               $i = $x-> dup;
@@ -278,3 +278,174 @@ while ($::application) {
    Prima::MsgBox::message( "$@") if $::application && $@;
 }
 
+__END__
+
+=pod
+
+=head1 NAME
+
+iterm - the interactive tool for IPA library
+
+=head1 DESCRIPTION
+
+iterm is a mostly command-line tool for basic image processing.
+It has terminal representation, where the main window is capable
+of viewing the image and accepting commands. The command syntax
+is pure perl, plus all functions available in the IPA library
+( see L<IPA> ) and Prima toolkit ( see L<Prima>), and some specific
+iterm commands.
+
+=head1 USAGE
+
+=head2 Design
+
+iterm defines several scalars for the user needs.
+The main window shows the content of the scalar $i, if it is an image.
+If the additional windows are opened, they correspond to images in array @i.
+The array @i is filled automatically, and the index is shown on 
+the additional new window titles. The additional windows are stored in array
+@windows, under same indeces. The main window is stored in scalar $w.
+
+The input line is used to enter perl code. If the code returns and newly created
+image, it is stored into $i, and the old value of $i is discarded. If the code
+returns more than on image, the additional windows opened automatically.
+If the code throws an exception, its first line is shown on the status line,
+and the whole message is printed to stderr.
+
+
+=head2 Interactive commands
+
+There are several interactive commands, present on the window menus.
+
+The main and the additional windows have different sets of interactive commands.
+
+=over
+
+=item Open
+
+Presents a file selection dialog, where the image file is to be selected
+and its content loaded into variable $i and displayed in the main window.
+
+=item Save as
+
+Opens a file save dialog, where the content of $i can be stored on disk.
+
+=item Duplicate
+
+Creates a new additional window and copies $i into it. The newly created
+image is stored into @i array, and the new window into @windows array.
+The indeces of these are equal and shown on the window's title.
+
+=item Export
+
+Note: only for additional windows
+
+Copies the content of the image into $i
+
+=item Import
+
+Note: only for additional windows
+
+Copies content of $i into the image.
+
+=back
+
+=head2 iterm commands
+
+These are commands, specific to iterm.
+
+=over
+
+=item new VAR
+
+Assigns new variable $VAR to an empty image
+
+=item show IMAGE
+
+Assigns IMAGE to $i and displays it.
+
+=item clearhistory
+
+Flushes the command history
+
+=item load FILE [ options ]
+
+Loads image FILE into $i and displays the image. FILE must be a quoted string.
+
+=item save IMAGE, FILE [ options ]
+
+Stores IMAGE object into FILE.
+
+=item quit
+
+Exits iterm.
+
+=item zoom SCALE
+
+Selects zoom for window $w. There are no shortcuts for
+selecting zoom for the additional windows, but this can be achieved by 
+entering the following code:
+
+   $windows[$NUM]-> Image-> zoom($SCALE)
+
+=item window
+
+Opens a new, empty additional window.
+
+=item dup
+
+See L<Duplicate>
+
+=back
+
+=head2 Example
+
+To load an image:
+
+   load 'image.gif'
+
+Convert to 8-bit grayscale:
+
+   $i-> type( im::Byte)
+
+Perform dilation:
+
+   dilate $i
+
+Copy to new window
+
+   dup
+
+Erode the new image
+
+   erode $i[0]
+
+Display the difference
+
+   subtract $i, $i[0]
+
+Note: iterm never asks if the changed images are desired to be saved.
+
+=head1 FILES
+
+~/.iterm-list - the command history
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<IPA> - the image irocessing library
+
+=item *
+
+L<Prima> - perl graphic toolkit
+
+=back
+
+=head1 AUTHOR
+
+Dmitry Karasik E<lt>dmitry@karasik.eu.orgE<gt>
+
+=cut
