@@ -1,9 +1,0 @@
-; $Id$
-LIBRARY Global
-DESCRIPTION 'Image Processing Modules, Copyright (C) the Protein Laboratory 1999'
-CODE LOADONCALL
-DATA LOADONCALL NONSHARED MULTIPLE
-EXPORTS
-	boot_IPA__Global
-	_boot_IPA__Global = boot_IPA__Global
-

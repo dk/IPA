@@ -1,9 +1,0 @@
-# $Id$
-LIBRARY Geometry
-DESCRIPTION 'Image Processing Modules, Copyright (C) the Protein Laboratory 1999'
-CODE LOADONCALL
-DATA LOADONCALL NONSHARED MULTIPLE
-EXPORTS
-	boot_IPA__Geometry
-	_boot_IPA__Geometry = boot_IPA__Geometry
-

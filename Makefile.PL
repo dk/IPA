@@ -63,6 +63,7 @@ use vars qw(
     @allbins
     @alldirs
     @allsubtargets
+    @alllibtargets
     @subtargetsdirs
     @headers
     @footers
@@ -153,20 +154,20 @@ sub ld_command_line
     if ( $COMPILER eq 'bcc32') {
         push @ld, '-L"' . join( ';', @LIBPATH) . '" c0d32.obj ';
         push @ld, @_;
-    } 
+    }
     else {
         push @ld, map { "$LDLIBPATHFLAG$_"} @LIBPATH;
         push @ld, "$LDOUTFLAG$dstf", @_;
         push @ld, map { "$LDLIBFLAG$_"} @LIBS;
     }
     if ( $Win32) {
-       if ( $COMPILER eq 'bcc32') { 
+       if ( $COMPILER eq 'bcc32') {
            push @ld, ",", $dstf, ", ,", @LIBS, ",", "$deffile,";
        } else {
            push @ld, "/DEF:$deffile";
        }
     } elsif ( $OS2) {
-       push @ld, $deffile; 
+       push @ld, $deffile;
     }
     return @ld;
 }
@@ -360,7 +361,7 @@ EOF
         print "yes\n";
     }
     else {
-	$DEFINES{ $defname} = undef;
+        $DEFINES{ $defname} = undef;
         print "no\n";
     }
     return $rc;
@@ -393,10 +394,10 @@ sub setvar
         if ( defined $USER_VARS{ $varname}) {
             eval "\$$varname = \$USER_VARS{ \$varname}";
         }
-	elsif ( defined $USER_VARS_LINKS{ $varname}
-	        && exists $USER_VARS{ $USER_VARS_LINKS{ $varname}->{ src}}) {
-	    eval "\$$varname = sprintf \"$USER_VARS_LINKS{ $varname}->{ format}\", \$$USER_VARS_LINKS{ $varname}->{ src}";
-	}
+        elsif ( defined $USER_VARS_LINKS{ $varname}
+                && exists $USER_VARS{ $USER_VARS_LINKS{ $varname}->{ src}}) {
+            eval "\$$varname = sprintf \"$USER_VARS_LINKS{ $varname}->{ format}\", \$$USER_VARS_LINKS{ $varname}->{ src}";
+        }
         else {
             eval "\$$varname = join( '', \@_)";
         }
@@ -484,9 +485,9 @@ sub setup_variables
          'include',
          qd('include/generic'),
        );
-    $mapheader{'apricot.h'} = undef; 
+    $mapheader{'apricot.h'} = undef;
     print "$INCPATH[0]\n";
-    
+
 
     %cc_specs = (
                  gcc => {
@@ -626,7 +627,7 @@ sub setup_variables
     my @libs = map { s/^$LDLIBFLAG//; $_} quoted_split($Config{ libs});
     #    push ( @libs, 'pmprintf') if $OS2 && defined $ENV{PRIMA_PMPRINTF};
     if ( $useGC) {
-	push @libs, 'leak';
+        push @libs, 'leak';
     }
     setvar( 'LIBS', ());
     my @flibs;
@@ -647,10 +648,10 @@ sub setup_variables
                 PERL_POLLUTE => 1,
                );
     if ( env_true( 'PRIMA_PARANOID_MALLOC')) {
-	$DEFINES{ PARANOID_MALLOC} = 1;
+        $DEFINES{ PARANOID_MALLOC} = 1;
     }
     if ( $useGC) {
-	$DEFINES{ USE_GC} = 1;
+        $DEFINES{ USE_GC} = 1;
     }
     while ( $CFLAGS =~ s/-D(\w+)(?:=(\S+))?\s*//) {
         my ( $defname, $defvalue) = ( $1, $2 || 1);
@@ -713,7 +714,7 @@ sub setup_defines
         }
     }
     if ( $useGC) {
-	have_header( 'gc.h');
+        have_header( 'gc.h');
     }
 
     foreach my $defname ( keys %USER_DEFINES) {
@@ -748,7 +749,7 @@ EOF
           print PRIMADEF map { "\t$_\n\t_$_ = $_\n"} @exports;
       }
    } else {
-      $libid = dl_name( $libid);
+      $libid = &DynaLoader::mod2fname([$libid]) if defined &DynaLoader::mod2fname;
       print PRIMADEF <<EOF;
 LIBRARY $libid INITINSTANCE TERMINSTANCE
 CODE LOADONCALL
@@ -954,22 +955,34 @@ sub dllmake
 {
    my $subdir = $_[0];
    my $sbd  = defined($subdir) ? "$subdir/$subdir" : $PRJ;
-   my $name = qd( "auto/$PRJ/" . dl_name( $sbd));
+   my $name = qd( "auto/$PRJ/" . (defined($subdir) ? ( "$subdir/".dl_name( $subdir)) : dl_name($PRJ)));
    push ( @allsubtargets,  $name);
+   push ( @alllibtargets,  qd("auto/$PRJ/$sbd$LIB_EXT"));
    push ( @subtargetsdirs, qd( "auto/$PRJ" . ( defined($subdir) ? "/$subdir" : '')));
    push ( @allclean,      $name);
    local @LIBS = @LIBS;
    local @LIBPATH = @LIBPATH;
-   if ( defined ( $subdir) && $Win32) {
+   if ( defined ( $subdir) && ( $Win32 || $OS2)) {
       push( @LIBS,    "$PRJ$LIB_EXT");
       push( @LIBPATH, cwd() . qd("/auto/$PRJ"));
    }
-      return <<HDD;
-$name: @allobjects
+   my $r = '';
+   my $extradep = '';
+   if ( $OS2) {
+      my $def = defined($subdir) ? "$subdir/$subdir.def" : "$PRJ.def";
+      $extradep = qd("auto/$PRJ/$sbd$LIB_EXT");
+      $r = <<LIBOS2;
+$extradep:
+\temximp -o $extradep $def
+
+LIBOS2
+   }
+      return $r . <<HDD;
+$name: @allobjects $extradep
 \t${ \eval{ return join ' ', ld_command_line( $name, qd("$sbd.def"), @allobjects)}}
 
 HDD
-   
+
 }
 
 $Win32 = ( $^O =~ /mswin32/i);
@@ -1139,7 +1152,7 @@ for ( @d) {
     push @alldirs, qd( "include/generic"), qd( "auto/$PRJ");
     push @alldirs, map {qd "include/generic/$_"} @prjdirs;
     push @alldirs, map {qd "auto/$PRJ/$_"} @prjdirs;
-    
+
     print "Writing Makefile...";
     $make =~ tr[/][]s;
     open MAKE, ">Makefile" or die "Creation of Makefile failed: $!";
@@ -1150,12 +1163,12 @@ for ( @d) {
 RM=$^X Makefile.PL --rm
 
 clean:
-\t\$(RM) @allclean 
+\t\$(RM) @allclean
 
 realclean: clean
 \t\$(RM) @allrealclean
 
-project: dirs @allsubtargets 
+project: dirs @allsubtargets
 
 Makefile: Makefile.PL @Makefile_deps
 \t\@echo Rebuilding Makefile...
@@ -1172,62 +1185,62 @@ install: all
 EOF
 
 $make = "";
-my $i;
+my ( $i, $maxcnt) = ( 1, 10);
 for ( $i = 0; $i < @allsubtargets; $i++) {
+   if ( ( $i % $maxcnt) == 5) {
+      $make .= "\n\t\@\$(CP)";
+   }
    $make .= "\t$allsubtargets[$i] $PREFIX/$subtargetsdirs[$i] \\\n";
-   if ( $Win32) { # libs additional to dll
-      my $libt = $allsubtargets[$i];
-      if ( $libt =~ s/\.dll$/.lib/i) {
-         $make .= "\t$libt $PREFIX/$subtargetsdirs[$i] \\\n";   
-      }
+   if ( $Win32 || $OS2) { # libs additional to dll
+      $make .= "\t$alllibtargets[$i] $PREFIX/$subtargetsdirs[$i] \\\n";
    }
 }
 print MAKE $make;
 
-    my ( $instcnt, $maxcnt) = ( 1, 20);
+    ( $i, $maxcnt) = ( 1, 10);
     for ( @prjdirs) {
        my $dir = $_;
-       while ( <$dir/*.pm>) { 
-          print MAKE "\t", qd( "$_ $PREFIX/$PRJ"); 
+       while ( <$dir/*.pm>) {
+          print MAKE "\t", qd( "$_ $PREFIX/$PRJ");
           print MAKE "\n\t\@\$(CP)";
        }
-    }          
+    }
     while ( scalar @allinstall) {
         my ( $src, $dst) = ( shift @allinstall, shift @allinstall);
         print MAKE "\t$src $dst";
-        if ( ( $instcnt % $maxcnt) == 0) {
+        if ( ( $i % $maxcnt) == 0) {
             print MAKE "\n\t\@\$(CP)";
         }
-        $instcnt++;
+        $i++;
         print MAKE " \\\n";
     }
     while ( <include/*.h>) {
         my ( $dsth) = $_;
         $dsth =~ s/^include/CORE/;
         print MAKE "\t$_ ", dirname( qd( "$INSTALL_LIB/$dsth"));
-        if ( ( $instcnt % $maxcnt) == 0) {
+        if ( ( $i % $maxcnt) == 0) {
             print MAKE "\n\t\@\$(CP)";
         }
-        $instcnt++;
+        $i++;
         print MAKE " \\\n";
     }
     while ( <include/$PLATFORM/*.h>) {
         my ( $dsth) = $_;
         $dsth =~ s/^include/CORE/;
         print MAKE "\t$_ ", dirname( qd( "$INSTALL_LIB/$dsth"));
-        if ( ( $instcnt % $maxcnt) == 0) {
+        if ( ( $i % $maxcnt) == 0) {
             print MAKE "\n\t\@\$(CP)";
         }
-        $instcnt++;
+        $i++;
         print MAKE " \\\n";
     }
     print MAKE "\t$PRJ.pm $PREFIX\n";
 
     print MAKE "\t\@\$(CPBIN)";
-    $instcnt = 1;
+    $i = 1;
     while ( scalar @allbins) {
         my ( $src, $dst) = ( shift @allbins, shift @allbins);
-        if ( ( $instcnt % $maxcnt) == 0) {
+        if ( ( $i % $maxcnt) == 0) {
             print MAKE "\n\t\@\$(CPBIN)";
         }
         $dst = qd( "$dst/" . basename( $src, '.pl')) . $SCRIPT_EXT;

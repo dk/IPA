@@ -1,9 +1,0 @@
-; $Id$
-LIBRARY Point
-DESCRIPTION 'Image Processing Modules, Copyright (C) the Protein Laboratory 1999'
-CODE LOADONCALL
-DATA LOADONCALL NONSHARED MULTIPLE
-EXPORTS
-	boot_IPA__Point
-	_boot_IPA__Point = boot_IPA__Point
-
