@@ -180,6 +180,7 @@ build_lag( PImage im, unsigned char c, const char *METHOD)
       }
    }
 
+   free(scan);
    return lag;
 }
 
