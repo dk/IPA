@@ -132,7 +132,7 @@ sub contour2region
    return calc_extents([ \@rgn, 0, $min, 0, 0]); 
 }
 
-sub plot
+sub draw
 {
    my ( $drawable, $region, $dx, $dy) = @_;
    my $i;
@@ -146,6 +146,25 @@ sub plot
       }
       $dy++;
    }
+}
+
+sub plot
+{
+   my ( $image, $region, $dx, $dy, $color) = @_;
+   my $i;
+   $dx = 0 unless $dx;
+   $dy = 0 unless $dy;
+   $color = 0xffffff unless defined $color;
+   $dy += $$region[2];
+   my @triplets;
+   for ( @{$$region[0]}) {
+      my ( $a, $c) = ( $_, scalar @$_);
+      for ( $i = 0; $i < $c; $i += 2) {
+         push @triplets, $$a[$i]+$dx, $$a[$i+1]+$dx, $dy;
+      }
+      $dy++;
+   }
+   IPA::Global::hlines( $image, 0, 0, \@triplets, $color);
 }
 
 sub outline
