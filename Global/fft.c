@@ -254,7 +254,7 @@ static void fft_2d(double * data, int nn, int mm, int isign, double * copy)
 */
 
 static void butterworth( double * data, int Xdim, int Ydim, 
-             double MinVal, int Homomorph, int LowPass,
+             int Homomorph, int LowPass,
              double Power, double CutOff, double Boost);
 
 
@@ -332,7 +332,7 @@ IPA__Global_band_filter(PImage img,HV *profile)
       fft_2d( data, ret-> w, ret-> h, FFT_DIRECT, buffer);
    }   
 
-   butterworth( data, ret-> w, ret-> h, MinVal, homomorph, LowPass, Power, CutOff, Boost);
+   butterworth( data, ret-> w, ret-> h, homomorph, LowPass, Power, CutOff, Boost);
 
    /* inverse fft */
    if ( spatial) {
@@ -362,7 +362,7 @@ EXIT:
 
 
 void butterworth( double * data, int Xdim, int Ydim, 
-             double MinVal, int Homomorph, int LowPass,
+             int Homomorph, int LowPass,
              double Power, double CutOff, double Boost)
 {
    int x, y, x1, y1, halfx, halfy;
