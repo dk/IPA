@@ -24,15 +24,17 @@ sub pow2
 
 sub pow2wrapper1
 {
-   my $i = $_[0];
+   my ($i,$profile) = @_;
 
    my ($oh, $ow) = $i-> size;
    my ( $okw, $w1) = pow2( $oh);
    my ( $okh, $h1) = pow2( $ow);
    my $resize = !$okw || !$okh;
    if ( $resize) {
-      $w1 *= 2 unless $okw;
-      $h1 *= 2 unless $okh;
+      unless ( $profile->{lowquality}) {
+         $w1 *= 2 unless $okw;
+         $h1 *= 2 unless $okh;
+      }
       $i = $i-> dup;
       $i-> size( $w1, $h1);
    }
@@ -53,7 +55,7 @@ sub butterworth
    die "IPA::Global::band: Not an image passed\n" unless $i;
    my @psdata;
    $profile{spatial} = 1 if ($i-> type & im::Category) != im::ComplexNumber;
-   ( $i, @psdata) = pow2wrapper1( $i) if $profile{spatial};
+   ( $i, @psdata) = pow2wrapper1( $i, \%profile) if $profile{spatial};
    $i = band_filter( $i, %profile);
    pow2wrapper2( $i, @psdata) if $profile{spatial};
    return $i;
@@ -65,7 +67,7 @@ sub fourier
    my ( $i, %profile) = @_;
    die "IPA::Global::fourier: Not an image passed\n" unless $i;
    my @psdata;
-   ( $i, @psdata) = pow2wrapper1( $i) if $profile{spatial};
+   ( $i, @psdata) = pow2wrapper1( $i, \%profile) if $profile{spatial};
    $i = fft( $i, %profile);
    pow2wrapper2( $i, @psdata);
    return $i;
