@@ -1782,7 +1782,6 @@ scale( const char * method,
 
    /* convolve with the gaussian */
    smoothed = convolution( method, in, g); 
-   smoothed-> self-> set_type(( Handle) smoothed, imByte);
    Object_destroy(( Handle) g);
    /* return smoothed */
    return smoothed;
