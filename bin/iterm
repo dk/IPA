@@ -465,7 +465,7 @@ Display the difference
 
 Display the pixel value under the mouse cursor
 
-   $w-> Image-> onMouseMove( sub { show_error($i-> pixel( @_[2,3] ))});
+   $w-> Image-> onMouseMove( sub { show_error("[$_[2],$_[3]] ".$i-> pixel( $w-> Image-> screen2point(@_[2,3] )))});
 
 Note: iterm never asks if the changed images are to be saved.
 
