@@ -335,7 +335,7 @@ The main window shows the content of the scalar $i, if it is an image.
 If the additional windows are opened, they correspond to images in array @i.
 The array @i is filled automatically, and the index is shown on 
 the additional new window titles. The additional windows are stored in array
-@windows, under same indeces. The main window is stored in scalar $w.
+@windows, under same indexes. The main window is stored in scalar $w.
 
 The input line is used to enter perl code. If the code returns and newly created
 image, it is stored into $i, and the old value of $i is discarded. If the code
@@ -365,7 +365,7 @@ Opens a file save dialog, where the content of $i can be stored on disk.
 
 Creates a new additional window and copies $i into it. The newly created
 image is stored into @i array, and the new window into @windows array.
-The indeces of these are equal and shown on the window's title.
+The indexes of these are equal and shown on the window's title.
 
 =item Export
 
@@ -467,7 +467,7 @@ Display the pixel value under the mouse cursor
 
    $w-> Image-> onMouseMove( sub { show_error($i-> pixel( @_[2,3] ))});
 
-Note: iterm never asks if the changed images are desired to be saved.
+Note: iterm never asks if the changed images are to be saved.
 
 =head1 FILES
 
@@ -479,7 +479,7 @@ Note: iterm never asks if the changed images are desired to be saved.
 
 =item *
 
-L<IPA> - the image irocessing library
+L<IPA> - the image processing library
 
 =item *
 

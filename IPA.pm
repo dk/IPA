@@ -305,7 +305,7 @@ Parameters:
 
 =item matrix ARRAY
 
-Array of 9 integers, a 3x3 kernel, to be convolved with IMAGE. Indeces are:
+Array of 9 integers, a 3x3 kernel, to be convoluted with IMAGE. Indexes are:
 
   |0 1 2|
   |3 4 5|
@@ -462,7 +462,7 @@ Supported types: all
 
 =item band_filter IMAGE [ low = 0, spatial = 1, homomorph = 0, power = 2.0, cutoff = 20.0, boost = 0.7 ]
 
-Performs band filtering of IMAGE in frequency fomain. 
+Performs band filtering of IMAGE in frequency domain. 
 IMAGE must have dimensions of power of 2.
 The resulted image is always of DComplex type.
 
@@ -500,7 +500,7 @@ Multiplication factor used in homomorph equalization.
 
 =item butterworth IMAGE [ low = 0, spatial = 1, homomorph = 0, power = 2.0, cutoff = 20.0, boost = 0.7 ]
 
-Performs band filtering of IMAGE in frequency fomain. 
+Performs band filtering of IMAGE in frequency domain. 
 If IMAGE dimensions not of power of 2, then
 IMAGE is scaled up to the closest power of 2, and the result is scaled
 back to the original dimensions.
@@ -531,7 +531,7 @@ element is set to a pre-defined value (0 or 1 for binary images).
 A morphological operator is therefore defined by its structuring element and the 
 applied set operator. 
 
-Morphological operators can also be applied to graylevel images, e.g. 
+Morphological operators can also be applied to gray-level images, e.g. 
 to reduce noise or to brighten the image. 
 
 =over
@@ -559,7 +559,7 @@ or its alternative
 
     IPA::Morphology::BWTransform( $image, lookup => $IPA::Morphology::transform_luts{METHOD}->());
 
-Where METHOD is one of the followng string constants:
+Where METHOD is one of the following string constants:
 
 =over
 
@@ -577,7 +577,7 @@ Remove isolated pixels
 
 =item togray
 
-Convert binary image to grayscale by appying the mean filter
+Convert binary image to grayscale by applying the mean filter
 
 =item invert
 
@@ -634,7 +634,7 @@ Supported types: Byte, Short, Long, Float, Double
 
 Performs the algebraic difference between IMAGE1 and IMAGE2.
 Although this is not a morphological operator, it is often used is
-conjuction with ones. If the boolean flag C<inPlace> is set, 
+conjunction with ones. If the boolean flag C<inPlace> is set, 
 IMAGE1 contains the result.
 
 Supported types: Byte, Short, Long, Float, Double
@@ -729,7 +729,7 @@ M.D. Levine. Vision in Man and Machine.  McGraw-Hill, 1985.
 
 =item *
 
-R. Deriche. Using canny's criteria to derive a recursively implemented optimal edge detector. 
+R. Deriche. Using Canny's criteria to derive a recursively implemented optimal edge detector. 
 International Journal on Computer Vision, pages 167-187, 1987. 
 
 =item *
