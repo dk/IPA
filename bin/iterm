@@ -337,8 +337,8 @@ $w-> insert( ImageViewer =>
       my @x = map {int} $w-> Image-> screen2point(@_[2,3] ); 
       my $pix = $i-> pixel(@x);
       my $t = $i-> type;
-      my @p = (( $t & ( im::ComplexNumber | im::TrigComplexNumber)) ? @$pix : $pix);
       return if $pix == cl::Invalid;
+      my @p = (( $t & ( im::ComplexNumber | im::TrigComplexNumber)) ? @$pix : $pix);
       my $fmt;
       if ( $t & ( im::ComplexNumber | im::TrigComplexNumber)) {
          $fmt = '%g %g';
