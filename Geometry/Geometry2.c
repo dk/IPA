@@ -4,6 +4,8 @@
 #include "Geometry.h"
 #include "GeometrySupp.h"
 
+static SV **temporary_prf_Sv;
+
 PImage IPA__Geometry_shift_rotate( PImage img, HV *profile)
 {
    const char *method="IPA::Geometry::shift_rotate";
