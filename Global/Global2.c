@@ -584,23 +584,28 @@ IPA__Global_identify_contours( PImage in, HV *profile)
 	 s = in-> data + in-> lineSize*y + x;
 	 av_push( contour, newSViv( x));
 	 av_push( contour, newSViv( y));
+         if (x <= 0) croak("assertion x > 0 failed");
+         if (y <= 0) croak("assertion y > 0 failed");
+         if (x >= in->w-1) croak("assertion x < w-1 failed");
+         if (y >= in->h-1) croak("assertion y < h-1 failed");
 	 for ( found = false, times = 3; (!found) && ( times > 0); times--) {
-	    if (s[di[(d-1)&0x07]]) {
+	    if (s[di[(d-1)&0x07]] == foreColor) {
 	       x += xi[(d-1)&0x07];
 	       y += yi[(d-1)&0x07];
 	       d = (d - 2) & 0x07;
 	       found = true;
-	    } else if (s[di[d]]) {
+	    } else if (s[di[d]] == foreColor) {
 	       x += xi[d];
 	       y += yi[d];
 	       found = true;
-	    } else if (s[di[(d+1)&0x07]]) {
+	    } else if (s[di[(d+1)&0x07]] == foreColor) {
 	       x += xi[(d+1)&0x07];
 	       y += yi[(d+1)&0x07];
 	       found = true;
 	    } else
 	       d = (d + 2) & 0x07;
 	 }
+         /* if (!found) croak("\nNOTFOUND\n"); */
 	 first = false;
       }
       av_push( contour, newSViv( x));
