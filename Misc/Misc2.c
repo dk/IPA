@@ -181,7 +181,7 @@ IPA__Misc_combine_channels( SV * input, char * mode)
       }
    }
    
-   if ( stricmp( mode, "rgb") == 0) m = 0;
+   if ( stricmp( mode, "rgb") == 0) m = 0; else
    if ( stricmp( mode, "hsv") == 0) m = 1; else
    croak("%s: unknown mode %s", METHOD, mode);
 
