@@ -762,12 +762,6 @@ L. Vincent. Morphological Grayscale Reconstruction in Image Analysis:
 Applications and Efficient Algorithms. 
 IEEE Transactions on Image Processing, vol. 2, no. 2, April 1993, pp. 176-201.
 
-=item *
-
-Monga, O. and Deriche, R. and Malandain, G. and Cocquerez, J.P.
-Recursive Filtering And Edge Closing: Two Primary Tools For 3d Edge Detection
-ECCV, vol.90, pages 56-65
-
 =back
 
 =head1 AUTHORS

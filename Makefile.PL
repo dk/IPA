@@ -131,6 +131,23 @@ closedir D;
 
 my @prjdirs;
 
+sub dump_command
+{
+    my ( $line, $sub, $command, $ret) = ( 0, shift, shift, '');
+    $ret .= "\t\@\$($command) \\\n" if scalar @_;
+    for ( @_) {
+       my $call = $sub->($_);
+       if (( $line++ % 20) == 19) {
+          $ret .= "\n\t\@\$($command) \\\n";
+       } elsif ( $line <= scalar @_ && $line > 1) {
+          $ret .=  " \\\n";
+       }
+       $ret .=  "\t$call";
+    }
+    $ret .=  "\n";
+}
+
+
 if (1) {
    for ( @d) {
       next unless -d $_;
