@@ -628,3 +628,57 @@ IPA__Global_identify_contours( PImage in, HV *profile)
    free_lag( lag);
    return newRV_noinc((SV*)result);
 }
+
+#undef METHOD
+#define METHOD "IPA::Global::identify_scanlines"
+
+SV*
+/* [[x1,x2,y,...]],[x1,x2,y...]] */
+IPA__Global_identify_scanlines( PImage in, HV *profile)
+{
+   PLAG lag;
+   PLAGLine line;
+   int i;
+   AV *result;
+   AV *contour;
+
+   int edgeSize = 1;
+   int foreColor = 255;
+   int neighborhood = 8;
+
+   if ( !in || !kind_of(( Handle) in, CImage)) WHINE("Not an image passed");
+
+   if ( profile && pexist( edgeSize))
+      edgeSize = pget_i( edgeSize);
+   if ( edgeSize <= 0 || edgeSize > min( in-> w, in-> h)/2)
+      WHINE( "bad edgeSize");
+   if ( profile && pexist( foreColor))
+      foreColor = pget_i( foreColor);
+   if ( profile && pexist( neighborhood))
+      neighborhood = pget_i( neighborhood);
+   if ( neighborhood != 8 && neighborhood != 4)
+      WHINE( "cannot handle neighborhoods other than 4 and 8");
+
+   lag = build_lag( in, (U8)foreColor, METHOD);
+   find_lag_components( lag, edgeSize, neighborhood == 8);
+
+   result = newAV();
+   if (!result)
+      WHINE( "error creating AV");
+
+   for ( i = lcNormal; i < lag-> maxComponentCode; i++) {
+      if ( !( line = lag-> codedLines[ i])) continue;
+      if ( !( contour = newAV()))
+	  WHINE( "error creating AV");
+       while ( line) {
+	  av_push( contour, newSViv( line-> beg));
+	  av_push( contour, newSViv( line-> end));
+	  av_push( contour, newSViv( line-> y));
+	  line = line-> next;
+       }
+       av_push( result, newRV_noinc((SV*)contour));
+   }
+   free_lag( lag);
+   return newRV_noinc((SV*)result);
+}
+

@@ -192,8 +192,8 @@ IPA__Global_hlines( PImage input, int x, int y, SV * points, double color)
 }
 
 void 
-IPA__Global_bar( PImage input, int x1, int x2, int y1, int y2, double color)
+IPA__Global_bar( PImage input, int x1, int y1, int x2, int y2, double color)
 {
-   for ( ; y1 <= y2; y1++) hline( input, x1, y1, x2, y1);
+   for ( ; y1 <= y2; y1++) hline( input, x1, x2, y1, color);
    input-> self-> update_change(( Handle) input);
 }
