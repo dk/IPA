@@ -10,6 +10,7 @@ $VERSION = '1.00';
 @EXPORT = qw();
 @EXPORT_OK = qw( split_channels histogram);
 %EXPORT_TAGS = ();
+sub dl_load_flags { 0x01 };
 
 bootstrap IPA::Misc $VERSION;
 

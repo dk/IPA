@@ -5,6 +5,8 @@ use IPA;
 require Exporter;
 require DynaLoader;
 
+sub dl_load_flags { 0x01 };
+
 use constant sobelColumn         => 1;
 use constant sobelRow            => 2;
 use constant sobelNWSE           => 4;

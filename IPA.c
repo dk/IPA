@@ -9,7 +9,6 @@ PImage_vmt CImage;
 XS( boot_IPA)
 {
     dXSARGS;
-    // char* file = __FILE__;
 
     (void)items;
 

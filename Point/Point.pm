@@ -11,6 +11,7 @@ $VERSION = '0.01';
 @EXPORT = qw();
 @EXPORT_OK = qw(combine threshold gamma remap subtract mask equalize);
 %EXPORT_TAGS = ();
+sub dl_load_flags { 0x01 };
 
 bootstrap IPA::Point $VERSION;
 

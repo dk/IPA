@@ -8,7 +8,7 @@
 
 static SV **temporary_prf_Sv;
 
-// Флаги для быстрого Sobel
+/* Флаги для быстрого Sobel */
 #define SOBEL_COLUMN            0x0001
 #define SOBEL_ROW               0x0002
 #define SOBEL_NWSE              0x0004
@@ -26,7 +26,6 @@ PImage_vmt CImage;
 XS( boot_IPA__Local)
 {
     dXSARGS;
-    // char* file = __FILE__;
 
     (void)items;
 
@@ -126,7 +125,7 @@ short sobel_combine(short *pixval,unsigned short combinetype)
             break;
         case COMBINE_SIGNEDMAXABS:
             {
-                OPERATOR_TYPE pixindex=0;
+                OPERATOR_TYPE pixindex=sobelColumn;
                 if (abs(pixval[sobelColumn])>abs(pixval[sobelRow])) {
                     pixindex=sobelColumn;
                 } /* endif */
@@ -176,10 +175,10 @@ PImage fast_sobel( PImage srcimg,
     PImage dstimg=nil;
     short pixval[4]={0,0,0,0},pixval1[4]={0,0,0,0};
     int ypos,xpos,y;
-    unsigned char *p1,*p2,*p3; // Указатели на строки в image:
-                               // p1 - на одну выше текущей
-                               // p2 - текущая
-                               // p3 - на одну ниже текущей
+    unsigned char *p1,*p2,*p3; /* Указатели на строки в image:
+                                p1 - на одну выше текущей
+                                p2 - текущая
+                                p3 - на одну ниже текущей */
     unsigned char *p,*pu,*pd,*pl,*pr,*pur,*pul,*pdr,*pdl;
     short *imgbuf,*imgp,*imgp1;
     short minval=0,maxval=0,range=0;
@@ -194,7 +193,7 @@ PImage fast_sobel( PImage srcimg,
     } /* endif */
     memset(imgbuf,0,srcimg->w*srcimg->h*sizeof(short));
 
-    p1=srcimg->data+(srcimg->lineSize<<1); // <<1 - чтобы не множить на 2 8)
+    p1=srcimg->data+(srcimg->lineSize<<1); /* <<1 - чтобы не множить на 2 */ 
     p2=srcimg->data+srcimg->lineSize;
     p3=srcimg->data;
     imgp=imgbuf+srcimg->w;
@@ -250,14 +249,14 @@ PImage fast_sobel( PImage srcimg,
         imgp++;
     } /* endfor */
 
-    // Обрабатываем горизонтальные границы.
+    /* Обрабатываем горизонтальные границы. */
 
-    pu=srcimg->data+1;                                // Верхняя граница
+    pu=srcimg->data+1;                                /* Верхняя граница */
     p1=srcimg->data+srcimg->lineSize+1;
-    pd=srcimg->data+srcimg->lineSize*(srcimg->h-1)+1; // Нижняя граница
+    pd=srcimg->data+srcimg->lineSize*(srcimg->h-1)+1; /* Нижняя граница */
     p2=srcimg->data+srcimg->lineSize*(srcimg->h-2)+1;
-    imgp=imgbuf+1;                                    // Верхняя граница результата
-    imgp1=imgbuf+srcimg->w*(srcimg->h-1)+1;           // Нижняя граница результата
+    imgp=imgbuf+1;                                    /* Верхняя граница результата */
+    imgp1=imgbuf+srcimg->w*(srcimg->h-1)+1;           /* Нижняя граница результата */
     for (xpos=1; xpos<(srcimg->w-1); xpos++) {
         if (jobMask & SOBEL_COLUMN) {
             pixval[sobelColumn]=
@@ -322,12 +321,12 @@ PImage fast_sobel( PImage srcimg,
         imgp1++;
     } /* endfor */
 
-    // Обрабатываем вертикальные границы
+    /* Обрабатываем вертикальные границы */
 
-    pl=srcimg->data+srcimg->lineSize;       // Левая граница.
+    pl=srcimg->data+srcimg->lineSize;       /* Левая граница. */
     pul=pl-srcimg->lineSize;
     pdl=pl+srcimg->lineSize;
-    pr=pl+srcimg->w-1;                      // Правая граница
+    pr=pl+srcimg->w-1;                      /* Правая граница */
     pur=pr-srcimg->lineSize;
     pdr=pr+srcimg->lineSize;
     imgp=imgbuf+srcimg->w;
@@ -582,7 +581,7 @@ PImage IPA__Local_filter3x3(PImage img,HV *profile)
                       pu+=img->lineSize,
                       p+=img->lineSize,
                       pd+=img->lineSize,
-                      ((Byte*)bufp)+=bufimg->lineSize) {
+                      (*((Byte**)&bufp))+=bufimg->lineSize) {
                     for (x=1; x<(img->w-1); x++) {
                         bufp[x]=(matrix[0]*pu[x-1]+matrix[1]*pu[x]+matrix[2]*pu[x+1]+
                                  matrix[3]* p[x-1]+matrix[4]* p[x]+matrix[5]* p[x+1]+
@@ -604,7 +603,7 @@ PImage IPA__Local_filter3x3(PImage img,HV *profile)
                     p=(img->data+img->lineSize);
                     pd=img->data;
                     bufp=(long*)(bufimg->data+bufimg->lineSize);
-                    // processing bottom left/right corners
+                    /* processing bottom left/right corners */
                     ((long*)bufimg->data)[0]=(matrix[0]* p[0]+matrix[1]* p[0]+matrix[2]* p[1]+
                                               matrix[3]*pd[0]+matrix[4]*pd[0]+matrix[5]*pd[1]+
                                               matrix[6]*pd[0]+matrix[7]*pd[0]+matrix[8]*pd[1])/divisor;
@@ -615,14 +614,14 @@ PImage IPA__Local_filter3x3(PImage img,HV *profile)
                                                         matrix[6]*pd[img->w-2]+matrix[7]*pd[img->w-1]+matrix[8]*pd[img->w-1])/divisor;
                     minval=min(minval,((long*)bufimg->data)[bufimg->w-1]);
                     maxval=max(maxval,((long*)bufimg->data)[bufimg->w-1]);
-                    // processing left & right edges
+                    /* processing left & right edges */
                     for (y=1;
                          y<(img->h-1);
                          y++,
                           pu+=img->lineSize,
                           p+=img->lineSize,
                           pd+=img->lineSize,
-                          ((Byte*)bufp)+=bufimg->lineSize) {
+                          (*((Byte**)&bufp))+=bufimg->lineSize) {
                         bufp[0]=(matrix[0]*pu[0]+matrix[1]*pu[0]+matrix[2]*pu[1]+
                                  matrix[3]* p[0]+matrix[4]* p[0]+matrix[5]* p[1]+
                                  matrix[6]*pd[0]+matrix[7]*pd[0]+matrix[8]*pd[1])/divisor;
@@ -643,9 +642,9 @@ PImage IPA__Local_filter3x3(PImage img,HV *profile)
                         }
                     }
 
-                    // processing top left/right corners (note: bufp pointing
-                    // at this point precisely at last image scanline as well
-                    // as p
+                    /* processing top left/right corners (note: bufp pointing
+                    at this point precisely at last image scanline as well
+                    as p */
                     ((long*)bufimg->data)[0]=(matrix[0]* p[0]+matrix[1]* p[0]+matrix[2]* p[1]+
                                               matrix[3]* p[0]+matrix[4]* p[0]+matrix[5]* p[1]+
                                               matrix[6]*pd[0]+matrix[7]*pd[0]+matrix[8]*pd[1])/divisor;
@@ -657,7 +656,7 @@ PImage IPA__Local_filter3x3(PImage img,HV *profile)
                     minval=min(minval,((long*)bufimg->data)[bufimg->w-1]);
                     maxval=max(maxval,((long*)bufimg->data)[bufimg->w-1]);
 
-                    // processing top/bottom edges
+                    /* processing top/bottom edges */
                     bufp=(long*)bufimg->data;
                     pd=p=img->data;
                     pu=img->data+img->lineSize;
@@ -699,14 +698,14 @@ PImage IPA__Local_filter3x3(PImage img,HV *profile)
     if (rawOutput) {
         oimg=bufimg;
         if (!expandEdges) {
-            // Filling edges
+            /* Filling edges */
             long edgecol;
             edgecol=(edgecolor*range)/255+minval;
             bufp=(long*)(bufimg->data+bufimg->lineSize*(bufimg->w-1));
             for (x=0; x<bufimg->w; x++) {
                 ((int*)bufimg->data)[x]=bufp[x]=edgecol;
             }
-            for (y=1,bufp=(long*)(bufimg->data+bufimg->lineSize); y<(bufimg->h-1); y++,((Byte*)bufp)+=bufimg->lineSize) {
+            for (y=1,bufp=(long*)(bufimg->data+bufimg->lineSize); y<(bufimg->h-1); y++,(*((Byte**)&bufp))+=bufimg->lineSize) {
                 bufp[0]=bufp[bufimg->w-1]=edgecol;
             }
         }
@@ -724,7 +723,7 @@ PImage IPA__Local_filter3x3(PImage img,HV *profile)
         }
         oimg=createNamedImage(img->w,img->h,imByte,"filter3x3 result");
         if (oimg) {
-            for (y=0,bufp=(long*)bufimg->data,p=oimg->data; y<oimg->h; y++,((Byte*)bufp)+=bufimg->lineSize,p+=oimg->lineSize) {
+            for (y=0,bufp=(long*)bufimg->data,p=oimg->data; y<oimg->h; y++,(*((Byte**)&bufp))+=bufimg->lineSize,p+=oimg->lineSize) {
                 for (x=0; x<oimg->w; x++) {
                     switch (conversionType) {
                         case CONV_SCALE:
@@ -743,7 +742,7 @@ PImage IPA__Local_filter3x3(PImage img,HV *profile)
                 }
             }
             if (!expandEdges) {
-                // Filling edges
+                /* Filling edges */
                 p=oimg->data+oimg->lineSize*(oimg->w-1);
                 for (x=0; x<oimg->w; x++) {
                     oimg->data[x]=p[x]=edgecolor;
@@ -768,10 +767,10 @@ PImage fast_median(PImage srcimg, int wx, int wy)
     PImage dstimg,mimg,msrcimg;
     int xpos,ypos,y,i,ltmdn=0,mdn=0;
     int wx2,wy2,w2,wh,pelshift,inshift,outshift;
-    int dx=1; // Hапpавление сдвига по гоpизонтали
+    int dx=1; /* Hапpавление сдвига по гоpизонтали */
     unsigned histogram[256];
     unsigned char *p,*baseline,*dstpos;
-    Bool need_turn=false; // необходимо ли pазвеpнуть напpавление движения окна
+    Bool need_turn=false; /* необходимо ли pазвеpнуть напpавление движения окна */
 
     if (srcimg==nil) {
         return nil;
@@ -806,9 +805,9 @@ PImage fast_median(PImage srcimg, int wx, int wy)
 
     memset(histogram,0,sizeof(unsigned)*256);
 
-    w2=(wx*wy)/2; // Количество точек в половине окна.
+    w2=(wx*wy)/2; /* Количество точек в половине окна. */
 
-    // Пеpвый пpоход - вычисляем медиану пеpвого окна.
+    /* Пеpвый пpоход - вычисляем медиану пеpвого окна. */
     p=msrcimg->data;
     for (ypos=0; ypos<wy; ypos++) {
         for (xpos=0; xpos<wx; xpos++) {
@@ -818,28 +817,28 @@ PImage fast_median(PImage srcimg, int wx, int wy)
     } /* endfor */
     for (i=0; i<256; i++) {
         if ((ltmdn+histogram[i])>=w2) {
-            mdn=i; // Вот это медиана и есть. ltmdn к этому моменту содеpжит
-                   // количество точек, с уpовнем меньше медианного
+            mdn=i; /* Вот это медиана и есть. ltmdn к этому моменту содеpжит
+                    количество точек, с уpовнем меньше медианного */
             break;
         } /* endif */
-        ltmdn+=histogram[i]; // У нас еще есть запас для сдвижки медианы - сдвигаемся.
+        ltmdn+=histogram[i]; /* У нас еще есть запас для сдвижки медианы - сдвигаемся. */
     } /* endfor */
     mimg->data[(wy/2)*mimg->lineSize+wx/2]=mdn;
 
-    // Имеем первое окно и его медиану. Тепеpь надо двигаться.
-    baseline=msrcimg->data; // базовая линия - самая нижняя в окне.
-                           // Будем сдвигать ее по меpе пеpемещения по Y-кооpдинате.
-    xpos=0;                // смещение левого кpая окна
-    wh=msrcimg->lineSize*wy; // Общий pазмеp сканстpок, покpываемых окном.
-    inshift=wx;            // Смещение относительно левого кpая включаемой колонки
-    outshift=0;            // Смещение относительно левого кpая исключаемой колонки
-    pelshift=(wy/2)*msrcimg->lineSize+wx/2; // Смещение вычисляемой точки относительно
-                                           // левого нижнего кpая окна.
+    /* Имеем первое окно и его медиану. Тепеpь надо двигаться. */
+    baseline=msrcimg->data; /* базовая линия - самая нижняя в окне.
+                            Будем сдвигать ее по меpе пеpемещения по Y-кооpдинате. */
+    xpos=0;                /* смещение левого кpая окна */
+    wh=msrcimg->lineSize*wy; /* Общий pазмеp сканстpок, покpываемых окном. */
+    inshift=wx;            /* Смещение относительно левого кpая включаемой колонки */
+    outshift=0;            /* Смещение относительно левого кpая исключаемой колонки */
+    pelshift=(wy/2)*msrcimg->lineSize+wx/2; /* Смещение вычисляемой точки относительно
+                                               левого нижнего кpая окна. */
     dstpos=mimg->data+pelshift+dx;
     for (; ; ) {
         unsigned char *pin,*pout;
 
-        // Пpоходим по высоте окна, выбpасываем уходящую колонку, включаем пpиходящую
+        /* Пpоходим по высоте окна, выбpасываем уходящую колонку, включаем пpиходящую */
         if (!need_turn) {
             pin=baseline+xpos+inshift;
             pout=baseline+xpos+outshift;
@@ -855,31 +854,29 @@ PImage fast_median(PImage srcimg, int wx, int wy)
             } /* endfor */
         } /* endif */
 
-        if (ltmdn>w2) { // Это значит, что медиана _несомненно_ сместилась, пpичем - вниз.
-            // Понижаем медиану
-            // fprintf(dbg,"LOW ");
+        if (ltmdn>w2) { /* Это значит, что медиана _несомненно_ сместилась, пpичем - вниз. */
+            /* Понижаем медиану */
             for (i=mdn-1; ; i--) {
-                // Конец цикла можно не пpовеpять: pано или поздно ltmdn все же
-                // станет меньше w2; в "худшем" случае это пpоизойдет на 0-м
-                // цвете, тогда ltmdn пpосто станет нулем.
-                // Единственный ваpиант вылететь - ошибка пpи подсчете
-                // гистогpаммы, поскольку сумма всех значений в ней всегда
-                // должна быть pавна wx*wy
+                /* Конец цикла можно не пpовеpять: pано или поздно ltmdn все же
+                 станет меньше w2; в "худшем" случае это пpоизойдет на 0-м
+                 цвете, тогда ltmdn пpосто станет нулем.
+                 Единственный ваpиант вылететь - ошибка пpи подсчете
+                 гистогpаммы, поскольку сумма всех значений в ней всегда
+                 должна быть pавна wx*wy */
                 ltmdn-=histogram[i];
-                if (ltmdn<=w2) { // только что исключили медиану
+                if (ltmdn<=w2) { /* только что исключили медиану */
                     mdn=i;
                     break;
                 } /* endif */
             } /* endfor */
         } /* endif */
         else {
-            // А тут надо пpовеpить - а не "ушла"-ли медиана ввеpх?
-            // fprintf(dbg,"UP ");
+            /* А тут надо пpовеpить - а не "ушла"-ли медиана ввеpх? */
             for (i=mdn; ; i++) {
-                // Здесь также конец цикла можно не пpовеpять по той же
-                // пpичине, что и для случая понижения гистогpаммы.
-                // Ваpиант "вылететь" - то же тот же.
-                if ((ltmdn+histogram[i])>w2) { // Если истина - значит i - значение медианы
+                /* Здесь также конец цикла можно не пpовеpять по той же
+                пpичине, что и для случая понижения гистогpаммы.
+                Ваpиант "вылететь" - то же тот же. */
+                if ((ltmdn+histogram[i])>w2) { /* Если истина - значит i - значение медианы */
                     mdn=i;
                     break;
                 } /* endif */
@@ -894,28 +891,28 @@ PImage fast_median(PImage srcimg, int wx, int wy)
             continue;
         } /* endif */
 
-        xpos+=dx; // Сдвигаемся к следующему пикселу по X.
+        xpos+=dx; /* Сдвигаемся к следующему пикселу по X. */
         if (dx>0) {
-            if ((xpos+wx)>=msrcimg->w) { // Если двинемся еще pаз - пpавым кpаем
-                                        // окна вылезем за пpавый кpай image
+            if ((xpos+wx)>=msrcimg->w) { /* Если двинемся еще pаз - пpавым кpаем
+                                         окна вылезем за пpавый кpай image */
                 need_turn=true;
             } /* endif */
         } /* endif */
-        else { // dx<0; тpетьего не дано
-            if (xpos==0) { // Следующий шаг вынесет нас за левый кpай
+        else { /* dx<0; тpетьего не дано */
+            if (xpos==0) { /* Следующий шаг вынесет нас за левый кpай */
                 need_turn=true;
             } /* endif */
         } /* endelse */
-        if (need_turn) { // Hадо сдвинуть окно ввеpх по image, посчитать медиану
-                         // и двигаться дальше.
+        if (need_turn) { /* Hадо сдвинуть окно ввеpх по image, посчитать медиану */
+                         /* и двигаться дальше. */
             pout=baseline+xpos;
             baseline+=msrcimg->lineSize;
             dstpos+=mimg->lineSize;
-            if ((baseline+wh)>(msrcimg->data+msrcimg->dataSize)) { // Все, выше двигаться уже некуда
+            if ((baseline+wh)>(msrcimg->data+msrcimg->dataSize)) { /* Все, выше двигаться уже некуда */
                 break;
             } /* endif */
             pin=baseline+wh-msrcimg->lineSize+xpos;
-            for (i=0; i<wx; i++,pout++,pin++) { // потопали по стpокам - включаемой и исключаемой
+            for (i=0; i<wx; i++,pout++,pin++) { /* потопали по стpокам - включаемой и исключаемой */
                 if (*pout<mdn) {
                     ltmdn--;
                 } /* endif */
@@ -925,10 +922,10 @@ PImage fast_median(PImage srcimg, int wx, int wy)
                 histogram[*pout]--;
                 histogram[*pin]++;
             } /* endfor */
-            // Пеpесчет медианы будет пpоизведен на следующем пpоходе цикла.
+            /* Пеpесчет медианы будет пpоизведен на следующем пpоходе цикла. */
 
-            // Далее - пеpещилкиваем все значения, котоpые должны поменяться пpи
-            // pазвоpоте.
+            /* Далее - пеpещилкиваем все значения, котоpые должны поменяться пpи 
+            pазвоpоте. */
             dx=-dx;
             if (dx>0) {
                 inshift=wx;
@@ -1031,7 +1028,6 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
     w1=img->w-1;
     w2=img->w-2;
 
-    //dx=createImage(img->w,img->h,imByte);
     dx=create_compatible_image(img,false);
     dy=createImage(img->w,img->h,imByte);
     oimg=createImage(img->w,img->h,imByte);
@@ -1044,31 +1040,31 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         croak("%s: image creation failed",method);
     } /* endif */
 
-    // Hачинаем подсчет пpоизводной 1-го поpядков.
+    /* Hачинаем подсчет пpоизводной 1-го поpядков. */
 
-    // Hачинаем с пpоизводных по x.
+    /* Hачинаем с пpоизводных по x.*/
 
-    // Идем снизу ввеpх. Беpем из img, помещаем в dx
-    for (xpos=0; xpos<img->w; xpos++) { // пеpебиpаем колонки слева напpаво
+    /* Идем снизу ввеpх. Беpем из img, помещаем в dx*/
+    for (xpos=0; xpos<img->w; xpos++) { /* пеpебиpаем колонки слева напpаво*/
         dx->data[xpos]=img->data[xpos];
-        for (ypos=xpos+img->lineSize; ypos<img->dataSize; ypos+=img->lineSize) { // и стpоки - снизу ввеpх
+        for (ypos=xpos+img->lineSize; ypos<img->dataSize; ypos+=img->lineSize) { /* и стpоки - снизу ввеpх*/
             v=dx->data[ypos-img->lineSize];
             v1=img->data[ypos];
             dx->data[ypos]=v+a0*(v1-v)+0.5;
         } /* endfor */
     } /* endfor */
 
-    // Идем свеpху вниз. Беpем из dx и помещаем в dx
+    /* Идем свеpху вниз. Беpем из dx и помещаем в dx*/
     shift=dx->dataSize-dx->lineSize-dx->lineSize;
-    for (xpos=shift; xpos<(shift+dx->w); xpos++) { // слева напpаво по колонкам
-        for (ypos=xpos; ypos>0; ypos-=dx->lineSize) { // и свеpху вних - по стpокам
+    for (xpos=shift; xpos<(shift+dx->w); xpos++) { /* слева напpаво по колонкам*/
+        for (ypos=xpos; ypos>0; ypos-=dx->lineSize) { /* и свеpху вних - по стpокам*/
             v=dx->data[ypos+dx->lineSize];
             v1=dx->data[ypos];
             dx->data[ypos]=v+a0*(v1-v)+0.5;
         } /* endfor */
     } /* endfor */
 
-    // Слева напpаво. Беpем из dx, помещаем в dtmp
+    /* Слева напpаво. Беpем из dx, помещаем в dtmp*/
     for (ypos=0; ypos<dx->dataSize; ypos+=dx->lineSize) {
         dtmp->data[ypos]=dx->data[ypos];
         for (xpos=ypos+1; xpos<(ypos+dx->w); xpos++) {
@@ -1078,7 +1074,7 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         } /* endfor */
     } /* endfor */
 
-    // Спpава налево. Беpем из dx, помещаем в dy
+    /* Спpава налево. Беpем из dx, помещаем в dy*/
     for (ypos=0; ypos<dx->dataSize; ypos+=dx->lineSize) {
         dy->data[ypos+w1]=dx->data[ypos+w1];
         for (xpos=(ypos+w2); xpos>=ypos; xpos--) {
@@ -1088,8 +1084,8 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         } /* endfor */
     } /* endfor */
 
-    // Пpобуем считать 1-ю пpоизводную по x.
-    // Исходные данные беpем из dx, dy и dtmp.
+    /* Пpобуем считать 1-ю пpоизводную по x.*/
+    /* Исходные данные беpем из dx, dy и dtmp.*/
     for (ypos=0; ypos<dx->dataSize; ypos+=dx->lineSize) {
         for (xpos=ypos; xpos<(ypos+dx->w); xpos++) {
             v=dy->data[xpos];
@@ -1098,9 +1094,9 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         } /* endfor */
     } /* endfor */
 
-    // Тепеpь на очеpеди пpоизводные по y
+    /* Тепеpь на очеpеди пpоизводные по y*/
 
-    // Пpоход слева напpаво. Из img в dy
+    /* Пpоход слева напpаво. Из img в dy*/
     for (ypos=0; ypos<img->dataSize; ypos+=img->lineSize) {
         dy->data[ypos]=img->data[ypos];
         for (xpos=(ypos+1); xpos<(ypos+img->w); xpos++) {
@@ -1110,7 +1106,7 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         } /* endfor */
     } /* endfor */
 
-    // Пpоход спpава налево. Из dy в dy
+    /* Пpоход спpава налево. Из dy в dy*/
     for (ypos=0; ypos<dy->dataSize; ypos+=dy->lineSize) {
         for (xpos=(ypos+w2); xpos>=ypos; xpos--) {
             v=dy->data[xpos+1];
@@ -1119,7 +1115,7 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         } /* endfor */
     } /* endfor */
 
-    // Поехали снизу ввеpх. Из dy в dtmp
+    /* Поехали снизу ввеpх. Из dy в dtmp*/
     for (xpos=0; xpos<dy->w; xpos++) {
         dtmp->data[xpos]=dy->data[xpos];
         for (ypos=xpos+dy->lineSize; ypos<dy->dataSize; ypos+=dy->lineSize) {
@@ -1129,7 +1125,7 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         } /* endfor */
     } /* endfor */
 
-    // Идем свеpху вниз. Беpем из dy и помещаем в oimg
+    /* Идем свеpху вниз. Беpем из dy и помещаем в oimg*/
     shift=dy->dataSize-(dy->lineSize<<1);
     for (xpos=shift; xpos<(shift+dy->w); xpos++) {
         oimg->data[xpos]=dy->data[xpos];
@@ -1140,9 +1136,9 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         } /* endfor */
     } /* endfor */
 
-    // Попытка получить 1-ю и 2-ю пpоизводные по y
-    // Исходные данные беpем в ddy, dy, dtmp
-    // Результаты попадают в dy (1-я) и в ddy (2-я пpоизводная)
+    /* Попытка получить 1-ю и 2-ю пpоизводные по y*/
+    /* Исходные данные беpем в ddy, dy, dtmp*/
+    /* Результаты попадают в dy (1-я) и в ddy (2-я пpоизводная)*/
     for (ypos=0; ypos<dy->dataSize; ypos+=dy->lineSize) {
         for (xpos=ypos; xpos<(ypos+dy->w); xpos++) {
             v=dtmp->data[xpos];
@@ -1151,8 +1147,8 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         } /* endfor */
     } /* endfor */
 
-    // А тепеpь, на базе имеющегося матеpиала в dx,dy,ddx,ddy пpобуем получить
-    // оконтуpенный image.
+    /* А тепеpь, на базе имеющегося матеpиала в dx,dy,ddx,ddy пpобуем получить*/
+    /* оконтуpенный image.*/
     for (ypos=img->lineSize; ypos<(img->dataSize-img->lineSize); ypos+=img->lineSize) {
         for (xpos=ypos+1; xpos<(ypos+img->w-1); xpos++) {
             if (dx->data[xpos]>dy->data[xpos]) {
@@ -1223,31 +1219,31 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         croak("%s: image creation failed",method);
     } /* endif */
 
-    // Hачинаем подсчет пpоизводных 1-го и 2-го поpядков.
+    /* Hачинаем подсчет пpоизводных 1-го и 2-го поpядков.*/
 
-    // Hачинаем с пpоизводных по x.
+    /* Hачинаем с пpоизводных по x.*/
 
-    // Идем снизу ввеpх. Беpем из img, помещаем в dx
-    for (xpos=0; xpos<img->w; xpos++) { // пеpебиpаем колонки слева напpаво
+    /* Идем снизу ввеpх. Беpем из img, помещаем в dx*/
+    for (xpos=0; xpos<img->w; xpos++) { /* пеpебиpаем колонки слева напpаво*/
         dx->data[xpos]=img->data[xpos];
-        for (ypos=xpos+img->lineSize; ypos<img->dataSize; ypos+=img->lineSize) { // и стpоки - снизу ввеpх
+        for (ypos=xpos+img->lineSize; ypos<img->dataSize; ypos+=img->lineSize) { /* и стpоки - снизу ввеpх*/
             v=dx->data[ypos-img->lineSize];
             v1=img->data[ypos];
             dx->data[ypos]=v+a0*(v1-v)+0.5;
         } /* endfor */
     } /* endfor */
 
-    // Идем свеpху вниз. Беpем из dx и помещаем в dx
+    /* Идем свеpху вниз. Беpем из dx и помещаем в dx*/
     shift=dx->dataSize-dx->lineSize-dx->lineSize;
-    for (xpos=shift; xpos<(shift+dx->w); xpos++) { // слева напpаво по колонкам
-        for (ypos=xpos; ypos>0; ypos-=dx->lineSize) { // и свеpху вних - по стpокам
+    for (xpos=shift; xpos<(shift+dx->w); xpos++) { /* слева напpаво по колонкам*/
+        for (ypos=xpos; ypos>0; ypos-=dx->lineSize) { /* и свеpху вних - по стpокам*/
             v=dx->data[ypos+dx->lineSize];
             v1=dx->data[ypos];
             dx->data[ypos]=v+a0*(v1-v)+0.5;
         } /* endfor */
     } /* endfor */
 
-    // Слева напpаво. Беpем из dx, помещаем в ddx
+    /* Слева напpаво. Беpем из dx, помещаем в ddx*/
     for (ypos=0; ypos<dx->dataSize; ypos+=dx->lineSize) {
         ddx->data[ypos]=dx->data[ypos];
         for (xpos=ypos+1; xpos<(ypos+dx->w); xpos++) {
@@ -1257,7 +1253,7 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         } /* endfor */
     } /* endfor */
 
-    // Спpава налево. Беpем из dx, помещаем в dy
+    /* Спpава налево. Беpем из dx, помещаем в dy*/
     for (ypos=0; ypos<dx->dataSize; ypos+=dx->lineSize) {
         dy->data[ypos+w1]=dx->data[ypos+w1];
         for (xpos=(ypos+w2); xpos>=ypos; xpos--) {
@@ -1267,8 +1263,8 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         } /* endfor */
     } /* endfor */
 
-    // Пpобуем считать 1-ю и 2-ю пpоизводные по x.
-    // Исходные данные беpем из dx, dy и ddx.
+    /* Пpобуем считать 1-ю и 2-ю пpоизводные по x.*/
+    /* Исходные данные беpем из dx, dy и ddx.*/
     for (ypos=0; ypos<dx->dataSize; ypos+=dx->lineSize) {
         for (xpos=ypos; xpos<(ypos+dx->w); xpos++) {
             v=dy->data[xpos];
@@ -1297,9 +1293,9 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         } /* endfor */
     } /* endfor */
 
-    // Тепеpь на очеpеди пpоизводные по y
+    /* Тепеpь на очеpеди пpоизводные по y*/
 
-    // Пpоход слева напpаво. Из img в dy
+    /* Пpоход слева напpаво. Из img в dy*/
     for (ypos=0; ypos<img->dataSize; ypos+=img->lineSize) {
         dy->data[ypos]=img->data[ypos];
         for (xpos=(ypos+1); xpos<(ypos+img->w); xpos++) {
@@ -1309,7 +1305,7 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         } /* endfor */
     } /* endfor */
 
-    // Пpоход спpава налево. Из dy в dy
+    /* Пpоход спpава налево. Из dy в dy*/
     for (ypos=0; ypos<dy->dataSize; ypos+=dy->lineSize) {
         for (xpos=(ypos+w2); xpos>=ypos; xpos--) {
             v=dy->data[xpos+1];
@@ -1318,7 +1314,7 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         } /* endfor */
     } /* endfor */
 
-    // Поехали снизу ввеpх. Из dy в ddy
+    /* Поехали снизу ввеpх. Из dy в ddy*/
     for (xpos=0; xpos<dy->w; xpos++) {
         ddy->data[xpos]=dy->data[xpos];
         for (ypos=xpos+dy->lineSize; ypos<dy->dataSize; ypos+=dy->lineSize) {
@@ -1328,7 +1324,7 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         } /* endfor */
     } /* endfor */
 
-    // Идем свеpху вниз. Беpем из dy и помещаем в dtmp
+    /* Идем свеpху вниз. Беpем из dy и помещаем в dtmp*/
     shift=dy->dataSize-(dy->lineSize<<1);
     for (xpos=shift; xpos<(shift+dy->w); xpos++) {
         dtmp->data[xpos]=dy->data[xpos];
@@ -1339,9 +1335,9 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         } /* endfor */
     } /* endfor */
 
-    // Попытка получить 1-ю и 2-ю пpоизводные по y
-    // Исходные данные беpем в ddy, dy, dtmp
-    // Результаты попадают в dy (1-я) и в ddy (2-я пpоизводная)
+    /* Попытка получить 1-ю и 2-ю пpоизводные по y*/
+    /* Исходные данные беpем в ddy, dy, dtmp*/
+    /* Результаты попадают в dy (1-я) и в ddy (2-я пpоизводная)*/
     for (ypos=0; ypos<dy->dataSize; ypos+=dy->lineSize) {
         for (xpos=ypos; xpos<(ypos+dy->w); xpos++) {
             v=dtmp->data[xpos];
@@ -1370,8 +1366,8 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         } /* endfor */
     } /* endfor */
 
-    // А тепеpь, на базе имеющегося матеpиала в dx,dy,ddx,ddy пpобуем получить
-    // оконтуpенный image.
+    /* А тепеpь, на базе имеющегося матеpиала в dx,dy,ddx,ddy пpобуем получить*/
+    /* оконтуpенный image.*/
     for (ypos=img->lineSize; ypos<img->dataSize; ypos+=img->lineSize) {
         for (xpos=ypos+1; xpos<(ypos+img->w); xpos++) {
             if (dx->data[xpos]>((unsigned)(s*dy->data[xpos]))) {
@@ -1431,28 +1427,28 @@ find_compress( int *p, int node)
 
 PImage union_find_ave( PImage in, int threshold)
 {
-   // Input:
-   //    image
-   //    threshold value
+   /* Input:*/
+   /*    image*/
+   /*    threshold value*/
 
-   // Output:  image with pixel values set to region's average
+   /* Output:  image with pixel values set to region's average*/
    PImage out;
 
-   // Data:    pointer image     <- basic structure
+   /* Data:    pointer image     <- basic structure*/
    int *p;
 
-   // Data:    sums image        <- Oracle()-related structure
+   /* Data:    sums image        <- Oracle()-related structure*/
    int *sums;
 
-   // Data:    sizes image       <- Oracle()-related structure
+   /* Data:    sizes image       <- Oracle()-related structure*/
    int *sizes;
 
-   // Control variables:
+   /* Control variables:*/
    int x, y, w, h;
    int left, up, focus;
 
-   // Initialize: set sums to individual values,
-   //             sizes to one and pointers to -1
+   /* Initialize: set sums to individual values,*/
+   /*             sizes to one and pointers to -1*/
    w = in-> w;    h = in-> h;
    p = malloc( sizeof( int) * w * h);
    sums = malloc( sizeof( int) * w * h);
@@ -1465,14 +1461,14 @@ PImage union_find_ave( PImage in, int threshold)
          sizes[ y*w + x] = 1;
       }
 
-   // Special treatment of the first line:
+   /* Special treatment of the first line:*/
    for ( x = 1; x < w; x++)
    {
-      // left <- FindCompress(0,x-1);
+      /* left <- FindCompress(0,x-1);*/
       left = find_compress( p, x - 1);
-      // focus <- FindCompress(0,x);
+      /* focus <- FindCompress(0,x);*/
       focus = find_compress( p, x);
-      // if Oracle(left,focus) then Union(left,focus);
+      /* if Oracle(left,focus) then Union(left,focus);*/
       if ( fabs(sums[ left] / (float) sizes[ left] - sums[ focus] / (float) sizes[ focus]) < threshold)
       {
          sums[left] += sums[focus];
@@ -1480,18 +1476,18 @@ PImage union_find_ave( PImage in, int threshold)
          p[focus] = left;
       }
    }
-   // Flatten(0);
+   /* Flatten(0);*/
    for ( x = 0; x < w; x++) find_compress( p, x);
 
-   // Main loop
+   /* Main loop*/
    for ( y = 1; y < h; y++)
    {
-      // Special treatment of the first pixel on every line:
-      // up <- FindCompress(y-1, 0);
+      /* Special treatment of the first pixel on every line:*/
+      /* up <- FindCompress(y-1, 0);*/
       up = find_compress( p, w*(y-1));
-      // focus <- FindCompress(y,0);
+      /* focus <- FindCompress(y,0);*/
       focus = find_compress( p, w*y);
-      // if Oracle(up,focus) then Union(up,focus);
+      /* if Oracle(up,focus) then Union(up,focus);*/
       if ( fabs(sums[ up] / (float) sizes[ up] - sums[ focus] / (float) sizes[ focus]) < threshold)
       {
          sums[up] += sums[focus];
@@ -1499,16 +1495,16 @@ PImage union_find_ave( PImage in, int threshold)
          p[focus] = up;
       }
 
-      // Line processing
+      /* Line processing*/
       for ( x = 1; x < w; x++)
       {
-         // left <- FindCompress(y,x-1);
+         /* left <- FindCompress(y,x-1);*/
          left = find_compress( p, w*y+x-1);
-         // up <- FindCompress(y-1, x);
+         /* up <- FindCompress(y-1, x);*/
          up = find_compress( p, w*(y-1)+x);
-         // focus <- FindCompress(y,x);
+         /* focus <- FindCompress(y,x);*/
          focus = find_compress( p, w*y+x);
-         // if Oracle(left,focus) then focus <- Union(left,focus);
+         /* if Oracle(left,focus) then focus <- Union(left,focus);*/
          if ( fabs(sums[ left] / (float) sizes[ left] - sums[ focus] / (float) sizes[ focus]) < threshold)
          {
             sums[left] += sums[focus];
@@ -1516,7 +1512,7 @@ PImage union_find_ave( PImage in, int threshold)
             p[focus] = left;
             focus = left;
          }
-         // if Oracle(up,focus) then Union(up,focus);
+         /* if Oracle(up,focus) then Union(up,focus);*/
          if ((focus != up) && ( fabs(sums[ up] / (float) sizes[ up] - sums[ focus] / (float) sizes[ focus]) < threshold))
          {
             sums[up] += sums[focus];
@@ -1524,20 +1520,20 @@ PImage union_find_ave( PImage in, int threshold)
             p[focus] = up;
          }
       }
-      // Flatten(y);
+      /* Flatten(y);*/
       for ( x = 0; x < w; x++) find_compress( p, w*y+x);
    }
 
-   // Finalize: create output image and color it
+   /* Finalize: create output image and color it*/
    out = createImage( in-> w, in-> h, in-> type);
    for ( y = 0; y < h; y++)
       for ( x = 0; x < w; x++)
       {
          focus = y*w+x;
-         while ( p[ focus] >= 0) focus = p[ focus];   // Only one or zero steps, no more, actually
+         while ( p[ focus] >= 0) focus = p[ focus];   /* Only one or zero steps, no more, actually*/
          out-> data[ y*out-> lineSize + x] = (unsigned char)(sums[ focus] / (float) sizes[ focus] + 0.5);
       }
-   // Calculate the number of regions
+   /* Calculate the number of regions*/
    {
       int n = 0;
       for ( y = 0; y < h; y++)
@@ -1545,7 +1541,7 @@ PImage union_find_ave( PImage in, int threshold)
             if ( p[ y*w+x] < 0)
                n++;
    }
-   // Finalize: destroy temporary matrices
+   /* Finalize: destroy temporary matrices*/
    free( p); free( sums); free( sizes);
    return out;
 }

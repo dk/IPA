@@ -18,7 +18,6 @@ PImage_vmt CImage;
 XS( boot_IPA__Point)
 {
     dXSARGS;
-    // char* file = __FILE__;
 
     (void)items;
 
@@ -61,7 +60,6 @@ PImage IPA__Point_combine(HV *profile)
     int combineType=COMBINE_SUM;
     Bool rawOutput=false;
     int minval=0,maxval=0,range;
-    //long **imp;
     long *bufp;
     int x,y,i;
 
@@ -130,13 +128,12 @@ PImage IPA__Point_combine(HV *profile)
         imp[i]=(long*)img[i]->data;
     }
     */
-    for (y=0,bufp=(long*)bimg->data; y<img[0]->h; y++,((Byte*)bufp)+=bimg->lineSize) {
+    for (y=0,bufp=(long*)bimg->data; y<img[0]->h; y++,(*((Byte**)&bufp))+=bimg->lineSize) {
         for (x=0; x<img[0]->w; x++) {
             long absmax = 0, sum=0, val, absval, origmax = 0;
             for (i=0; i<imgnum; i++) {
                 val = pix( img[i], x, y);
                 absval = abs( val);
-                //absval=abs(imp[i][x]);
                 switch (combineType) {
                     case COMBINE_SIGNEDMAXABS:
                     case COMBINE_MAXABS:
@@ -195,7 +192,6 @@ PImage IPA__Point_combine(HV *profile)
         */
     }
     free(img);
-    //free(imp);
 
     if (rawOutput) {
         oimg=bimg;
@@ -216,7 +212,7 @@ PImage IPA__Point_combine(HV *profile)
             range=1;
         }
         oimg=createNamedImage(bimg->w,bimg->h,imByte,"combine result");
-        for (y=0,bufp=(long*)bimg->data,p=oimg->data; y<bimg->h; y++,((Byte*)bufp)+=bimg->lineSize,p+=oimg->lineSize) {
+        for (y=0,bufp=(long*)bimg->data,p=oimg->data; y<bimg->h; y++,(*((Byte**)&bufp))+=bimg->lineSize,p+=oimg->lineSize) {
             for (x=0; x<bimg->w; x++) {
                 switch (conversionType) {
                     case CONV_SCALE:
@@ -400,7 +396,7 @@ PImage IPA__Point_subtract(PImage img1,PImage img2,HV *profile)
         croak("%s: can't create buffer image",method);
     }
 
-    for (ypos=0,dbuf=(long*)bufimg->data; ypos<img1->dataSize; ypos+=img1->lineSize,((Byte*)dbuf)+=bufimg->lineSize) {
+    for (ypos=0,dbuf=(long*)bufimg->data; ypos<img1->dataSize; ypos+=img1->lineSize,(*((Byte**)&dbuf))+=bufimg->lineSize) {
         for (xpos=ypos, xbuf=0; xbuf<bufimg->w; xbuf++,xpos++) {
             dbuf[xbuf]=(long)(img1->data[xpos])-(long)(img2->data[xpos]);
             if (conversionType==CONV_SCALEABS) {
@@ -430,7 +426,7 @@ PImage IPA__Point_subtract(PImage img1,PImage img2,HV *profile)
             range=1;
         } /* endif */
 
-        for (ypos=0,dbuf=(long*)bufimg->data; ypos<img1->dataSize; ypos+=img1->lineSize,((Byte*)dbuf)+=bufimg->lineSize) {
+        for (ypos=0,dbuf=(long*)bufimg->data; ypos<img1->dataSize; ypos+=img1->lineSize,(*((Byte**)&dbuf))+=bufimg->lineSize) {
             for (xpos=ypos, xbuf=0; xbuf<bufimg->w; xbuf++,xpos++) {
                 switch (conversionType) {
                     case CONV_TRUNC:

@@ -15,7 +15,6 @@ PImage_vmt CImage;
 XS( boot_IPA__Morphology)
 {
     dXSARGS;
-    // char* file = __FILE__;
 
     (void)items;
 
@@ -66,7 +65,7 @@ PImage bw8bpp_transform(const char *method,PImage img, const Byte *transtbl,int 
         p=(img->data+img->lineSize);
         pd=img->data;
         bufp=oimg->data+oimg->lineSize;
-        // processing bottom left/right corners
+        /* processing bottom left/right corners */
         oimg->data[0]=transtbl[
                        bwt_pix( p[0],4)+bwt_pix( p[0],3)+bwt_pix( p[1],2)+
                        bwt_pix(pd[0],5)+bwt_pix(pd[0],0)+bwt_pix(pd[1],1)+
@@ -77,7 +76,7 @@ PImage bw8bpp_transform(const char *method,PImage img, const Byte *transtbl,int 
                                bwt_pix(pd[img->w-2],5)+bwt_pix(pd[img->w-1],0)+bwt_pix(pd[img->w-1],1)+
                                bwt_pix(pd[img->w-2],6)+bwt_pix(pd[img->w-1],7)+bwt_pix(pd[img->w-1],8)
                               ];
-        // processing left & right edges
+        /* processing left & right edges */
         for (y=1;
              y<(img->h-1);
              y++,
@@ -97,9 +96,9 @@ PImage bw8bpp_transform(const char *method,PImage img, const Byte *transtbl,int 
                             ];
         }
 
-        // processing top left/right corners (note: bufp pointing
-        // at this point precisely at last image scanline as well
-        // as p
+        /* processing top left/right corners (note: bufp pointing
+         at this point precisely at last image scanline as well
+         as p */
         oimg->data[0]=transtbl[
                        bwt_pix( p[0],4)+bwt_pix( p[0],3)+bwt_pix( p[1],2)+
                        bwt_pix( p[0],5)+bwt_pix( p[0],0)+bwt_pix( p[1],1)+
@@ -111,7 +110,7 @@ PImage bw8bpp_transform(const char *method,PImage img, const Byte *transtbl,int 
                                bwt_pix(pd[img->w-2],6)+bwt_pix(pd[img->w-1],7)+bwt_pix(pd[img->w-1],8)
                               ];
 
-        // processing top/bottom edges
+        /* processing top/bottom edges */
         bufp=oimg->data;
         pd=p=img->data;
         pu=img->data+img->lineSize;

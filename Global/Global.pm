@@ -12,6 +12,7 @@ $VERSION = '0.01';
 @EXPORT_OK = qw(close_edges fill_holes area_filter identify_contours fft band_filter butterworth fourier);
 %EXPORT_TAGS = (tracks => [qw(close_edges)]);
 
+sub dl_load_flags { 0x01 };
 bootstrap IPA::Global $VERSION;
 
 sub pow2

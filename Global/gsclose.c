@@ -46,22 +46,22 @@ volatile unsigned ccount,cnum;
 
 static RGBColor pal256_16[] =
 {
-   {    0,    0,    0},    // 0 Black
-   { 0x80,    0,    0},    // 1 Blue
-   {    0, 0x80,    0},    // 2 Green
-   { 0x80, 0x80,    0},    // 3 Cyan
-   {    0,    0, 0x80},    // 4 Red
-   { 0x80,    0, 0x80},    // 5 Magenta
-   {    0, 0x80, 0x80},    // 6 Brown
-   { 0x80, 0x80, 0x80},    // 7 DGray
-   { 0xCC, 0xCC, 0xCC},    // 8 Pale Gray
-   { 0xFF,    0,    0},    // 9 LBlue
-   {    0, 0xFF,    0},    // A LGreen
-   { 0xFF, 0xFF,    0},    // B LCyan
-   {    0,    0, 0xFF},    // C LRed
-   { 0xFF,    0, 0xFF},    // D LMagenta
-   {    0, 0xFF, 0xFF},    // E Yellow
-   { 0xFF, 0xFF, 0xFF}     // F White
+   {    0,    0,    0},    /* 0 Black */
+   { 0x80,    0,    0},    /* 1 Blue */
+   {    0, 0x80,    0},    /* 2 Green */
+   { 0x80, 0x80,    0},    /* 3 Cyan */
+   {    0,    0, 0x80},    /* 4 Red */
+   { 0x80,    0, 0x80},    /* 5 Magenta */
+   {    0, 0x80, 0x80},    /* 6 Brown */
+   { 0x80, 0x80, 0x80},    /* 7 DGray */
+   { 0xCC, 0xCC, 0xCC},    /* 8 Pale Gray */
+   { 0xFF,    0,    0},    /* 9 LBlue */
+   {    0, 0xFF,    0},    /* A LGreen */
+   { 0xFF, 0xFF,    0},    /* B LCyan */
+   {    0,    0, 0xFF},    /* C LRed */
+   { 0xFF,    0, 0xFF},    /* D LMagenta */
+   {    0, 0xFF, 0xFF},    /* E Yellow */
+   { 0xFF, 0xFF, 0xFF}     /* F White */
 };
 
 static void add_candidate(int xpos,int direction)
@@ -101,18 +101,18 @@ static Bool pix_is_end(PImage img,int *shift_table,int xpos,int x,int y)
 {
     int i;
     int cnt=0,zerocnt=0;
-    int nonzerodir=-1; // позиция, в которой был найден последний ненулевой сосед для точки
+    int nonzerodir=-1; /* позиция, в которой был найден последний ненулевой сосед для точки */
 
     for (i=0; i<8; i++) {
-        int pval=0; // если мы "вылазим" за пределы image - считаем, что там у нас 0
+        int pval=0; /* если мы "вылазим" за пределы image - считаем, что там у нас 0 */
         if (valid_direction(img,i,x,y)) {
             pval=img->data[xpos+shift_table[i]];
         } /* endif */
         if (pval>0) {
             if (zerocnt>0) {
-                if (nonzerodir==0 && i==7) { // чтобы "замкнуть" направления 0 и 7, которые таки являются соседними
-                    // поскольку nonzerodir содержит _последнее_ "ненулевое направление", то
-                    // исключаются случаи, когда ненулевые на 0 и 1.
+                if (nonzerodir==0 && i==7) { /* чтобы "замкнуть" направления 0 и 7, которые таки являются соседними
+                    поскольку nonzerodir содержит _последнее_ "ненулевое направление", то
+                    исключаются случаи, когда ненулевые на 0 и 1. */
                     return true;
                 } /* endif */
                 return false;
@@ -124,13 +124,13 @@ static Bool pix_is_end(PImage img,int *shift_table,int xpos,int x,int y)
             } /* endif */
         } /* endif */
         else {
-            if (cnt>0) { // У нас уже были ненулевые соседи, значит пора считать нулевых
+            if (cnt>0) { /* У нас уже были ненулевые соседи, значит пора считать нулевых */
                 zerocnt++;
             } /* endif */
         } /* endelse */
     } /* endfor */
 
-    return (Bool)(cnt==2 || cnt==1); // случаи одиночных точек исключаем
+    return (Bool)(cnt==2 || cnt==1); /* случаи одиночных точек исключаем */
 }
 
 Bool check_edge_length(PImage img,int minlen,int *shift_table,int xpos,int fromdirection,int edgelen,Bool islong)
@@ -160,9 +160,7 @@ Bool check_edge_length(PImage img,int minlen,int *shift_table,int xpos,int fromd
             if (valid_direction(img,direction,x,y)) {
                 newxpos=xpos+shift_table[direction];
                 if (img->data[newxpos]==PIX_ORIG) {
-                    unsigned long dummy;
                     Bool rc;
-                    dummy++;
                     if (fromdirection==-1) {
                         backup_direction=(direction+4)%8;
                     } /* endif */
@@ -244,11 +242,9 @@ static void trace_edges(PImage img,int minlen,int *shift_table)
         for (xpos=ypos,x=0; x<img->w; xpos++,x++) {
             if (img->data[xpos]==PIX_ORIG) {
                 if (pix_is_end(img,shift_table,xpos,x,y)) {
-                    //log_write("checking edge length");
                     check_edge_length(img,minlen,shift_table,xpos,-1,1,false);
                 } /* endif */
                 else if (neighbours(img,shift_table,xpos,nil)==0) {
-                    //log_write("marking as single");
                     img->data[xpos]=PIX_SINGLE;
                 } /* endelse */
             } /* endif */
@@ -291,8 +287,8 @@ Bool make_new_edge(PImage dstimg,
                 if (neighbourPos[i]==-1) {
                     continue;
                 } /* endif */
-                // Если среди наших соседей есть соседи стартовой точки - замыкаться
-                // не будем. Однако если есть сосед не из длинного контура
+                /* Если среди наших соседей есть соседи стартовой точки - замыкаться
+                 не будем. Однако если есть сосед не из длинного контура */
                 if (dstimg->data[neighbourPos[i]]!=PIX_IN_LONG_EDGE) {
                     dontClose=false;
                     break;
@@ -305,23 +301,23 @@ Bool make_new_edge(PImage dstimg,
                 if (neighbourPos[i]<0 || neighbourPos[i]==start_pos) {
                     continue;
                 } /* endif */
-                // А вот теперь можно быть уверенным, что нашли точку замыкания.
+                /* А вот теперь можно быть уверенным, что нашли точку замыкания. */
                 edge_closed=true;
-                // Дальше надо бы проверить, а не наткнулись ли мы на какую-либо
-                // точку, которая может дать нам продолжение контура. Это может
-                // быть единичная, или часть короткого контура.
+                /* Дальше надо бы проверить, а не наткнулись ли мы на какую-либо
+                точку, которая может дать нам продолжение контура. Это может
+                быть единичная, или часть короткого контура. */
                 switch (dstimg->data[neighbourPos[i]]) {
-                    case PIX_SINGLE: // Единичная точка просто становится новым кандидатом
+                    case PIX_SINGLE: /* Единичная точка просто становится новым кандидатом */
                         dstimg->data[neighbourPos[i]]=PIX_EDGE_CANDIDATE;
                         add_candidate(neighbourPos[i],i);
                         break;
-                    case PIX_ORIG: // Угу, нетронутый контур. Надо пошуршать на предмет кандидатов.
-                                   // Поскольку готовая функция есть - мы просто убеждаем ее, что контур уже длинный
+                    case PIX_ORIG: /* Угу, нетронутый контур. Надо пошуршать на предмет кандидатов.
+                                    Поскольку готовая функция есть - мы просто убеждаем ее, что контур уже длинный */
                         check_edge_length(dstimg,1,shift_table,neighbourPos[i],i,0,true);
                         break;
                     case PIX_EDGE_CANDIDATE:
-                        //?? А вот если попалась точка-кандидат на продление -
-                        //?? она должна перестать быть таковой, ибо на нее уже замкнулись
+                        /*?? А вот если попалась точка-кандидат на продление -
+                        ?? она должна перестать быть таковой, ибо на нее уже замкнулись */
                         dstimg->data[neighbourPos[i]]=PIX_OLD_CANDIDATE;
                         break;
                     default:
@@ -342,7 +338,7 @@ Bool make_new_edge(PImage dstimg,
         if (valid_direction(dstimg,direction,x,y)) {
             int gval,chkpos=xpos+shift_table[direction];
             if (dstimg->data[chkpos]==0) {
-//          if (dstimg->data[chkpos]>0 && dstimg->data[chkpos]!=PIX_RESERVE) {
+/*          if (dstimg->data[chkpos]>0 && dstimg->data[chkpos]!=PIX_RESERVE) {
 //
 //              if ((chkpos!=start_pos) && (!is_neighbours(dstimg->lineSize,chkpos,start_pos))) {
 //                  // Другими словами: найденная ненулевая точка не является той,
@@ -350,25 +346,25 @@ Bool make_new_edge(PImage dstimg,
 //                  // той точки, с которой мы начали.
 //                  if (edgelen>0) { // если edgelen==0, то точка в xpos уже промаркирована и трогать ее не стоит
 //                      dstimg->data[xpos]=PIX_NEW_EDGE;
-//                  } /* endif */
+//                  } 
 //                  else {
 //                      dstimg->data[xpos]=oldval;
-//                  } /* endelse */
+//                  } 
 //                  if (dstimg->data[chkpos]==PIX_ORIG) {
 //                      // Очень интересно: соединямся с короткой границей.
 //                      // Поскольку стартовали с длинной границы, то новонайденную
 //                      // короткую надо к ней "присоединить".
 //                      check_edge_length(dstimg,1,shift_table,chkpos,direction,edgelen+1,true);
-//                  } /* endif */
+//                  } 
 //                  else if (dstimg->data[chkpos]==PIX_SINGLE) {
 //                      dstimg->data[chkpos]=PIX_EDGE_CANDIDATE;
 //                      add_candidate(chkpos,direction);
-//                  } /* endelse */
+//                  } 
 //                  // Ну и дальнейшие изыскания можно прекращать.
 //                  return true;
-//              } /* endif */
-//          } /* endif */
-//          else {
+//              } 
+//          } 
+//          else { */
                 gval=gradient->data[chkpos];
                 if (gval>=mingradient && gval>gradientval) {
                     selected_direction=direction;
@@ -406,9 +402,9 @@ Bool make_new_edge(PImage dstimg,
 PImage gs_close_edges(
                       PImage edges,
                       PImage gradient,
-                      int maxlen,      // максимально допустимая длина вновь созданного участка гpаницы
-                      int minedgelen,  // минимальная длина "длинной" границы
-                      int mingradient  // минимальное значение гpадиента, котоpое будет учитываться
+                      int maxlen,      /* максимально допустимая длина вновь созданного участка гpаницы */
+                      int minedgelen,  /* минимальная длина "длинной" границы */
+                      int mingradient  /* минимальное значение гpадиента, котоpое будет учитываться */
                      )
 {
     PImage dstimg;
@@ -434,16 +430,13 @@ PImage gs_close_edges(
     shift_table[6]=-edges->lineSize-1;
     shift_table[7]=-1;
 
-    //log_write("tracing edges");
-
     trace_edges(dstimg,minedgelen,shift_table);
     for (i=0; i<ccount; i++) {
         Bool rc;
         if (dstimg->data[candidates[i].pos]==PIX_OLD_CANDIDATE) {
-            // Этот кандидат уже не кандидат. 8)
+            /* Этот кандидат уже не кандидат. 8) */
             continue;
         } /* endif */
-        //log_write("making new edge");
         rc=make_new_edge(
                  dstimg,
                  gradient,
@@ -604,21 +597,21 @@ Bool remove_circles(
 PImage gs_track(PImage img,int startpos,int endpos,int treshold,unsigned long flags)
 {
     PImage srcimg,dstimg;
-    int shift_table[8]={
-        img->lineSize-1,
-        img->lineSize,
-        img->lineSize+1,
-        1,
-        -img->lineSize+1,
-        -img->lineSize,
-        -img->lineSize-1,
-        -1
-    };
+    int shift_table[8];
     int xs,ys,xe,ye,dx,dy;
     int startdirection,dirshift=0;
     Bool rc;
 
-    // Определим направление, в котором начнем двигаться
+    shift_table[0] = img->lineSize-1;
+    shift_table[1] = img->lineSize;
+    shift_table[2] = img->lineSize+1;
+    shift_table[3] = 1;
+    shift_table[4] = -img->lineSize-1;
+    shift_table[5] = -img->lineSize;
+    shift_table[6] = -img->lineSize+1;
+    shift_table[7] = -1;
+
+    /* Определим направление, в котором начнем двигаться */
     xs=startpos%img->lineSize;
     ys=startpos/img->lineSize;
     xe=endpos%img->lineSize;

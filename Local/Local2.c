@@ -36,8 +36,8 @@ PImage deriche( const char *method, PImage in, float alpha)
    ze = deriche_NewFz(n); za = deriche_NewFz(n);
    im1 = deriche_NewFz(n*n); im2 = deriche_NewFz(n*n); outf = deriche_NewFz(n*n);
 
-// COMPUTATION of H(x,y)
-// run I: bottom-up
+/* COMPUTATION of H(x,y)*/
+/* run I: bottom-up*/
    for ( y = 2; y < n; y++)
    {
       deriche_READLINE(ze,y-1);
@@ -45,7 +45,7 @@ PImage deriche( const char *method, PImage in, float alpha)
          im1[deriche_INDEX(x,y)] = ze[x] - b1*im1[deriche_INDEX(x,y-1)] - b2*im1[deriche_INDEX(x,y-2)];
    }
 
-// run II: top-down
+/* run II: top-down*/
    for ( y = n - 3; y >= 0; y--)
    {
       deriche_READLINE(ze,y+1);
@@ -56,7 +56,7 @@ PImage deriche( const char *method, PImage in, float alpha)
       }
    }
 
-// runs III - IV:  left to right or right to left
+/* runs III - IV:  left to right or right to left*/
    for ( y = 0; y < n; y++)
    {
       for ( x = 0; x < n; x++)   z1[x] = im1[deriche_INDEX(x,y)];
@@ -68,8 +68,8 @@ PImage deriche( const char *method, PImage in, float alpha)
       deriche_WRITELINE(za,y);
    }
 
-// COMPUTATION of V(x,y)
-// runs V - VI: left to right or right to left
+/* COMPUTATION of V(x,y)*/
+/* runs V - VI: left to right or right to left*/
    for ( y = 0; y < n; y++)
    {
       deriche_READLINE(ze,y);
@@ -80,13 +80,13 @@ PImage deriche( const char *method, PImage in, float alpha)
       for ( x = 0; x < n; x++)  im1[deriche_INDEX(x,y)] = a*(z2[x]-z3[x]);
    }
 
-// run VII: bottom-up
+/* run VII: bottom-up*/
    for ( y = 2; y < n; y++)
       for ( x = 0; x < n; x++)
          im2[deriche_INDEX(x,y)] = a0*im1[deriche_INDEX(x,y)] + a1*im1[deriche_INDEX(x,y)] -
                            b1*im2[deriche_INDEX(x,y-1)] - b2*im2[deriche_INDEX(x,y-2)];
 
-// run VIII: top-down
+/* run VIII: top-down*/
    for ( y = n - 3; y >= 0; y--)
    {
       for ( x = 0; x < n; x++)   z1[x] = im2[deriche_INDEX(x,y)];
@@ -116,7 +116,7 @@ PImage deriche( const char *method, PImage in, float alpha)
    out = createImage( in-> w, in-> h, in->type);
    for ( y = 0; y < n; y++)
       for ( x = 0; x < n; x++)
-         // out-> data[y*out-> lineSize + x] = outf[deriche_INDEX(x,y)] < 1 ? 0 : 255;
+         /* out-> data[y*out-> lineSize + x] = outf[deriche_INDEX(x,y)] < 1 ? 0 : 255;*/
          out-> data[y*out-> lineSize + x] = outf[deriche_INDEX(x,y)] + 0.5;
 
    free( z1); free( z2); free( z3);

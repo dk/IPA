@@ -12,7 +12,6 @@ PImage_vmt CImage;
 XS( boot_IPA__Geometry)
 {
     dXSARGS;
-    // char* file = __FILE__;
 
     (void)items;
 
@@ -52,7 +51,6 @@ PImage IPA__Geometry_mirror(PImage img,HV *profile)
                 if (!oimg) {
                     croak("%s: can't create output image",method);
                 }
-                //log_write("oimg: %dx%d, type:%x lineSize:<%d >%d",oimg->w,oimg->h,oimg->type,img->lineSize,oimg->lineSize);
                 for (y=0,pi=img->data,po=(oimg->data+oimg->lineSize*(oimg->h-1)); y<img->h; y++,pi+=img->lineSize,po-=oimg->lineSize) {
                     memcpy(po,pi,img->lineSize);
                 }
@@ -114,7 +112,7 @@ PImage IPA__Geometry_mirror(PImage img,HV *profile)
                     case imbpp16:
                         {
                             short *pi,*po;
-                            for (y=0,pi=(short*)img->data,po=(short*)oimg->data; y<img->h; y++,((Byte*)pi)+=img->lineSize,((Byte*)po)+=oimg->lineSize) {
+                            for (y=0,pi=(short*)img->data,po=(short*)oimg->data; y<img->h; y++,(*((Byte**)&pi))+=img->lineSize,(*((Byte**)&po))+=oimg->lineSize) {
                                 for (x=0; x<img->w; x++) {
                                     po[img->w-x-1]=pi[x];
                                 }
@@ -124,7 +122,7 @@ PImage IPA__Geometry_mirror(PImage img,HV *profile)
                     case imbpp24:
                         {
                             PRGBColor pi,po;
-                            for (y=0,pi=(PRGBColor)img->data,po=(PRGBColor)oimg->data; y<img->h; y++,((Byte*)pi)+=img->lineSize,((Byte*)po)+=oimg->lineSize) {
+                            for (y=0,pi=(PRGBColor)img->data,po=(PRGBColor)oimg->data; y<img->h; y++,(*((Byte**)&pi))+=img->lineSize,(*((Byte**)&po))+=oimg->lineSize) {
                                 for (x=0; x<img->w; x++) {
                                     po[img->w-x-1]=pi[x];
                                 }
@@ -134,7 +132,7 @@ PImage IPA__Geometry_mirror(PImage img,HV *profile)
                     case imbpp32:
                         {
                             U32 *pi,*po;
-                            for (y=0,pi=(U32*)img->data,po=(U32*)oimg->data; y<img->h; y++,((Byte*)pi)+=img->lineSize,((Byte*)po)+=oimg->lineSize) {
+                            for (y=0,pi=(U32*)img->data,po=(U32*)oimg->data; y<img->h; y++,(*((Byte**)&pi))+=img->lineSize,(*((Byte**)&po))+=oimg->lineSize) {
                                 for (x=0; x<img->w; x++) {
                                     po[img->w-x-1]=pi[x];
                                 }
@@ -145,7 +143,7 @@ PImage IPA__Geometry_mirror(PImage img,HV *profile)
                         {
                             typedef Byte pix64[8];
                             pix64 *pi,*po;
-                            for (y=0,pi=(pix64*)img->data,po=(pix64*)oimg->data; y<img->h; y++,((Byte*)pi)+=img->lineSize,((Byte*)po)+=oimg->lineSize) {
+                            for (y=0,pi=(pix64*)img->data,po=(pix64*)oimg->data; y<img->h; y++,(*((Byte**)&pi))+=img->lineSize,(*((Byte**)&po))+=oimg->lineSize) {
                                 for (x=0; x<img->w; x++) {
                                     memcpy(po,pi,sizeof(pix64));
                                 }
@@ -156,7 +154,7 @@ PImage IPA__Geometry_mirror(PImage img,HV *profile)
                         {
                             typedef Byte pix128[8];
                             pix128 *pi,*po;
-                            for (y=0,pi=(pix128*)img->data,po=(pix128*)oimg->data; y<img->h; y++,((Byte*)pi)+=img->lineSize,((Byte*)po)+=oimg->lineSize) {
+                            for (y=0,pi=(pix128*)img->data,po=(pix128*)oimg->data; y<img->h; y++,(*((Byte**)&pi))+=img->lineSize,(*((Byte**)&po))+=oimg->lineSize) {
                                 for (x=0; x<img->w; x++) {
                                     memcpy(po,pi,sizeof(pix128));
                                 }

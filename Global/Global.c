@@ -13,7 +13,6 @@ static SV **temporary_prf_Sv;
 XS( boot_IPA__Global)
 {
     dXSARGS;
-    // char* file = __FILE__;
 
     (void)items;
 
@@ -86,8 +85,6 @@ PImage IPA__Global_close_edges(PImage img,HV *profile)
     else {
         croak("%s: minimal gradient value missing",method);
     }
-
-    //log_write("going to produce closed edges.");
 
     return gs_close_edges(img,gradient,maxlen,minedgelen,mingradient);
 }

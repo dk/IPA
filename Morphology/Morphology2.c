@@ -666,7 +666,6 @@ if(dist>maxdist)maxdist=dist;
    if (!FIFO_EMPTY) warn( "$s: queue is not empty - can't be", METHOD);
 
    /* Convert the result to a suitable form */
-//   IMo = createNamedImage( width, height, label < 255 ? imByte : imShort, "Watershed lines");
    IMo = createNamedImage( width, height, imByte, "Watershed lines");
    if (!IMo) {
       free( queue);
@@ -709,8 +708,8 @@ if(dist>maxdist)maxdist=dist;
    if ( IMo-> type == imByte)
       for ( y = 0; y < height; y++)
          for ( x = 0; x < width; x++)
-            IMo-> data[ y*IMo-> lineSize+x] = ((out[x+width*y] == WSHED) ? 255 : 0);//out[x+width*y]*5);
-   else { // i.e. IMi-> type == imShort
+            IMo-> data[ y*IMo-> lineSize+x] = ((out[x+width*y] == WSHED) ? 255 : 0);
+   else { /* i.e. IMi-> type == imShort */
       for ( y = 0; y < height; y++) {
          I16 *o = (I16*)(IMo-> data + y*IMo-> lineSize);
          I16 *i = out+width*y;
@@ -892,9 +891,9 @@ define_reconstruct4(double)
 PImage
 IPA__Morphology_reconstruct( PImage I, PImage J, HV *profile)
 {
-// Mask image I
-// Marker image J
-// if inPlace turned on, the result will be placed into J
+/* Mask image I
+ Marker image J
+ if inPlace turned on, the result will be placed into J */
    Bool inPlace = false;
    int neighborhood = 8;
 

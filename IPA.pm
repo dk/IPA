@@ -8,14 +8,7 @@ require DynaLoader;
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 @ISA = qw(Exporter DynaLoader);
 
-BEGIN {
-    if ( $^O =~ /freebsd/i) {
-	( my $ver = `/usr/bin/uname -r`) =~ s/^(\d+\.\d+).*$/$1/;
-	if ( $ver >= 3.4) {
-	    eval "sub dl_load_flags { 0x01 }";
-	}
-    }
-}
+sub dl_load_flags { 0x01 };
 
 $VERSION = '0.01';
 @EXPORT = qw();

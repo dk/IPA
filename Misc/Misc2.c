@@ -39,7 +39,7 @@ IPA__Misc_split_channels( PImage input, char * mode)
          sv_free(( SV *) profile);
       }
       dstd = PImage(ch[0])-> lineSize - input-> w;
-      // printf("s[%08x]d[%08x %08x %08x], y %d delta[%d %d]\n", src, dst[0], dst[1], dst[2], y, srcd, dstd);
+      /* printf("s[%08x]d[%08x %08x %08x], y %d delta[%d %d]\n", src, dst[0], dst[1], dst[2], y, srcd, dstd); */
       while ( y--) {
          int x = input-> w;
          while ( x--) {
@@ -50,7 +50,7 @@ IPA__Misc_split_channels( PImage input, char * mode)
          src += srcd;
          for ( m = 0; m < 3; m++) dst[m] += dstd;
       }
-      // swap r and b
+      /* swap r and b */
       ch[3] = ch[0];
       ch[0] = ch[2];
       ch[2] = ch[3];

@@ -25,6 +25,7 @@ $VERSION = '0.01';
                 algebraic_difference gradient
                 reconstruct watershed thinning);
 %EXPORT_TAGS = (binary => [qw(BWTransform)]);
+sub dl_load_flags { 0x01 };
 
 bootstrap IPA::Morphology $VERSION;
 
