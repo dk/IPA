@@ -8,5 +8,6 @@ package IPA::Point {
     PImage remap(PImage input,HV *profile);
     PImage subtract(PImage input1,PImage input2,HV *profile);
     PImage mask( PImage msk, HV *profile);
+    PImage average( SV *list);
 }
 

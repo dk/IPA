@@ -461,3 +461,125 @@ PImage IPA__Point_subtract(PImage img1,PImage img2,HV *profile)
 
     return oimg;
 }
+
+PImage
+IPA__Point_average( SV *list)
+{
+    const char *method="IPA::Point::average";
+    AV *images;
+    int i, imgCount;
+    PImage oimg = nil, fimg = nil, img = nil;
+    
+    if ( ! list) {
+	croak( "%s: parameter required", method);
+    }
+    if ( ! SvROK( list) || ( SvTYPE( SvRV( list)) != SVt_PVAV)) {
+	croak( "%s: array reference required as a parameter", method);
+    }
+    images = ( AV *) SvRV( list);
+    imgCount = av_len( images) + 1;
+    if ( imgCount == 0) {
+	croak( "%s: at least one image required", method);
+    }
+
+#define DO_COPY( type) \
+    { \
+	type *pSrc; \
+	double *pDst; \
+	for ( pSrc = ( type *) img->data, pDst = ( double *) fimg->data; pSrc < ( type *) ( img->data + img->dataSize); pSrc++, pDst++) { \
+	    *pDst = ( double) *pSrc; \
+	} \
+    }
+    
+#define DO_AVERAGE( type) \
+    { \
+	type *pSrc; \
+	double *pDst; \
+	for ( pSrc = ( type *) img->data, pDst = ( double *) fimg->data; pSrc < ( type *) ( img->data + img->dataSize); pSrc++, pDst++) { \
+	    *pDst = ( *pDst + ( ( double) *pSrc)); \
+	} \
+    }
+
+#define DO_COPYBACK( type) \
+    { \
+	type *pDst; \
+	double *pSrc; \
+	for ( pDst = ( type *) oimg->data, pSrc = ( double *) fimg->data; pSrc < ( double *) ( fimg->data + fimg->dataSize); pSrc++, pDst++) { \
+	    *pDst = ( type) ( *pSrc / imgCount + .5); \
+	} \
+    }
+
+    for ( i = 0; i < imgCount; i++) {
+	SV **mItem = av_fetch( images, i, 0);
+	if ( ! mItem) {
+	    croak( "%s: unexpected null element at index #%d", method, i);
+	}
+	if ( ! sv_isobject( *mItem) || ! sv_derived_from( *mItem, "Prima::Image")) {
+	    croak( "%s: element at index #%d isn't a Prima::Image derivative", method, i);
+	}
+	img = ( PImage) gimme_the_mate( *mItem);
+	if ( ( img->type & imGrayScale) != imGrayScale) {
+	    croak( "%s: image isn't of a grayscale type at index #%d", method, i);
+	}
+	if ( oimg == nil) {
+	    oimg = createNamedImage( img->w, img->h, img->type, method);
+	    fimg = createNamedImage( img->w, img->h, imDouble, method);
+	}
+	if ( i == 0) {
+	    switch ( img->type & imBPP) {
+		case imbpp8:
+		    DO_COPY( uint8_t);
+		    break;
+		case imbpp16:
+		    DO_COPY( uint16_t);
+		    break;
+		case imbpp32:
+		    DO_COPY( uint32_t);
+		    break;
+		case imbpp64:
+		    DO_COPY( uint64_t);
+		    break;
+		default:
+		    croak( "%s: method doesn't support (yet?)images of type %04x", method, img->type);
+	    }
+	}
+	else {
+	    switch ( img->type & imBPP) {
+		case imbpp8:
+		    DO_AVERAGE( uint8_t);
+		    break;
+		case imbpp16:
+		    DO_AVERAGE( uint16_t);
+		    break;
+		case imbpp32:
+		    DO_AVERAGE( uint32_t);
+		    break;
+		case imbpp64:
+		    DO_AVERAGE( uint64_t);
+		    break;
+	    }
+	}
+    }
+    switch ( img->type & imBPP) {
+	case imbpp8:
+	    DO_COPYBACK( uint8_t);
+	    break;
+	case imbpp16:
+	    DO_COPYBACK( uint16_t);
+	    break;
+	case imbpp32:
+	    DO_COPYBACK( uint32_t);
+	    break;
+	case imbpp64:
+	    DO_COPYBACK( uint64_t);
+	    break;
+    }
+
+    Object_destroy( ( Handle) fimg);
+
+#undef DO_COPY
+#undef DO_AVERAGE
+#undef DO_COPYBACK
+
+    return oimg;
+}

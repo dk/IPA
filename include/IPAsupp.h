@@ -21,12 +21,11 @@
 #define sign(x)                 ((x)<0 ? -1 : ((x)>0 ? 1 : 0))
 #endif
 
-#define COMBINE_MAXABS          1       // Максимум абсолютных значений
-#define COMBINE_SUMABS          2       // Сумма абсолютных значений
-#define COMBINE_SUM             3       // Сумма значений
-#define COMBINE_SQRT            4       // Корень суммы квадратов
-#define COMBINE_SIGNEDMAXABS    5       // Максимум абсолютных значений, но
-                                        // выбранное значение сохраняет свой знак
+#define COMBINE_MAXABS          1
+#define COMBINE_SUMABS          2
+#define COMBINE_SUM             3
+#define COMBINE_SQRT            4
+#define COMBINE_SIGNEDMAXABS    5
 #define COMBINE_FIRST           COMBINE_MAXABS
 #define COMBINE_LAST            COMBINE_SIGNEDMAXABS
                                         
