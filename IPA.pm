@@ -702,13 +702,48 @@ Contains miscellaneous helper routines.
 
 =over
 
-=item split_channels IMAGE, MODE = 'rgb'
+=item split_channels IMAGE, [ MODE = 'rgb' ]
 
 Splits IMAGE onto channels, with the selected MODE, which
-currently is C<'rgb'> only. Returns channels as anonymous
-array of image objects.
+currently can be C<'rgb'> or C<'hsv'> string constants. 
+Returns channels as anonymous array of image objects.
 
-Supported types: RGB
+=over
+
+=item rgb
+
+Supported types: RGB .
+Returns: 3 Byte images .
+
+=item hsv
+
+Supported types: RGB .
+Returns: 3 float images - with hue, saturation, and value .
+Ranges: hue: 0-360, saturation: 0-1, value: 0-1 .
+
+=back
+
+=item combine_channels [IMAGES], [ MODE = 'rgb' ]
+
+Combines list of channel IMAGES into single image, with the selected 
+MODE, which currently can be C<'rgb'> or C<'hsv'> string constants. 
+Returns the combined image.
+
+=over
+
+=item rgb
+
+Supported types: Byte .
+Returns: RGB image . 
+
+=item hsv
+
+Supported types: Float .
+Returns: RGB image .
+Channel ranges: hue: 0-360, saturation: 0-1, value: 0-1
+
+=back
+
 
 =item histogram IMAGE
 
