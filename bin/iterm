@@ -178,7 +178,10 @@ $w = Prima::Window-> create(
       }],
       [],
       ['~Duplicate' => 'Ctrl+D' => '^D' => sub { dup(); } ],
-   ]]],
+   ]],
+   [],
+   ['Help' => \&help ],
+   ],
 );
 
 
