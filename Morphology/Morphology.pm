@@ -59,7 +59,6 @@ sub AUTOLOAD {
         $bwmethodname=~s/^bw_//;
         if (ref($transform_luts{$bwmethodname}) eq 'CODE') {
             my ($lut)=$transform_luts{$bwmethodname}->();
-            print length($lut);
             eval("sub $subname { return BWTransform(\$_\[0\],lookup=>\'$lut\'); }");
             croak("IPA::Morphology::AUTOLOAD: $@") if $@;
             goto &$subname;
