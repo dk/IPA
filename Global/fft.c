@@ -3,6 +3,10 @@
 #include <math.h>
 #include <stdio.h>
 
+/* Confusing bu true */
+#define FFT_DIRECT  -1
+#define FFT_INVERSE 1
+
 /*
    Frequency domain functions
 */   
@@ -69,7 +73,7 @@ IPA__Global_fft(PImage img,HV *profile)
       goto EXIT;
    }   
 
-   fft_2d(( double *) ret-> data, ret-> w, ret-> h, inverse ? 1 : -1, buffer);
+   fft_2d(( double *) ret-> data, ret-> w, ret-> h, inverse ? FFT_INVERSE : FFT_DIRECT, buffer);
 EXIT:  
    free( buffer); 
    if ( ret)
@@ -306,14 +310,14 @@ IPA__Global_band_filter(PImage img,HV *profile)
          failed = 1;
          goto EXIT;
       }   
-      fft_2d( data, ret-> w, ret-> h, -1, buffer);
+      fft_2d( data, ret-> w, ret-> h, FFT_DIRECT, buffer);
    }   
 
    butterworth( data, ret-> w, ret-> h, MinVal, homomorph, LowPass, Power, CutOff, Boost);
 
    /* inverse fft */
    if ( spatial) {
-      fft_2d( data, ret-> w, ret-> h, 1, buffer);
+      fft_2d( data, ret-> w, ret-> h, FFT_INVERSE, buffer);
       free( buffer);
       buffer = nil;
    }   
