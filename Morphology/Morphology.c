@@ -7,6 +7,7 @@
 
 #define bwt_pix(x,n)      (((x) ? 1 : 0)<<(n))
 
+
 static SV **temporary_prf_Sv;
 
 PImage_vmt CImage;
@@ -143,7 +144,7 @@ PImage IPA__Morphology_BWTransform(PImage img,HV *profile)
     unsigned char *transtbl = nil;
     
     if ( !img || !kind_of(( Handle) img, CImage))
-       croak("%s: not an image passed", METHOD);
+       croak("%s: not an image passed", "IPA::Morphology::BWTransform");
  
     if (pexist(lookup)) {
         SV *tblstr=pget_sv(lookup);
