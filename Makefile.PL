@@ -147,18 +147,25 @@ sub cc_command_line
 
 sub ld_command_line
 {
-    my ( $dstf) = shift;
+    my ( $dstf, $deffile) = (shift,shift);
     my @ld = ( $LD, split( ' ', $LDFLAGS));
     if ( $COMPILER eq 'bcc32') {
         push @ld, '-L"' . join( ';', @LIBPATH) . '" c0d32.obj ';
         push @ld, @_;
-        push @ld, ",", $dstf, ", ,", @LIBS, ",", "win32\\Prima.def,";
-    }
+    } 
     else {
         push @ld, map { "$LDLIBPATHFLAG$_"} @LIBPATH;
         push @ld, "$LDOUTFLAG$dstf", @_;
         push @ld, map { "$LDLIBFLAG$_"} @LIBS;
-        push @ld, qd( "os2/Prima.def") if $COMPILER eq 'emx';
+    }
+    if ( $Win32) {
+       if ( $COMPILER eq 'bcc32') { 
+           push @ld, ",", $dstf, ", ,", @LIBS, ",", "$deffile,";
+       } else {
+           push @ld, "/DEF:$deffile";
+       }
+    } elsif ( $OS2) {
+       push @ld, $deffile; 
     }
     return @ld;
 }
@@ -457,7 +464,7 @@ sub setup_variables
         $platform = 'unix';
     }
     setvar( 'PLATFORM', $platform);
-    print "locating Prima ...";
+    print "Locating Prima ...";
 
     if ( -f qd("$Config{installsitearch}/Prima/CORE/apricot.h")) {
        $PRIMA_INSTDIR  = $Config{installsitearch};
@@ -672,11 +679,20 @@ sub setup_variables
 
 sub setup_paths
 {
-    my $libpath = find_lib( $Config{ libperl}, "", qd( "$Config{ archlib}/CORE"));
-    die "Cannot find perl library" unless defined $libpath;
-    print "Perl library found in ", ( $libpath || "default LIBPATH"), "\n";
-    push @LIBPATH, $libpath if $libpath;
-    push @LIBS, $Config{ libperl};
+    my $libpath;
+    if ( $Win32 || $OS2) {
+       $libpath = find_lib( $Config{ libperl}, "", qd( "$Config{ archlib}/CORE"));
+       die "Cannot find perl library" unless defined $libpath;
+       print "Perl library found in ", ( $libpath || "default LIBPATH"), "\n";
+       push @LIBPATH, $libpath if $libpath;
+       push @LIBS, $Config{ libperl};
+
+       $libpath = find_lib( "Prima$LIB_EXT", "", qd("$PRIMA_INSTDIR/auto/Prima"));
+       die "Cannot find prima library" unless defined $libpath;
+       print "Prima library found in ", ( $libpath || "default LIBPATH"), "\n";
+       push @LIBPATH, $libpath if $libpath;
+       push @LIBS, "Prima$LIB_EXT";
+    }
 }
 
 sub setup_defines
@@ -710,6 +726,37 @@ sub setup_defines
     foreach my $defname ( keys %USER_DEFINES_ADDONS) {
         $DEFINES{ $defname} = ( $DEFINES{ $defname} || '') . join( '', @{ $USER_DEFINES_ADDONS{ $defname}});
     }
+}
+
+sub generate_def
+{
+   my ( $file, $libid, @exports) = @_;
+   return if !$Win32 && !$OS2;
+   open PRIMADEF, ">$file" or die "Cannot create $file: $!";
+   if ( $Win32) {
+      print PRIMADEF <<EOF;
+LIBRARY $libid
+CODE LOADONCALL
+DATA LOADONCALL NONSHARED MULTIPLE
+EXPORTS
+EOF
+      if ( $COMPILER eq 'bcc32') {
+          print PRIMADEF map { "\t_$_\n\t$_=_$_\n"} @exports;
+      }
+      else {
+          print PRIMADEF map { "\t$_\n\t_$_ = $_\n"} @exports;
+      }
+   } else {
+      $libid = dl_name( $libid);
+      print PRIMADEF <<EOF;
+LIBRARY $libid INITINSTANCE TERMINSTANCE
+CODE LOADONCALL
+DATA LOADONCALL NONSHARED MULTIPLE
+EXPORTS
+EOF
+       print PRIMADEF map { "\t$_\n"} @exports;
+   }
+   close PRIMADEF;
 }
 
 sub setup_misc
@@ -891,9 +938,10 @@ sub clsmake
                      qd( "include/generic/$classname.inc"),
                     );
     push @allinstall, qd( "include/generic/$classname.h"), $INSTALL_LIB . qd( "/CORE/generic$subdir");
-    $classname =~ m/${dir_sep}*(\w*)$/;
+    $classname =~ m/\/*(\w*)$/;
     my $fn = $1;
     $mapheader{"$fn.h"} = "include/generic$subdir/$fn.h";
+    $mapheader{"$fn.inc"} = "include/generic$subdir/$fn.inc";
     my @ancestors = gencls( $clsfile, depend => 1);
     $mk .= qd( "include/generic/$_.h $_.cls ") foreach @ancestors;
     print "\n";
@@ -904,12 +952,19 @@ sub clsmake
 sub dllmake
 {
    my $subdir = $_[0];
-   my $name = qd( "auto/$PRJ/" . dl_name( defined($subdir) ? "$subdir/$subdir" : $PRJ));
+   my $sbd  = defined($subdir) ? "$subdir/$subdir" : $PRJ;
+   my $name = qd( "auto/$PRJ/" . dl_name( $sbd));
    push ( @allsubtargets, $name);
    push ( @allclean,      $name);
+   local @LIBS = @LIBS;
+   local @LIBPATH = @LIBPATH;
+   if ( defined ( $subdir) && $Win32) {
+      push( @LIBS,    "$PRJ$LIB_EXT");
+      push( @LIBPATH, cwd() . qd("/auto/$PRJ"));
+   }
       return <<HDD;
 $name: @allobjects
-\t${ \eval{ return join ' ', ld_command_line( $name, @allobjects)}}
+\t${ \eval{ return join ' ', ld_command_line( $name, qd("$sbd.def"), @allobjects)}}
 
 HDD
    
@@ -1004,7 +1059,7 @@ else {
     );
     process_commandline;
     setup_variables;
-    #setup_paths;
+    setup_paths;
     setup_defines;
     setup_misc;
 
@@ -1052,6 +1107,7 @@ closedir D;
        $touch = 1;
    }
    $make .= dllmake() if $touch;
+   generate_def("$PRJ.def", $PRJ, "boot_$PRJ", "create_compatible_image");
 }
 
 my @prjdirs;
@@ -1074,6 +1130,7 @@ for ( @d) {
    next unless $touch;
    push( @prjdirs, $subdir);
    $make .= dllmake( $subdir);
+   generate_def("$subdir/$subdir.def", $subdir, "boot_${PRJ}__$subdir");
 }}
 
     push @allrealclean, 'Makefile';
@@ -1114,7 +1171,13 @@ EOF
 
 $make = "";
 for ( @allsubtargets) {
-   $make .= "\t$_ $PREFIX/$_ \\\n";
+   $make .= "\t$_ $INSTALL_DL \\\n";
+   if ( $Win32) { # libs additional to dll
+      my $libt = $_;
+      if ( $libt =~ s/\.dll$/.lib/i) {
+         $make .= "\t$libt $INSTALL_DL \\\n";   
+      }
+   }
 }
 print MAKE $make;
 
