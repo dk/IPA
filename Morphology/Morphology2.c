@@ -76,6 +76,7 @@ IPA__Morphology_thinning( PImage i, HV *profile)
    int w, h, y, maxy, maxx, line_size;
    Byte *to, *from, *m, *x, b;
    Bool change;
+   SV * name;
 
    if ( i-> type != imByte)
       WHINE( "cannot handle images other than 8-bit gray scale");
@@ -91,7 +92,9 @@ IPA__Morphology_thinning( PImage i, HV *profile)
    if (!o)
         WHINE( "error creating output image");
    SvREFCNT(SvRV(o-> mate))++;
-   o-> self-> set_name((Handle)o, METHOD);
+   name = newSVpv( METHOD, 0);
+   o-> self-> set_name((Handle)o, name);
+   sv_free( name);
    SvREFCNT(SvRV(o-> mate))--;
 
    m = malloc( line_size * h);
@@ -896,6 +899,7 @@ IPA__Morphology_reconstruct( PImage I, PImage J, HV *profile)
  if inPlace turned on, the result will be placed into J */
    Bool inPlace = false;
    int neighborhood = 8;
+   SV * name;
 
    if ( !I || !kind_of(( Handle) I, CImage))
        croak("%s: not an image passed to 1st parameter", METHOD);
@@ -921,7 +925,9 @@ IPA__Morphology_reconstruct( PImage I, PImage J, HV *profile)
       if (!o) croak( "%s: cannot create output image", METHOD);
       J = o;
    }
-   J-> self-> set_name((Handle)J, METHOD);
+   name = newSVpv( METHOD, 0);
+   J-> self-> set_name((Handle)J, name);
+   sv_free( name);
 
    switch ( neighborhood) {
       case 4:

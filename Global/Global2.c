@@ -410,11 +410,14 @@ IPA__Global_fill_holes( PImage in, HV *profile)
       WHINE( "cannot handle neighborhoods other than 4 and 8");
 
    if (!inPlace) {
+      SV * name;
       out = (PImage)in-> self-> dup((Handle)in);
       if (!out)
 	 WHINE( "error creating output image");
       SvREFCNT(SvRV(out-> mate))++;
-      out-> self-> set_name((Handle)out, METHOD);
+      name = newSVpv( METHOD, 0);
+      out-> self-> set_name((Handle)out, name);
+      sv_free( name);
       SvREFCNT(SvRV(out-> mate))--;
    }
 
@@ -472,11 +475,14 @@ IPA__Global_area_filter( PImage in, HV *profile)
       maxArea = pget_i( maxArea);
 
    if (!inPlace) {
+      SV * name;
       out = (PImage)in-> self-> dup((Handle)in);
       if (!out)
 	 WHINE( "error creating output image");
       SvREFCNT(SvRV(out-> mate))++;
-      out-> self-> set_name((Handle)out, METHOD);
+      name = newSVpv( METHOD, 0);
+      out-> self-> set_name((Handle)out, name);
+      sv_free( name);
       SvREFCNT(SvRV(out-> mate))--;
    }
 
