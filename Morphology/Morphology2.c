@@ -370,27 +370,20 @@ IPA__Morphology_algebraic_difference( PImage i1, PImage i2, HV *profile)
    PImage o = i1;
    int w, h, y, x;
 
-// DOLBUG( "1");
    if ( i1-> type != imByte && i1-> type != imShort && i1-> type != imLong && i1-> type != imFloat && i1-> type != imDouble)
       croak( "%s: cannot handle images other than gray scale ones", METHOD);
 
-// DOLBUG( "2");
    if ( i2-> type != i1-> type || i2-> w != i1-> w || i2-> h != i1-> h)
       croak( "%s: two input images should have the same dimensions", METHOD);
 
-// DOLBUG( "3");
    w = i1-> w;   h = i1-> h;
 
-// DOLBUG( "4");
    if ( profile && pexist( inPlace))
       inPlace = pget_B( inPlace);
 
-// DOLBUG( "5");
    if ( !inPlace) o = createNamedImage( w, h, i1-> type, METHOD);
-// DOLBUG( "6");
    if (!o) croak( "%s: cannot create output image", METHOD);
 
-// DOLBUG( "7");
    switch (o-> type) {
       case imByte:   ALGDIFF(U8);     break;
       case imShort:  ALGDIFF(I16);    break;
@@ -399,9 +392,7 @@ IPA__Morphology_algebraic_difference( PImage i1, PImage i2, HV *profile)
       case imDouble: ALGDIFF(double); break;
    }
 
-// DOLBUG( "8");
    if (inPlace) o-> self-> update_change((Handle)o);
-// DOLBUG( "9");
    return o;
 }
 
@@ -658,13 +649,7 @@ if(dist>maxdist)maxdist=dist;
       }
    }
 
-   if (!FIFO_EMPTY) DOLBUG( "$s: queue is not empty - can't be", METHOD);
-   DOLBUG( "min max: %d %d", hmin, hmax);
-   DOLBUG( "maxdist: %d", maxdist);
-   DOLBUG( "maxdist: %d", maxdist);
-   DOLBUG( "label: %d", label);
-   DOLBUG( "i: %d", i);
-   DOLBUG( "Max queue size: %d", maxqueue);
+   if (!FIFO_EMPTY) warn( "$s: queue is not empty - can't be", METHOD);
 
    /* Convert the result to a suitable form */
 //   IMo = createNamedImage( width, height, label < 255 ? imByte : imShort, "Watershed lines");
@@ -814,7 +799,6 @@ if(0)debug_write( "prop"); \
    }                                                                           \
                                                                                \
    free(queue);                                                                \
-   DOLBUG( "%s: max queue size: %d", METHOD, maxqueue);                        \
 }
 
 #undef NABO
