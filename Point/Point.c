@@ -242,9 +242,8 @@ PImage IPA__Point_threshold(PImage img,HV *profile)
     int minvalue,maxvalue=255;
     unsigned char lookup_table[256];
 
-    if ( ! img) {
-	croak( "%s: null image passed", method);
-    }
+    if ( !img || !kind_of(( Handle) img, CImage))
+       croak("%s: not an image passed", method);
 
     if (img->type!=imByte) {
         croak("%s: unsupported image type",method);
@@ -288,9 +287,8 @@ PImage IPA__Point_gamma(PImage img,HV *profile)
     unsigned char lookup_table[256];
     double i;
 
-    if ( ! img) {
-	croak( "%s: null image passed", method);
-    }
+    if ( !img || !kind_of(( Handle) img, CImage))
+       croak("%s: not an image passed", method);
 
     if (pexist(origGamma)) {
         origGamma=pget_f(origGamma);
@@ -320,9 +318,8 @@ PImage IPA__Point_remap(PImage img,HV *profile)
     const char *method="IPA::Point::remap";
     unsigned char lookup_table[256];
 
-    if ( ! img) {
-	croak( "%s: null image passed", method);
-    }
+    if ( !img || !kind_of(( Handle) img, CImage))
+       croak("%s: not an image passed", method);
 
     if ((img->type & imBPP)!=imbpp8) {
         croak("%s: unsupported image type",method);
@@ -376,13 +373,10 @@ PImage IPA__Point_subtract(PImage img1,PImage img2,HV *profile)
     int conversionType=CONV_SCALE;
     Bool rawOutput=false;
 
-    if ( ! img1) {
-	croak( "%s: null first image passed", method);
-    }
-
-    if ( ! img2) {
-	croak( "%s: null second image passed", method);
-    }
+    if ( !img1 || !kind_of(( Handle) img1, CImage))
+       croak("%s: not an image passed to 1st parameter", method);
+    if ( !img2 || !kind_of(( Handle) img2, CImage))
+       croak("%s: not an image passed to 2nd parameter", method);
 
     if (img1->type!=imByte) {
         croak("%s: unsupported format of first image",method);

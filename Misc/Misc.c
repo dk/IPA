@@ -32,9 +32,9 @@ IPA__Misc_histogram( PImage img)
     int x, y;
     Byte *p;
 
-    if ( ! img) {
-	croak( "%s: null image passed", method);
-    }
+    if ( !img || !kind_of(( Handle) img, CImage))
+       croak("%s: not an image passed", method);
+
     if ( ( img->type & imBPP) != imbpp8) {
 	croak( "%s: unsupported image type", method);
     }

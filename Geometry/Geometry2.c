@@ -13,7 +13,9 @@ PImage IPA__Geometry_shift_rotate( PImage img, HV *profile)
    int mult;
    int y;
 
-   if ( !img) croak("%s: no image", method);
+   if ( !img || !kind_of(( Handle) img, CImage))
+      croak("%s: not an image passed", method);
+
    /* these will croak if absent; that's ok */
    where = pget_i(where);
    size  = pget_i(size);

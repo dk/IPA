@@ -253,6 +253,9 @@ IPA__Morphology_dilate( PImage IMi, HV *profile)
    PImage IMo;
    int w, h, x, y, maxy, maxx;
    int neighborhood = 8;
+   
+   if ( !IMi || !kind_of(( Handle) IMi, CImage))
+       croak("%s: not an image passed", METHOD);
 
    if ( IMi-> type != imByte && IMi-> type != imShort && IMi-> type != imLong && IMi-> type != imFloat && IMi-> type != imDouble)
       croak( "%s: cannot handle images other than gray scale ones", METHOD);
@@ -300,6 +303,9 @@ IPA__Morphology_erode( PImage IMi, HV *profile)
    PImage IMo;
    int w, h, x, y, maxy, maxx;
    int neighborhood = 8;
+
+   if ( !IMi || !kind_of(( Handle) IMi, CImage))
+       croak("%s: not an image passed", METHOD);
 
    if ( IMi-> type != imByte && IMi-> type != imShort && IMi-> type != imLong && IMi-> type != imFloat && IMi-> type != imDouble)
       croak( "%s: cannot handle images other than gray scale ones", METHOD);
@@ -370,6 +376,11 @@ IPA__Morphology_algebraic_difference( PImage i1, PImage i2, HV *profile)
    PImage o = i1;
    int w, h, y, x;
 
+   if ( !i1 || !kind_of(( Handle) i1, CImage))
+      croak("%s: not an image passed to 1st parameter", METHOD);
+   if ( !i2 || !kind_of(( Handle) i2, CImage))
+      croak("%s: not an image passed to 2nd parameter", METHOD);
+   
    if ( i1-> type != imByte && i1-> type != imShort && i1-> type != imLong && i1-> type != imFloat && i1-> type != imDouble)
       croak( "%s: cannot handle images other than gray scale ones", METHOD);
 
@@ -471,6 +482,9 @@ int maxqueue = 0, qn = 0;
    int qsize, head, tail;
    PImage IMo;
 
+   if ( !IMi || !kind_of(( Handle) IMi, CImage))
+       croak("%s: not an image passed", METHOD);
+   
    if ( IMi-> type != imByte)
       croak( "%s: cannot handle images different from 8-bit gray scale", METHOD);
 
@@ -883,6 +897,11 @@ IPA__Morphology_reconstruct( PImage I, PImage J, HV *profile)
 // if inPlace turned on, the result will be placed into J
    Bool inPlace = false;
    int neighborhood = 8;
+
+   if ( !I || !kind_of(( Handle) I, CImage))
+       croak("%s: not an image passed to 1st parameter", METHOD);
+   if ( !J || !kind_of(( Handle) J, CImage))
+       croak("%s: not an image passed to 2nd parameter", METHOD);
 
    if ( I-> type != imByte && I-> type != imShort && I-> type != imLong && I-> type != imFloat && I-> type != imDouble)
       croak( "%s: cannot handle images other than gray scale ones", METHOD);

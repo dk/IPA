@@ -33,8 +33,8 @@ PImage IPA__Global_close_edges(PImage img,HV *profile)
     PImage gradient;
     int maxlen,minedgelen,mingradient;
 
-    if (!img) {
-        croak("%s: null image passed",method);
+    if ( !img || !kind_of(( Handle) img, CImage)) {
+        croak("%s: not an image passed",method);
     }
     if (img->type!=imByte) {
         croak("%s: unsupported image type",method);

@@ -141,10 +141,10 @@ PImage IPA__Morphology_BWTransform(PImage img,HV *profile)
     const char *method="IPA::Morphology::BWTransform";
     PImage oimg;
     unsigned char *transtbl = nil;
-
-    if (!img) {
-        croak("%s: null image passed as parameter",method);
-    }
+    
+    if ( !img || !kind_of(( Handle) img, CImage))
+       croak("%s: not an image passed", METHOD);
+ 
     if (pexist(lookup)) {
         SV *tblstr=pget_sv(lookup);
         if (SvPOK(tblstr)) {

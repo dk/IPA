@@ -63,8 +63,8 @@ IPA__Global_fft(PImage img,HV *profile)
       return nil;      
    }   
       
-   if (!img) 
-       croak("%s: null image passed", METHOD);
+   if ( !img || !kind_of(( Handle) img, CImage))
+       croak("%s: not an image passed", METHOD);
    if ( !pow2( img-> w))
       croak("%s: image width is not a power of 2", METHOD);
    if ( !pow2( img-> h))
@@ -272,9 +272,8 @@ IPA__Global_band_filter(PImage img,HV *profile)
       warn("%s:'double' is even-sized on this platform", METHOD);
       return nil;      
    }   
-   if (!img) 
-      croak("%s: null image passed", METHOD);
-
+   if ( !img || !kind_of(( Handle) img, CImage))
+     croak("%s: not an image passed", METHOD);
 
    if ( pexist( spatial))  spatial = pget_i( spatial);
    if ( pexist( homomorph)) homomorph = pget_i( homomorph);

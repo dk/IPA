@@ -33,9 +33,9 @@ PImage IPA__Geometry_mirror(PImage img,HV *profile)
     int mType=0;
     int y;
 
-    if (img==NULL) {
-        croak("%s: no image",method);
-    }
+    if ( !img || !kind_of(( Handle) img, CImage))
+       croak("%s: not an image passed", method);
+    
     if (pexist(type)) {
         mType=pget_i(type);
     }

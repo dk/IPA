@@ -392,6 +392,8 @@ IPA__Global_fill_holes( PImage in, HV *profile)
    int i;
    PLAGLine line;
 
+   if ( !in || !kind_of(( Handle) in, CImage)) WHINE("Not an image passed");
+
    if ( profile && pexist( inPlace))
       inPlace = pget_B( inPlace);
    if ( profile && pexist( edgeSize))
@@ -447,6 +449,8 @@ IPA__Global_area_filter( PImage in, HV *profile)
    PLAG lag;
    PLAGLine line;
    int i;
+
+   if ( !in || !kind_of(( Handle) in, CImage)) WHINE("Not an image passed");
 
    if ( profile && pexist( inPlace))
       inPlace = pget_B( inPlace);
@@ -523,6 +527,8 @@ IPA__Global_identify_contours( PImage in, HV *profile)
    int x0, y0, x, y, d, times;
    Bool first, found;
    unsigned char *s;
+
+   if ( !in || !kind_of(( Handle) in, CImage)) WHINE("Not an image passed");
 
    if ( profile && pexist( edgeSize))
       edgeSize = pget_i( edgeSize);

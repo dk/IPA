@@ -81,9 +81,8 @@ PImage IPA__Local_crispening(PImage img)
     PImage oimg;
     const char *method="IPA::Local::crispening";
 
-    if (!kind_of((Handle)img,CImage)) {
-        croak("%s: not an image!",method);
-    }
+    if ( !img || !kind_of(( Handle) img, CImage))
+        croak("%s: not an image passed", method);
 
     switch (img->type) {
         case imByte:
@@ -450,9 +449,8 @@ PImage IPA__Local_sobel(PImage img,HV *profile)
     unsigned short conversionType=CONV_SCALEABS;
     unsigned short divisor=1;
 
-    if (!kind_of((Handle)img,CImage)) {
-        croak("%s: not an image!",method);
-    }
+    if ( !img || !kind_of(( Handle) img, CImage)) 
+       croak("%s: not an image passed", method);
 
     if (pexist(jobMask)) {
         jobMask=pget_i(jobMask);
@@ -508,9 +506,8 @@ PImage IPA__Local_filter3x3(PImage img,HV *profile)
     long *bufp;
     Byte *p,*pu,*pd;
 
-    if (!kind_of((Handle)img,CImage)) {
-        croak("%s: not an image!",method);
-    }
+    if ( !img || !kind_of(( Handle) img, CImage)) 
+       croak("%s: not an image passed", method);
 
     if (pexist(conversionType)) {
         conversionType=pget_i(conversionType);
@@ -966,6 +963,9 @@ PImage IPA__Local_median(PImage img,HV *profile)
     PImage oimg;
     int wx=0,wy=0;
 
+    if ( !img || !kind_of(( Handle) img, CImage))
+      croak("%s: not an image passed", method);
+
     if (pexist(w)) {
         wx=pget_i(w);
     }
@@ -1010,9 +1010,9 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
     PImage dx,dy,dtmp;
     int v,v1,w1,w2;
 
-    if (!img) {
-        croak("%s: null image passed",method);
-    }
+    if ( !img || !kind_of(( Handle) img, CImage))
+      croak("%s: not an image passed", method);
+
     if (img->type!=imByte) {
         croak("%s: unsupported image type",method);
     }
@@ -1190,9 +1190,9 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
     int v,v1,v2,w1,w2;
     double a0=1.3,s=0.7;
 
-    if (!img) {
-        croak("%s: null image passed",method);
-    }
+    if ( !img || !kind_of(( Handle) img, CImage))
+       croak("%s: not an image passed", method);
+
     if (img->type!=imByte) {
         croak("%s: unsupported image type",method);
     }
@@ -1567,9 +1567,9 @@ PImage IPA__Local_unionFind(PImage img,HV *profile)
             {Unknown, NULL}
         };
 
-    if (!img) {
-        croak("%s: null image passed",method);
-    }
+    if ( !img || !kind_of(( Handle) img, CImage))
+      croak("%s: not an image passed", method);
+
     if (img->type!=imByte) {
         croak("%s: unsupported image type",method);
     }
@@ -1614,6 +1614,9 @@ PImage IPA__Local_deriche(PImage img,HV *profile)
 {
     const char *method="IPA::Local::deriche";
     float alpha;
+
+    if ( !img || !kind_of(( Handle) img, CImage))
+      croak("%s: not an image passed", method);
 
     if (img->type!=imByte) {
         croak("%s: incorrect image type",method);

@@ -15,7 +15,8 @@ IPA__Misc_split_channels( PImage input, char * mode)
    AV * av;
    Handle ch[16];
    
-   if ( !input) WHINE("Invalid image given");
+   if ( !input || !kind_of(( Handle) input, CImage))
+      croak("%s: not an image passed", METHOD);
    
    if ( stricmp( mode, "rgb") == 0) m = 0;
    else WHINE("unknown mode");

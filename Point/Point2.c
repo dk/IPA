@@ -48,6 +48,9 @@ PImage IPA__Point_mask( PImage mask, HV *profile) {
    Bool freeNoMatch = false;
    Bool freeTest = false;
 
+  if ( !mask || !kind_of(( Handle) mask, CImage))
+       croak("%s: not an image passed", METHOD);
+
    switch ( mask-> type) {
       case imByte:      sz = sizeof(U8);  break;
       case imShort:     sz = sizeof(I16); break;
