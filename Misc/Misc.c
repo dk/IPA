@@ -24,3 +24,31 @@ XS( boot_IPA__Misc)
     XSRETURN(1);
 }
 
+
+Histogram *
+IPA__Misc_histogram( PImage img)
+{
+    const char *method = "IPA::Point::histogram";
+    Histogram *histogram;
+    int x, y;
+    Byte *p;
+
+    if ( ! img) {
+	croak( "%s: null image passed", method);
+    }
+    if ( ( img->type & imBPP) != imbpp8) {
+	croak( "%s: unsupported image type", method);
+    }
+
+    histogram = alloc1z( Histogram);
+    p = img->data;
+    if ( ! p) {
+	croak( "%s: image doesn't contain any data", method);
+    }
+    for ( y = 0; y < img->h; y++, p += img->lineSize) {
+	for ( x = 0; x < img->w; x++) {
+	    ( *histogram)[ p[ x]]++;
+	}
+    }
+    return histogram;
+}
