@@ -89,7 +89,7 @@ IPA__Morphology_thinning( PImage i, HV *profile)
 
    PImage o;
    int w, h, y, maxy, maxx, line_size;
-   Byte *to, *from, *m, *x, b;
+   Byte *to, *from, *m, *x;
    Bool change;
    SV * name;
 
