@@ -5,7 +5,7 @@ use strict;
 require Exporter;
 require DynaLoader;
 
-use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
+use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $__import);
 @ISA = qw(Exporter DynaLoader);
 
 sub dl_load_flags { 0x01 };
@@ -27,6 +27,20 @@ use constant conversionTruncAbs  => 1;
 use constant conversionTrunc     => 2;
 use constant conversionScale     => 3;
 use constant conversionScaleAbs  => 4;
+
+sub import
+{
+   my $self = shift;
+   my @modules = ( 1 == @_ && lc($_[0]) eq 'all') ? 
+      qw(Point Local Global Geometry Morphology Misc Region) 
+      : @_;
+   for ( @modules) {
+       eval "use IPA::$_ ();";
+       die $@ if $@;
+       Exporter::export_to_level( "IPA::$_", 1, undef, '/./') 
+          if UNIVERSAL::isa("IPA::$_", 'Exporter');
+   }
+}
 
 1;
 
@@ -58,15 +72,22 @@ images and optional parameter hash. Each function has its own
 set of parameters. If error occurs, the functions call C<die>,
 so it is advisable to use C<eval> blocks around the calls.
 
+The modules namespaces can be used directly, e.g. C<use IPA::Local qw(/./)>,
+C<use IPA::Point qw(/./)> etc, with each module defining its own
+set of exportable names. In case when all names are to be exported, it
+is possible to use C<IPA.pm> exporter by using C<use IPA qw(Local Point)>
+syntax, which is equivalent to two separate C<'use'> calls above. Moreover,
+if all modules are to be loaded and namespace exported, special syntax
+C<use IPA 'all'> is available.
+
 A code that produces a binary thresholded image out of a 8-bit 
 grayscale image is exemplified:
 
    use Prima;
-   use IPA;
-   use IPA::Point;
+   use IPA qw(Point);
    my $i = Prima::Image-> load('8-bit-grayscale.gif');
    die "Cannot load:$@\n" if $@;
-   my $binary = IPA::Point::threshold( $i, minvalue => 128);
+   my $binary = threshold( $i, minvalue => 128);
 
 The abbreviations for pixel types are used, derived from
 the C<im::XXX> image type constants, as follows:
@@ -77,10 +98,11 @@ the C<im::XXX> image type constants, as follows:
    im::Float    - float
    im::Double   - double
    im::Complex  - complex float
-   im::DCOmplex - complex double
+   im::DComplex - complex double
 
 Each function returns the newly created image object with the result of the operation,
 unless stated otherwise in L<API>.
+
 
 =head1 API
 
