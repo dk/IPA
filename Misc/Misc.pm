@@ -6,9 +6,9 @@ require DynaLoader;
 
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 @ISA = qw(Exporter DynaLoader);
-$VERSION = '0.01';
+$VERSION = '1.00';
 @EXPORT = qw();
-@EXPORT_OK = qw();
+@EXPORT_OK = qw(split_channels);
 %EXPORT_TAGS = ();
 
 bootstrap IPA::Misc $VERSION;

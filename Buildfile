@@ -80,7 +80,7 @@ set_variables(
 	      'SRCPATH${SHOBJEXT}' => '${OUTPATH${SHOBJEXT}}',
 	      IPADEPS => [ @IPAdeps],
 	      PRIMADIR => 'c:/home/Prima/src',
- 	      PREFIX => 'c:/usr/local/perl/5.00502/lib/MSWin32-x86',
+ 	      PREFIX => $Config{ installsitearch},
 	      INSTALL_SRC => [ '${OUTPATH${SHLIBEXT}}/IPA${SHLIBEXT}', '${RUNDIR}/IPA.pm',],
 	      INSTALL_DST => [  '${PREFIX}/auto/IPA', '${PREFIX}',],
 	      ALLDEPS => [ 'IPA.c', 'IPA.cls'],
