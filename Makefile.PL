@@ -87,11 +87,9 @@ LIBOS2
 
 
 
-exit if cmdline(@ARGV);
+exit unless init(@ARGV);
 
 print "Setting up working environment.\n";
-
-init();
 
 push( @INCPATH, 'include', qd('include/generic'));
 setvar( 'INSTALL_LIB', $PREFIX . qd( "/$PRJ"));
