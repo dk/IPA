@@ -11,7 +11,6 @@ XS( boot_IPA__Misc)
 {
     dXSARGS;
     // char* file = __FILE__;
-
     (void)items;
 
     XS_VERSION_BOOTCHECK;
