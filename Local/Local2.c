@@ -10,7 +10,7 @@ PImage deriche( const char *method, PImage in, float alpha)
 #define deriche_INDEX(x,y) (y)*n+(x)
 #define deriche_New(size,type) malloc( sizeof( type) * (size))
 #define deriche_NewF(size) New((size),float)
-#define deriche_NewFz(size) calloc(sizeof( float), (size))
+#define deriche_NewFz(size) allocnz( float, (size))
 #define deriche_READLINE(target,line) for ( unusedIndex = 0; unusedIndex < n; unusedIndex++) \
                                  target[ unusedIndex] = in-> data[(line)*in-> lineSize+unusedIndex];
 #define deriche_WRITELINE(source,line) for ( unusedIndex = 0; unusedIndex < n; unusedIndex++) \

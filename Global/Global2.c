@@ -84,8 +84,8 @@ clean_codes( PLAG lag)
       free( lag-> codedAreas);
    lag-> maxComponentCode = lcNormal;
    lag-> codedCollectionSize = 256;
-   lag-> codedLines = calloc( lag-> codedCollectionSize, sizeof( PLAGLine));
-   lag-> codedAreas = calloc( lag-> codedCollectionSize, sizeof( int));
+   lag-> codedLines = allocnz( PLAGLine, lag-> codedCollectionSize);
+   lag-> codedAreas = allocnz( int, lag-> codedCollectionSize);
 
    /* Clean next pointer everywere */
    if ( lag-> scanLines != nil)
@@ -330,8 +330,8 @@ find_lag_components( PLAG lag, int edgeSize, Bool eightConnectivity)
                int sz;
 
                sz = lag-> codedCollectionSize * 2;
-               codedLines = calloc( sz, sizeof( PLAGLine));
-               codedAreas = calloc( sz, sizeof( int));
+               codedLines = allocnz( PLAGLine, sz);
+               codedAreas = allocnz( int, sz);
                memcpy( codedLines, lag-> codedLines, lag-> maxComponentCode * sizeof( PLAGLine));
                memcpy( codedAreas, lag-> codedAreas, lag-> maxComponentCode * sizeof( int));
                free( lag-> codedLines);
