@@ -132,6 +132,25 @@ sub contour2region
    return calc_extents([ \@rgn, 0, $min, 0, 0]); 
 }
 
+sub scanlines2region
+{
+   my $sc = $_[0];
+   my $c = int(scalar ( @$sc) / 3) * 3;
+   my $i;
+   my %y;
+   for ( $i = 0; $i < $c; $i+=3) {
+      push @{$y{$$sc[$i+2]}}, $$sc[$i], $$sc[$i+1];
+   }
+   my @rgn;
+   my $min = 100000000;
+   for ( sort { $a <=> $b } keys %y) {
+      $min = $_ if $min > $_;
+      push @rgn, [ sort { $a <=> $b } @{$y{$_}}];
+      my $z = $rgn[-1];
+   }
+   return calc_extents([ \@rgn, 0, $min, 0, 0]); 
+}
+
 sub draw
 {
    my ( $drawable, $region, $dx, $dy) = @_;
