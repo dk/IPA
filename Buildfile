@@ -18,6 +18,7 @@ use Carp qw( verbose);
 
 $| = 1;
 
+=head1
 sub cls2c
 {
     my ( $self, $target_name, $deps, $oodeps, $target) = @_;
@@ -51,6 +52,7 @@ sub c_dep_ign
 							 1,
 						       );
 }
+=cut
 
 my ( $ctype, $ccflags, $ldflags, @libs, @IPAdeps);
 if ( $^O =~ /win32/i) {
