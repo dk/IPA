@@ -500,14 +500,12 @@ int maxqueue = 0, qn = 0;
    sorted = watershed_sorting_step( inp, N, &hmin, &hmax, freq);
 
    /* Check the correctness of sorting */
-   /*******************************************************************************/
-   /* {                                                                           */
-   /*    U8 last = 0;                                                             */
-   /*    for ( i = 0; i < N; i++)                                                 */
-   /*       if ( inp[sorted[i]] < last) croak( "%s: incorrectly sorted", METHOD); */
-   /*       else last = inp[sorted[i]];                                           */
-   /* }                                                                           */
-   /*******************************************************************************/
+   if (0) {                                                                           
+      U8 last = 0;                                                             
+      for ( i = 0; i < N; i++)                                                 
+         if ( inp[sorted[i]] < last) croak( "%s: incorrectly sorted", METHOD); 
+         else last = inp[sorted[i]];                                           
+   }                                                                           
 
    /* create and initialize output data array */
    out = malloc( N*sizeof(I16));
@@ -533,6 +531,7 @@ int maxqueue = 0, qn = 0;
       if ( neighborhood == 4)
          while (n--) {
             p = sorted[i++];
+            if (inp[p] != h) croak("sort assertion failed: %d(%d) != %d", inp[p], p, h);
             x = p % width;
             y = p / width;
             out[p] = WMASK;
@@ -572,6 +571,7 @@ int maxqueue = 0, qn = 0;
 if(dist>maxdist)maxdist=dist;
             FIFO_FIRST(p);
          }
+         if ( FIFO_EMPTY) croak("assertion failed: !FIFO_EMPTY");
          x = p % width;
          y = p / width;
          if (neighborhood == 4) {
