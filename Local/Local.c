@@ -779,7 +779,7 @@ PImage fast_median(PImage srcimg, int wx, int wy)
         return nil;
     } /* endif */
 
-    msrcimg=createNamedImage(srcimg->w+wx-1,srcimg->h+wx-1,imByte,"msrcimg");
+    msrcimg=createNamedImage(srcimg->w+wx-1,srcimg->h+wy-1,imByte,"msrcimg");
     if (!msrcimg) {
         return nil;
     }
@@ -791,7 +791,7 @@ PImage fast_median(PImage srcimg, int wx, int wy)
         memset(msrcimg->data+ypos,srcimg->data[y],wx2);
         memcpy(msrcimg->data+ypos+wx2,srcimg->data+y,srcimg->w);
         memset(msrcimg->data+ypos+wx2+srcimg->w,srcimg->data[y+srcimg->w-1],wx2);
-        if ((ypos>wy2) && (ypos<=(msrcimg->dataSize-wy2-msrcimg->lineSize))) {
+        if ((ypos>=wy2) && (ypos<(msrcimg->dataSize-wy2-msrcimg->lineSize))) {
             y+=srcimg->lineSize;
         } /* endif */
     } /* endfor */
@@ -962,6 +962,10 @@ PImage IPA__Local_median(PImage img,HV *profile)
 
     if ( !img || !kind_of(( Handle) img, CImage))
       croak("%s: not an image passed", method);
+
+    if (img->type!=imByte) {
+        croak("%s: unsupported image type",method);
+    }
 
     if (pexist(w)) {
         wx=pget_i(w);
