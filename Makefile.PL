@@ -154,6 +154,8 @@ if (1) {
    push @allrealclean, 'Makefile';
    push @alldirs, qd( "include/generic"), qd( "auto/$PRJ");
    push @alldirs, map {qd "auto/$PRJ/$_"} @prjdirs;
+   push @allman, 'iterm.pl', manname( 'iterm.pl', 1, '');
+   push @allman, 'IPA.pm', manname( 'IPA.pm', 3, '');
    
    my $iterm_dest = qd("$INSTALL_BIN/iterm") . ( $Win32 ? '.bat' : ( $OS2 ? '.cmd' : ''));
 
@@ -201,6 +203,17 @@ EOF
             return "$_[0] " . dirname ( qd( "$INSTALL_LIB/$dsth"));
          }, 'CP', <include/*.h>);
     print MAKE dump_command( sub { "$PRJ.pm $PREFIX" }, 'CP', 1);
+
+    if ( $install_manuals) {
+       my $cmd = "\t\@pod2man --lax --section=\%d \%s " . ( length( $Config{gzip} ) ? 
+           "| $Config{gzip} -c > \%s.gz\n" : 
+           "> \%s\n" );
+       print MAKE "\t\@echo Installing man pages...\n";
+       while ( scalar @allman ) {
+          $allman[1] =~ m/\.(\d+)$/;
+          printf MAKE $cmd, $1, splice( @allman, 0, 2);
+       }
+    }
     print MAKE "\n";
 
     print MAKE <<EOF;
