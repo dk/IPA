@@ -1,6 +1,6 @@
 use strict;
 
-package Region;
+package IPA::Region;
 
 use constant DATA   => 0;
 use constant LEFT   => 1;
