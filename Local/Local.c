@@ -701,7 +701,7 @@ PImage IPA__Local_filter3x3(PImage img,HV *profile)
             /* Filling edges */
             long edgecol;
             edgecol=(edgecolor*range)/255+minval;
-            bufp=(long*)(bufimg->data+bufimg->lineSize*(bufimg->w-1));
+            bufp=(long*)(bufimg->data+bufimg->lineSize*(bufimg->h-1));
             for (x=0; x<bufimg->w; x++) {
                 ((int*)bufimg->data)[x]=bufp[x]=edgecol;
             }
@@ -743,7 +743,7 @@ PImage IPA__Local_filter3x3(PImage img,HV *profile)
             }
             if (!expandEdges) {
                 /* Filling edges */
-                p=oimg->data+oimg->lineSize*(oimg->w-1);
+                p=oimg->data+oimg->lineSize*(oimg->h-1);
                 for (x=0; x<oimg->w; x++) {
                     oimg->data[x]=p[x]=edgecolor;
                 }
