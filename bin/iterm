@@ -80,7 +80,7 @@ sub invert
    my $img = shift;
    $img = $i unless defined $img;
    show_error('No image'), return unless defined $img;
-   $img-> resample( 0, 255, 255, 0);
+   $img-> resample( $i-> rangeLo, $i-> rangeHi, $i-> rangeHi, $i-> rangeLo);
 }
 
 sub stretch
@@ -101,7 +101,7 @@ sub info
      $img-> type & im::BPP,
       (
         (($img-> type & im::GrayScale) ? 'gray ' : '') .
-        (($img-> type & im::RealNumber) ? 'real ' : '') .
+        (($img-> type & im::RealNumber) ? 'float ' : '') .
         (($img-> type & im::ComplexNumber) ? 'complex ' : '') .
         (($img-> type & im::TrigComplexNumber) ? 'trig ' : '')
       )

@@ -17,6 +17,7 @@ package IPA::Local {
    PImage unionFind(PImage input,HV *profile);
    PImage hysteresis(PImage input, HV*profile);
    PImage gaussian( int size, double sigma);
+   PImage laplacian( int size, double sigma);
    TwoImages gradients(PImage input);
    PImage canny( PImage input, HV*profile);
    PImage nms( PImage input, HV*profile);

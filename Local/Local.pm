@@ -26,6 +26,7 @@ $VERSION = '0.01';
                 unionFind
 		hysteresis
                 gaussian
+                laplacian
                 gradients
                 canny
                 nms

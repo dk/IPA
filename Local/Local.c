@@ -1324,13 +1324,16 @@ PImage IPA__Local_hysteresis(PImage img,HV *profile)
 }
 
 static PImage
-gaussian( const char * method, int size, double sigma)
+gaussian( const char * method, int size, double sigma, Bool laplacian, int mx, int my)
 {
    register int j, k;
-   double x, y, *e=0;
+   double x, *e=0;
    int ls,s=size/2;
    PImage out;
-   Byte *dst;
+   double *dst;
+   Byte * data;
+   double sigma2 = sigma * sigma;
+   double sigma4 = - sigma2 * sigma2;
    /* check parameters */
    if (size < 2 || size % 2 == 0) 
        croak("%s: size of gaussian must be an odd number greater than two", method);
@@ -1339,30 +1342,41 @@ gaussian( const char * method, int size, double sigma)
    if (!(e = (double *)malloc(((size/2)+1)*sizeof(double)))) {
       croak("%s: not enough memory\n", method);
    }
-   out = createImage( size, size, imByte);
-   dst = out-> data;
-   ls = out-> lineSize;
+   out = createImage( size, size, imDouble);
+   data = out-> data;
+   ls = out-> lineSize / sizeof(double);
    sigma = 2*sigma*sigma;
 
+
    /* store one dimensional components */
-   for (k=0; k<size/2; k++) {
+   for (k=0; k<=size/2; k++) {
        x = ((double)(k-s)*(double)(k-s))/sigma;
        e[k] = exp(-x);
    }
-   /* symmetric quadrants */
-   for (j=0; j<s; j++) {
-       for (k=0; k<s; k++) {
-           dst[j*ls+k] =
-           dst[j*ls+size-k-1] =
-           dst[(size-j-1)*ls+k] =
-           dst[(size-j-1)*ls+size-k-1] =
-           e[k]*e[j]*255+.5;
-       }
+
+   dst = (double*)data;
+   for (j=0;j<size;j++, data += out->lineSize, dst = (double*)data){
+      for (k=0;k<size;k++){
+         double y = s - j, x = s - k;
+         int ay = (j < s) ? j : 2 * s - j, ax = (k < s) ? k : 2 * s - k;
+         *(dst++)=
+            ( laplacian ? ((x*x/16 + y*y - sigma2)/sigma4) : 1) * e[ax*mx] * e[ay*my];
+      }
    }
-   /* zero coordinates */
-   for (j=0; j<size; j++) {
-       y = ((double)(j-s)*(double)(j-s))/sigma;
-       dst[j*ls+s] = dst[((int)s)*ls+j]=exp(-y)*255+.5;
+
+   if ( laplacian) {
+      /* normalize to sum = 0 */
+      double sum = out-> self-> get_stats(( Handle)out, isSum);
+      out-> statsCache = 0;
+      if ( sum != 0) {
+         double * s = ( double*)(out-> data),
+                  sub = sum / (out->w * out-> h);
+         int sz = out-> dataSize / sizeof(double);
+         while ( sz--) {
+            *s = *s - sub;
+             s++;
+         }
+      }
    }
    free(e);
    return out;
@@ -1370,7 +1384,12 @@ gaussian( const char * method, int size, double sigma)
 
 PImage IPA__Local_gaussian( int size, double sigma)
 {
-   return gaussian( "IPA::Local::gaussian", size, sigma);
+   return gaussian( "IPA::Local::gaussian", size, sigma, 0, 1, 1);
+}
+
+PImage IPA__Local_laplacian( int size, double sigma)
+{
+   return gaussian( "IPA::Local::laplacian", size, sigma, 1, 1, 1);
 }
 
 static PImage 
@@ -1379,43 +1398,48 @@ convolution( const char * method, PImage in, PImage kernel_img)
    register int j, k, l, m, n;
    double sum, ksum;
    int size = kernel_img-> w;
-   int kls = kernel_img-> lineSize - size;
+   int kls;
    int dls, sls, marg = size/2;
-   Byte * dst, *src, *kernel;
+   double * dst, *src, *kernel, kill_kernel = 0, kill_img = 0;
    PImage out;
 
-   if (( kernel_img-> type & imBPP) != 8)
-      croak("%s: kernel is not 8-bit image (%x)", method, kernel_img-> type & imBPP);
+   if ( kernel_img-> type != imDouble) {
+      kernel_img = (PImage)kernel_img-> self-> dup(( Handle) kernel_img);
+      kernel_img-> self-> set_type(( Handle) kernel_img, imDouble);
+      kill_kernel = 1;
+   }
+   if ( in-> type != imDouble) {
+      in = (PImage)in-> self-> dup(( Handle) in);
+      in-> self-> set_type(( Handle) in, imDouble);
+      kill_img = 1;
+   }
    if ( kernel_img-> w != kernel_img-> h) 
       croak("%s: kernel sides must be equal", method);
-   kernel = kernel_img-> data;
+   kernel = ( double*)kernel_img-> data;
    if ( size % 2 == 0) 
       croak("%s: kernel size (%d) must be odd", method, size);
    if ( in-> w < size || in-> h < size) 
       croak("%s: kernel size (%d) must be smaller than dimensions of image (%d %d)", 
             method, size, in-> w, in-> h);
+   
    out = create_compatible_image(in,false);
-   dst = out-> data;
-   dls = out-> lineSize;
-   src = in-> data;
-   sls = in-> lineSize;
+   dst = ( double*)out-> data;
+   dls = out-> lineSize / sizeof(double);
+   src = ( double*)in-> data;
+   sls = in-> lineSize / sizeof(double);
    ksum = kernel_img-> self-> get_stats(( Handle) kernel_img, isSum);
+   if ( ksum == 0) ksum = 1;
+   kls  = kernel_img-> lineSize / sizeof(double) - size;
+   ksum=1;
  
    for (j=marg; j<in->h-marg; j++) {
        for (k=marg; k<in->w-marg; k++) {
            for (sum=0.0,n=0,l=0; l<size; l++, n += kls) {
                for (m=0; m<size; m++) {
-                   sum += (double)src[(j-marg+l)*sls+k-marg+m]*(double)kernel[n++];
+                   sum += src[(j-marg+l)*sls+k-marg+m]*kernel[n++];
                }
            }
-           sum /= ksum;
-           if ( sum < 0.0) {
-              dst[j*dls+k] = 0;
-           } else if ( sum > 255.0) {
-              dst[j*dls+k] = 255;
-           } else {
-              dst[j*dls+k] = sum + .5;
-           }
+           dst[j*dls+k] = sum/ksum;
        }
    }
    /* top and bottom margins */
@@ -1434,6 +1458,8 @@ convolution( const char * method, PImage in, PImage kernel_img)
        }
    }
 
+   if ( kill_kernel) Object_destroy((Handle) kernel_img);
+   if ( kill_img)    Object_destroy((Handle) in);
    return out;
 }
 
@@ -1443,12 +1469,8 @@ IPA__Local_convolution( PImage img, PImage kernel_img)
    const char *method="IPA::Local::convolution";
    if ( !img || !kind_of(( Handle) img, CImage))
       croak("%s: not an image passed", method);
-   if ( img-> type != imByte)
-      croak("%s: image is not 8-bit grayscale", method);
    if ( !kernel_img || !kind_of(( Handle) kernel_img, CImage))
       croak("%s: not an image passed", method);
-   if ( kernel_img-> type != imByte)
-      croak("%s: image is not 8-bit grayscale", method);
    return convolution( method, img, kernel_img);
 }
 
@@ -1637,13 +1659,14 @@ canny( const char * method,
    int ls, dls;
 
    /* create gaussian smoothing filter */
-   g = gaussian( method, size, sigma);
+   g = gaussian( method, size, sigma, 0, 1, 1);
    out = create_compatible_image( in, false);
    dst = out-> data;
    dls = out-> lineSize;
 
    /* convolve with the gaussian */
    smoothed = convolution( method, in, g);
+   smoothed-> self-> set_type(( Handle) smoothed, imByte);
    Object_destroy(( Handle) g);
    /* return smoothed */
    /* create the First Order Gaussian filtered image */
@@ -1754,11 +1777,12 @@ scale( const char * method,
    PImage g, smoothed;
    /* create gaussian smoothing filter */
    if ( t < 0) croak("%s: 't' must be positive", method);
-   g = gaussian( method, size, sqrt(t));
+   g = gaussian( method, size, sqrt(t), 0, 1, 1);
    /* normalize the gaussian */
 
    /* convolve with the gaussian */
    smoothed = convolution( method, in, g); 
+   smoothed-> self-> set_type(( Handle) smoothed, imByte);
    Object_destroy(( Handle) g);
    /* return smoothed */
    return smoothed;
@@ -1781,6 +1805,51 @@ PImage IPA__Local_scale(PImage img,HV *profile)
 
     return scale(method,img,size,t);
 }
+
+static PImage
+d_rotate( PImage in, double alpha)
+{
+   int x, y, ls = in-> lineSize, ols = in-> lineSize / sizeof(double), nx, ny, sx, sy;
+   double * src, * dst;
+   Byte * bdst;
+   PImage out = create_compatible_image(in,false);
+   double sina = sin( alpha), cosa = cos( alpha);
+
+   sx = in-> w/2;
+   sy = in-> h/2;
+   bdst = out-> data;
+   dst = ( double*) bdst;
+   src = (double*) in-> data;
+   for ( y = 0; y < in-> h; y++, bdst += ls, dst = (double*) bdst) {
+      for ( x = 0; x < in-> w; x++) {
+         nx = (x-sx) * cosa - (y-sy) * sina + sx;
+         ny = (x-sx) * sina + (y-sy) * cosa + sy;
+         if ( nx >= 0 && nx < in-> w &&
+              ny >= 0 && ny < in-> h)
+             dst[x] = src[ny * ols + nx];
+      }
+   }
+   return out;
+}
+
+static PImage
+d_rotate90( PImage in)
+{
+   int x, y, max, ls = in-> lineSize, ols = in-> lineSize / sizeof(double);
+   double * src, * dst;
+   Byte * bdst;
+   PImage out = create_compatible_image(in,false);
+
+   max = ( in-> h < in-> w) ? in-> h : in-> w;
+   bdst = out-> data;
+   dst = ( double*) bdst;
+   src = (double*) in-> data;
+   for ( y = 0; y < max; y++, bdst += ls, dst = (double*) bdst) {
+      for ( x = 0; x < max; x++) 
+          dst[x] = src[y * ols + x];
+   }
+   return out;
+}
                         
 /* 
    Lindeberg ridge detector
@@ -1788,21 +1857,17 @@ PImage IPA__Local_scale(PImage img,HV *profile)
    A= t^(2y) ((Lxx-Lyy)^2 + 4Lxy^2). 
    Lindeberg 1994. 
 
-   t ( scale ) and y ( gamma-normalizer ) can be represented by 'mul'
+   t ( scale ) and y ( gamma-normalizer ) 
    Don't know exactly, but suppose Lxy^2 == Lxy*Lyx 
  */
 PImage IPA__Local_ridge(PImage img,HV *profile)
 {
-    PImage xx, yy, xy, yx, tmp;
+    PImage xx, yy, xy, yx, lxx, lyy, lxy, lyx, l, tmp;
     Bool anorm = false;
     const char *method="IPA::Local::ridge";
-    double yyf[9] = { 0,0,0,-1,2,-1,0,0,0};
-    double xxf[9] = { 0,-1,0,0,2,0,0,-1,0};
-    double xyf[9] = { -1,0,0,0,2,0,0,0,-1};
-    double yxf[9] = { 0,0,-1,0,2,0,-1,0,0};
-    double mul = 1;
-    int ls, y, x, yls;
-    Long *xxd, *yyd, *xyd, *yxd, *res;
+    double mul = 1, scale = 2, gamma = 1;
+    int ls, y, x, yls, size = 3, msize;
+    double *xxd, *yyd, *xyd, *yxd, *res, texp;
 
     if ( !img || !kind_of(( Handle) img, CImage))
       croak("%s: not an image passed", method);
@@ -1812,23 +1877,62 @@ PImage IPA__Local_ridge(PImage img,HV *profile)
 
     if ( pexist(a)) anorm = pget_B(a);
     if ( pexist(mul)) mul = pget_f(mul);
+    if ( pexist(scale)) scale = pget_f(scale);
+    if ( pexist(size)) 
+       size = pget_i(size);
+    else
+       size = sqrt(scale);
+    if ( size < 3) size = 3;
+    if (( size % 2) == 0) size++;
+    if ( pexist(gamma)) gamma = pget_f(gamma);
 
-    /* filter3x3 in rawOutput always returns long pixels - check anyway */
-    xx = filter3x3( method, img, xxf, 1, true, true, CONV_TRUNC, 0);
-    if ( xx-> type != imLong)
-       croak("%s: panic: filter3x3 returned not imLong pixels\n", method);
-    yy = filter3x3( method, img, yyf, 1, true, true, CONV_TRUNC, 0);
-    xy = filter3x3( method, img, xyf, 1, true, true, CONV_TRUNC, 0);
-    yx = filter3x3( method, img, yxf, 1, true, true, CONV_TRUNC, 0);
+    /* XXX gamma */
+    texp = scale * scale;
+    if ( !anorm) texp *= texp;
 
-    xxd = ( Long*) xx-> data;
-    yyd = ( Long*) yy-> data;
-    xyd = ( Long*) xy-> data;
-    yxd = ( Long*) yx-> data;
+    /* prepare second derivative masks */
+    msize = size * 1.5;
+    if (( msize % 2) == 0) msize++;
+    l = gaussian( method, msize, sqrt(scale), 1, 0, 1);
+    tmp = d_rotate( l, 3.14159/4);
+    lxy = ( PImage) tmp-> self-> extract(( Handle) tmp, tmp-> w - size, tmp-> h - size, size, size);
+    lxx = ( PImage) l-> self-> extract(( Handle) l, l-> w - size, l-> h - size, size, size);
+    lyy = d_rotate90( lxx);
+    Object_destroy(( Handle)tmp);
+    Object_destroy(( Handle)l);
+    /* normalize skewed sums = 0 */
+    {
+       double sum = lxy-> self-> get_stats(( Handle)lxy, isSum);
+       if ( sum != 0) {
+          double * s = ( double*)(lxy-> data),
+                   sub = sum / (lxy->w * lxy-> h);
+          int sz = lxy-> dataSize / sizeof(double);
+          while ( sz--) {
+             *s = *s - sub;
+              s++;
+          }
+       }
+    }
+    lyx = d_rotate90( lxy);
+
+    /* convolute the image with them */
+    xx = convolution( method, img, lxx);
+    Object_destroy(( Handle)lxx);
+    yy = convolution( method, img, lyy);
+    Object_destroy(( Handle)lyy);
+    xy = convolution( method, img, lxy);
+    Object_destroy(( Handle)lxy);
+    yx = convolution( method, img, lyx);
+    Object_destroy(( Handle)lyx);
+
+    xxd = ( double*) xx-> data;
+    yyd = ( double*) yy-> data;
+    xyd = ( double*) xy-> data;
+    yxd = ( double*) yx-> data;
 
     tmp = create_compatible_image( xx, false);
-    res = ( Long*) tmp-> data;
-    for ( y = 0, ls = xx-> lineSize / sizeof(Long), yls = 0; y < img-> h; y++, yls += ls) {
+    res = ( double*) tmp-> data;
+    for ( y = 0, ls = xx-> lineSize / sizeof(double), yls = 0; y < img-> h; y++, yls += ls) {
        for ( x = 0; x < xx-> w; x++) {
           double 
              Lxx = xxd[ yls + x],
@@ -1837,7 +1941,7 @@ PImage IPA__Local_ridge(PImage img,HV *profile)
              Lyx = yxd[ yls + x];
           double A = mul * ((Lxx - Lyy) * (Lxx - Lyy) + 4 * Lxy * Lyx);
           if ( !anorm) A = ( A * ( Lxx + Lyy) * ( Lxx + Lyy));
-          res[ yls + x] = A + .5;
+          res[ yls + x] = A;
        }
     }
     Object_destroy(( Handle)xx);

@@ -276,8 +276,12 @@ PImage IPA__Point_threshold(PImage img,HV *profile)
 
     if (pexist(minvalue)) minvalue=pget_f(minvalue);
     if (pexist(maxvalue)) maxvalue=pget_f(maxvalue);
+#undef true
+#undef false
     if (pexist(true))     val1=pget_f(true);
     if (pexist(false))    val0=pget_f(false);
+#define true 1
+#define false 0
     if (pexist(preserve)) preserve=pget_B(preserve);
    
     out = create_compatible_image( img, false);
@@ -595,4 +599,19 @@ IPA__Point_average( SV *list)
 #undef DO_COPYBACK
 
     return oimg;
+}
+
+
+PImage
+IPA__Point_ab( PImage in, double mul, double add)
+{
+   const char *method="IPA::Point::ab";
+   PImage out;
+
+   if ( !in || !kind_of(( Handle) in, CImage))
+      croak("%s: not an image passed", method);
+   
+   out = create_compatible_image( in, false);
+   PIX_SRC_DST( in, out, *dst = *src * mul + add);
+   return out;
 }
