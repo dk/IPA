@@ -362,7 +362,10 @@ where C<s> is the pixel value in the output images, and R is the source image.
 
 =item close_edges IMAGE [ gradient, maxlen, minedgelen, mingradient ]
 
-Closes edges of shapes on IMAGE.
+Closes edges of shapes on IMAGE, according to specified C<gradient> image.
+The unclosed shapes converted to the closed if the gradient spot between the
+suspected dents falls under C<maxlen> maximal length increment, C<mingradient>
+the minimal gradient value and the edge is longer than C<minedgelen>.
 
 Supported types: Byte
 
