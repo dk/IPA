@@ -84,9 +84,6 @@ LIBOS2
       ld_command_line( $name, qd("$sbd.def"), @allobjects) . "\n\n";
 }
 
-
-
-
 exit unless init(@ARGV);
 
 print "Setting up working environment.\n";
@@ -95,6 +92,7 @@ push( @INCPATH, 'include', qd('include/generic'));
 setvar( 'INSTALL_LIB', $PREFIX . qd( "/$PRJ"));
 setvar( 'INSTALL_DL', $PREFIX . qd( "/auto/$PRJ"));
 setvar( 'INSTALL_EXAMPLES', $PREFIX . qd( "/$PRJ/examples"));
+my $VERSION = join( '.', find_version( "$PRJ.pm"));
 
 
 my $make = <<EOF;
@@ -147,6 +145,20 @@ sub dump_command
     $ret .=  "\n";
 }
 
+
+sub find_version
+{
+   my $name = $_[0];
+   open F, $name or die "Cannot open $name:$!\n";
+   my ($ver1, $ver2);
+   while (<F>) {
+      next unless m/\$VERSION[^\.\d]*(\d+)\.(\d+)/;
+      $ver1 = $1, $ver2 = $2, last;
+   }
+   close F;
+   die "Cannot find VERSION string in $name\n" unless defined $ver1;
+   return ( $ver1, $ver2);
+}
 
 if (1) {
    for ( @d) {
@@ -231,7 +243,22 @@ dirs: @alldirs
 @alldirs:
 \t\@\$(MD) @alldirs
 
+bindist: all
+\t$^X Makefile.PL --dist bin $PRJ-$VERSION
+
+zipdist:
+\t$^X Makefile.PL --dist zip $PRJ-$VERSION
+
+tardist:
+\t$^X Makefile.PL --dist tar $PRJ-$VERSION
+
+dist: tardist
+\t\$(RM) $PRJ-$VERSION.tar.gz
+\t\@gzip -9 $PRJ-$VERSION.tar
+
 EOF
+
+# WARNING - dist targets work only for Prima-1.06 and higher
 
     close MAKE;
     print "\nDone.\n";
