@@ -138,7 +138,7 @@ hline( PImage image, int x1, int x2, int y, double color)
          {
             SV * sv = newSViv( color);
             for ( i = x1; i <= x2; i++) 
-               Image_pixel(( Handle) image, 1, i, y, sv);
+               image-> self-> pixel(( Handle) image, 1, i, y, sv);
             sv_free( sv);
          }
          break;

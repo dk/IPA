@@ -58,23 +58,24 @@ sub dllmake
 {
    my $subdir = $_[0];
    my $LIB_EXT = $Prima::Config::Config{libext};
+   my $LIB_PREFIX = $Prima::Config::Config{libprefix};
    my $sbd  = defined($subdir) ? "$subdir/$subdir" : $PRJ;
    my $name = qd( "auto/$PRJ/" . (defined($subdir) ? ( "$subdir/".dl_name( $PRJ.'::'.$subdir)) : dl_name($PRJ)));
    push ( @allsubtargets,  $name);
-   push ( @alllibtargets,  qd( "auto/$PRJ/$sbd$LIB_EXT"));
+   push ( @alllibtargets,  qd( "auto/$PRJ/$LIB_PREFIX$sbd$LIB_EXT"));
    push ( @subtargetsdirs, qd( "auto/$PRJ" . ( defined($subdir) ? "/$subdir" : '')));
    push ( @allclean,      $name);
    local @LIBS = @LIBS;
    local @LIBPATH = @LIBPATH;
    if ( defined ( $subdir) && ( $Win32 || $OS2)) {
-      push( @LIBS,    "$PRJ$LIB_EXT");
+      push( @LIBS, $PRJ . $Prima::Config::Config{ldlibext});
       push( @LIBPATH, cwd() . qd("/auto/$PRJ"));
    }
    my $r = '';
    my $extradep = '';
    if ( $OS2) {
       my $def = defined($subdir) ? "$subdir/$subdir.def" : "$PRJ.def";
-      $extradep = qd("auto/$PRJ/$sbd$LIB_EXT");
+      $extradep = qd("auto/$PRJ/$LIB_PREFIX$sbd$LIB_EXT");
       $r = <<LIBOS2;
 $extradep:
 \temximp -o $extradep $def
