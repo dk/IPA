@@ -147,6 +147,11 @@ sub dup
    $w-> Image-> image( $i[$w->{id}] = $img-> dup);
 }
 
+sub help
+{
+   $::application-> open_help('iterm');
+}
+
 $w = Prima::Window-> create(
    name => $::application-> name,
    font => { size => 12 },
