@@ -79,8 +79,8 @@ set_variables(
 	      'OUTPATH.inc' => '${RUNDIR}/include/generic',
 	      'SRCPATH${SHOBJEXT}' => '${OUTPATH${SHOBJEXT}}',
 	      IPADEPS => [ @IPAdeps],
-	      PRIMADIR => '/home/voland/src/Perl/Prima',
-	      PREFIX => '/home/voland/lib/perl5',
+	      PRIMADIR => 'c:/home/Prima/src',
+ 	      PREFIX => 'c:/usr/local/perl/5.00502/lib/MSWin32-x86',
 	      INSTALL_SRC => [ '${OUTPATH${SHLIBEXT}}/IPA${SHLIBEXT}', '${RUNDIR}/IPA.pm',],
 	      INSTALL_DST => [  '${PREFIX}/auto/IPA', '${PREFIX}',],
 	      ALLDEPS => [ 'IPA.c', 'IPA.cls'],
@@ -254,7 +254,7 @@ foreach my $subdir ( @alldirs) {
 	   );
     my @allobj = map { s/\.c$/\$\{SHOBJEXT\}/; "\${OUTPATH\${SHOBJEXT}}/$subdir/$_"} @allc;
     if ( $^O =~ /win32/i) {
-       push @allobj, "$subdir.def";
+       push @allobj, "$subdir/$subdir.def";
     }
     add_rules(
 	      [ "\${OUTPATH\${SHLIBEXT}}/$subdir/$subdir\${SHLIBEXT}" => [ @allobj],
