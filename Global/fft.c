@@ -264,7 +264,7 @@ IPA__Global_band_filter(PImage img,HV *profile)
 #define METHOD "IPA::Global::band_filter"
    PImage ret;
    int spatial = 1, homomorph = 0, lw, failed = 0;
-   double MinVal, Power = 2.0, CutOff = 20.0, Boost = 0.7, LowPass = 0;
+   double MinVal = 0.0, Power = 2.0, CutOff = 20.0, Boost = 0.7, LowPass = 0;
    double * data, * buffer = nil;
    
    
