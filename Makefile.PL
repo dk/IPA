@@ -156,6 +156,8 @@ if (1) {
    push @allrealclean, 'Makefile';
    push @alldirs, qd( "include/generic"), qd( "auto/$PRJ");
    push @alldirs, map {qd "auto/$PRJ/$_"} @prjdirs;
+   
+   my $iterm_dest = qd("$INSTALL_BIN/iterm") . ( $Win32 ? '.bat' : ( $OS2 ? '.cmd' : ''));
 
    print "Writing Makefile...";
    $make =~ tr[/][]s;
@@ -185,6 +187,7 @@ CP=$^X Makefile.PL --cp
 CPBIN=$^X Makefile.PL --cpbin
 
 install: all
+\t\@\$(CPBIN) iterm.pl $iterm_dest
 \t\@\$(CP) \\
 EOF
 
