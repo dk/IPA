@@ -7,9 +7,6 @@
 
 static SV **temporary_prf_Sv;
 
-#define MIRROR_VERTICAL     1
-#define MIRROR_HORIZONTAL   2
-
 PImage_vmt CImage;
 
 XS( boot_IPA__Geometry)
@@ -44,7 +41,7 @@ PImage IPA__Geometry_mirror(PImage img,HV *profile)
     }
 
     switch (mType) {
-        case MIRROR_HORIZONTAL:
+        case HORIZONTAL:
             {
                 Byte *pi,*po;
                 oimg=createNamedImage(img->w,img->h,img->type,method);
@@ -61,7 +58,7 @@ PImage IPA__Geometry_mirror(PImage img,HV *profile)
                 }
             }
             break;
-        case MIRROR_VERTICAL:
+        case VERTICAL:
             {
                 int x;
                 oimg=createNamedImage(img->w,img->h,img->type,method);
