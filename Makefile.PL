@@ -129,37 +129,6 @@ closedir D;
 
 my @prjdirs;
 
-sub dump_command
-{
-    my ( $line, $sub, $command, $ret) = ( 0, shift, shift, '');
-    $ret .= "\t\@\$($command) \\\n" if scalar @_;
-    for ( @_) {
-       my $call = $sub->($_);
-       if (( $line++ % 20) == 19) {
-          $ret .= "\n\t\@\$($command) \\\n";
-       } elsif ( $line <= scalar @_ && $line > 1) {
-          $ret .=  " \\\n";
-       }
-       $ret .=  "\t$call";
-    }
-    $ret .=  "\n";
-}
-
-
-sub find_version
-{
-   my $name = $_[0];
-   open F, $name or die "Cannot open $name:$!\n";
-   my ($ver1, $ver2);
-   while (<F>) {
-      next unless m/\$VERSION[^\.\d]*(\d+)\.(\d+)/;
-      $ver1 = $1, $ver2 = $2, last;
-   }
-   close F;
-   die "Cannot find VERSION string in $name\n" unless defined $ver1;
-   return ( $ver1, $ver2);
-}
-
 if (1) {
    for ( @d) {
       next unless -d $_;
