@@ -3,8 +3,8 @@
 #ifndef __IPA_H__
 #define __IPA_H__
 
-#include "apricot.h"
-#include "Image.h"
+#include <apricot.h>
+#include <Image.h>
 
 #define createImage(w,h,type)               create_object("Prima::Image","iii","width",(w),"height",(h),"type",(type))
 #define createNamedImage(w,h,type,name)     create_object("Prima::Image","iiis","width",(w),"height",(h),"type",(type),"name",(name))
