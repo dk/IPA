@@ -263,8 +263,8 @@ IPA__Global_band_filter(PImage img,HV *profile)
 {
 #define METHOD "IPA::Global::band_filter"
    PImage ret;
-   int spatial = 1, homomorph = 0, lw, failed = 0;
-   double MinVal = 0.0, Power = 2.0, CutOff = 20.0, Boost = 0.7, LowPass = 0;
+   int spatial = 1, homomorph = 0, lw, failed = 0, LowPass = 0;
+   double MinVal = 0.0, Power = 2.0, CutOff = 20.0, Boost = 0.7;
    double * data, * buffer = nil;
    
    
@@ -277,14 +277,14 @@ IPA__Global_band_filter(PImage img,HV *profile)
 
    if ( pexist( spatial))  spatial = pget_i( spatial);
    if ( pexist( homomorph)) homomorph = pget_i( homomorph);
-   if ( pexist( power))  Power = pget_i( power);
-   if ( pexist( cutoff)) CutOff = pget_i( cutoff);
-   if ( pexist( boost))  Boost = pget_i( boost);
+   if ( pexist( power))  Power = pget_f( power);
+   if ( pexist( cutoff)) CutOff = pget_f( cutoff);
+   if ( pexist( boost))  Boost = pget_f( boost);
    if ( pexist( low))    LowPass = pget_i( low);
    if ( homomorph && !spatial)
-      croak("%s:Cannot perform the homomorph equalization in the spatial domain");
-   if ( LowPass && ( CutOff == 0.0))
-      croak("%s:cutoff cannot be 0 for low pass");
+      croak("%s:Cannot perform the homomorph equalization in the spatial domain", METHOD);
+   if ( LowPass && ( CutOff < 0.0000001))
+      croak("%s:cutoff is too small for low pass", METHOD);
    
    if ( !spatial && (( img-> type & imCategory) != imComplexNumber))
       croak("%s: not an im::DComplex image passed", METHOD); 
