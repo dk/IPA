@@ -10,6 +10,18 @@ use constant HEIGHT => 4;
 
 =pod
 
+=head1 NAME
+
+IPA::Region 
+
+=head1 API
+
+Contains functions that work with region data structures.
+
+=over
+
+=item contour2region CONTOUR
+
 A contour is a 8-connected point set that is returned by
 IPA::Global::identify_contours function. A region is
 a set of horizontal lines, describing an 2D area.
@@ -310,3 +322,41 @@ sub move
 }
 
 1;
+
+__END__
+
+=pod
+
+=item plot DRAWABLE, REGION, OFFSET_X, OFFSET_Y
+
+Plots REGION onto DRAWABLE with OFFSET_X and OFFSET_Y
+
+=item outline DRAWABLE, REGION, OFFSET_X, OFFSET_Y
+
+Draws outline of REGION onto DRAWABLE with OFFSET_X and OFFSET_Y
+
+=item combine REGION_1, REGION_2, OP = 'and'
+
+Combines two regions, REGION_1 and REGION_2, with logic operation,
+which can be one of 'and', 'or', and 'xor' strings, and returns the 
+result.
+
+=item calc_extents REGION
+
+Recalculates extensions of REGION and returns adjusted L<alias> of REGION.
+
+=item alias REGION
+
+Returns shallow copy of REGION
+
+=item copy REGION
+
+Returns deep copy of REGION
+
+=item move REGION, OFFSET_X, OFFSET_Y
+
+Shifts REGION by OFFSET_X and OFFSET_Y
+
+=back
+
+=cut
