@@ -102,7 +102,8 @@ PImage IPA__Point_combine(HV *profile)
                 croak("%s: image #%d of images array has different size",method,i);
             }
         }
-    }
+    } else 
+       croak("%s: 'images' array is not present", method);
     if (pexist(conversionType)) {
         conversionType=pget_i(conversionType);
         if (conversionType<CONV_FIRST || conversionType>CONV_LAST) {
