@@ -63,6 +63,7 @@ use vars qw(
     @allbins
     @alldirs
     @allsubtargets
+    @subtargetsdirs
     @headers
     @footers
     @Makefile_deps
@@ -954,7 +955,8 @@ sub dllmake
    my $subdir = $_[0];
    my $sbd  = defined($subdir) ? "$subdir/$subdir" : $PRJ;
    my $name = qd( "auto/$PRJ/" . dl_name( $sbd));
-   push ( @allsubtargets, $name);
+   push ( @allsubtargets,  $name);
+   push ( @subtargetsdirs, qd( "auto/$PRJ" . ( defined($subdir) ? "/$subdir" : '')));
    push ( @allclean,      $name);
    local @LIBS = @LIBS;
    local @LIBPATH = @LIBPATH;
@@ -1170,12 +1172,13 @@ install: all
 EOF
 
 $make = "";
-for ( @allsubtargets) {
-   $make .= "\t$_ $INSTALL_DL \\\n";
+my $i;
+for ( $i = 0; $i < @allsubtargets; $i++) {
+   $make .= "\t$allsubtargets[$i] $PREFIX/$subtargetsdirs[$i] \\\n";
    if ( $Win32) { # libs additional to dll
-      my $libt = $_;
+      my $libt = $allsubtargets[$i];
       if ( $libt =~ s/\.dll$/.lib/i) {
-         $make .= "\t$libt $INSTALL_DL \\\n";   
+         $make .= "\t$libt $PREFIX/$subtargetsdirs[$i] \\\n";   
       }
    }
 }
