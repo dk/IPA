@@ -475,29 +475,41 @@ IPA__Point_average( SV *list)
 
 #define DO_COPY( type) \
     { \
-	type *pSrc; \
-	double *pDst; \
-	for ( pSrc = ( type *) img->data, pDst = ( double *) fimg->data; pSrc < ( type *) ( img->data + img->dataSize); pSrc++, pDst++) { \
-	    *pDst = ( double) *pSrc; \
-	} \
+	type *pSrc = ( type *) img->data; \
+	double *pDst = ( double *) fimg->data; \
+        int h = img-> h; \
+        for ( ; h--; (( Byte*) pSrc) += img-> lineSize, (( Byte*) pDst) += fimg-> lineSize) {\
+           register int w = img-> w;\
+           register type *src = pSrc;\
+           register double *dst = pDst;\
+           while ( w--) *(dst++) = ( double)(*(src++));\
+        } \
     }
     
 #define DO_AVERAGE( type) \
     { \
-	type *pSrc; \
-	double *pDst; \
-	for ( pSrc = ( type *) img->data, pDst = ( double *) fimg->data; pSrc < ( type *) ( img->data + img->dataSize); pSrc++, pDst++) { \
-	    *pDst = ( *pDst + ( ( double) *pSrc)); \
-	} \
+	type *pSrc = ( type *) img->data; \
+	double *pDst = ( double *) fimg->data; \
+        int h = img-> h; \
+        for ( ; h--; (( Byte*) pSrc) += img-> lineSize, (( Byte*) pDst) += fimg-> lineSize) {\
+           register int w = img-> w;\
+           register type *src = pSrc;\
+           register double *dst = pDst;\
+           while ( w--) *(dst++) += ( double)(*(src++));\
+        } \
     }
 
 #define DO_COPYBACK( type) \
     { \
-	type *pDst; \
-	double *pSrc; \
-	for ( pDst = ( type *) oimg->data, pSrc = ( double *) fimg->data; pSrc < ( double *) ( fimg->data + fimg->dataSize); pSrc++, pDst++) { \
-	    *pDst = ( type) ( *pSrc / imgCount + .5); \
-	} \
+	double *pSrc = ( double *) fimg->data; \
+	type *pDst = ( type *) oimg->data; \
+        int h = img-> h; \
+        for ( ; h--; (( Byte*) pSrc) += fimg-> lineSize, (( Byte*) pDst) += oimg-> lineSize) {\
+           register int w = img-> w;\
+           register double *src = pSrc;\
+           register type *dst = pDst;\
+           while ( w--) *(dst++) = ( type) ((*(src++)) / imgCount + .5);\
+        } \
     }
 
     for ( i = 0; i < imgCount; i++) {
