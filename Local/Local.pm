@@ -24,8 +24,9 @@ $VERSION = '0.01';
                 filter3x3 
                 median 
                 unionFind
+		hysteresis
                );
-%EXPORT_TAGS = (enhancement => [qw(crispening)], edgedetect => [qw(sobel GEF SDEF deriche)]);
+%EXPORT_TAGS = (enhancement => [qw(crispening)], edgedetect => [qw(sobel GEF SDEF deriche hysteresis)]);
 
 bootstrap IPA::Local $VERSION;
 

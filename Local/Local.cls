@@ -10,5 +10,6 @@ package IPA::Local {
    PImage filter3x3(PImage input,HV *profile);
    PImage median(PImage input,HV *profile);
    PImage unionFind(PImage input,HV *profile);
+   PImage hysteresis(PImage input, HV*profile);
 }
 

@@ -370,6 +370,16 @@ parameter is C<threshold>, integer value of the balance merger function.
 
 Supported types: Byte
 
+=item hysteresis IMAGE, thresold => [ thr0, thr1], neighborhood => 4 or 8
+
+Perform binary hysteresis thresholding of Byte image with two thresholds,
+thr0 and thr1. A pixel is set to 1, if its value is larger than thr1 or
+if it is larger than thr0 and the pixel is adjacent to already marked pixels.
+
+Default value of neighborhood is 8.
+
+Supported types: Byte
+
 =back
 
 =head2 IPA::Global

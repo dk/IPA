@@ -1207,7 +1207,7 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
     w1=img->w-1;
     w2=img->w-2;
 
-    dx=createImage(img->w,img->h,imByte);
+   dx=createImage(img->w,img->h,imByte);
     dy=createImage(img->w,img->h,imByte);
     ddx=createImage(img->w,img->h,imByte);
     ddy=createImage(img->w,img->h,imByte);
@@ -1630,4 +1630,102 @@ PImage IPA__Local_deriche(PImage img,HV *profile)
     }
 
     return deriche(method,img,alpha);
+}
+
+static PImage
+hysteresis( PImage img, int thr0, int thr1, int conn8)
+{
+   PImage out;
+   int x, y, changed, ls;
+   Byte * src, * dst;
+
+   
+   out = create_compatible_image( img, false);
+   ls = out-> lineSize;
+   dst = out-> data;
+   memset( dst, 0, out-> dataSize);
+   changed = 1;
+   while ( changed) {
+      changed = 0;
+      src = img-> data;
+      dst = out-> data;
+      for ( y = 0; y < img-> h; y++, src += img-> lineSize, dst += ls) {
+	 for ( x = 0; x < img-> w; x++) {
+	    if ( !dst[x]) {
+	       if ( src[x] >= thr1) {
+		  dst[x] = 255;
+		  changed = 1;
+	       } else if ( src[x] >= thr0) {
+		  if (
+		 	       dst[x]   || 
+			       ( y > 0 && dst[x-ls])   || 
+			       ( y < img->h && dst[x+ls]) || 
+		        (x > 0 && 
+			      (dst[x-1] || 
+			      ( conn8 && y > 0 && dst[x-1-ls]) || 
+			      ( conn8 && y < img->h && dst[x-1+ls]))
+			) || 
+			( x < img-> w && 
+			      (dst[x+1] || 
+			       ( conn8 && y > 0 && dst[x+1-ls]) || 
+			       ( conn8 && y < img->h && dst[x+1+ls]))
+			) 
+		     ) {
+		     dst[x] = 255;
+		     changed = 1;
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return out;
+}
+
+PImage IPA__Local_hysteresis(PImage img,HV *profile)
+{
+    const char *method="IPA::Local::hysteresis";
+    int thr1, thr0, neighborhood = 8;
+
+    if ( !img || !kind_of(( Handle) img, CImage))
+      croak("%s: not an image passed", method);
+
+    if (img->type!=imByte) {
+        croak("%s: incorrect image type",method);
+    }
+
+    if (pexist(threshold)) {
+        SV * sv = pget_sv(threshold), **ssv;
+	AV * av;
+	if ( !SvOK(sv) || !SvROK(sv) || SvTYPE(SvRV(sv)) != SVt_PVAV)
+	   croak("%s: threshold must be an array of two integer values",method);
+	av = (AV*)SvRV(sv);
+	if ( av_len(av) != 1)
+	   croak("%s: threshold must be an array of two integer values",method);
+	if ( !( ssv = av_fetch( av, 0, 0)))
+	   croak("%s: threshold[0] array panic",method);
+	thr0 = SvIV( *ssv);
+	if ( !( ssv = av_fetch( av, 0, 0)))
+	   croak("%s: threshold[1] array panic",method);
+	thr1 = SvIV( *ssv);
+	if ( thr0 < 0 || thr0 > 255 || thr1 < 0 || thr1 > 255)
+	   croak("%s: treshold values must be from %d to %d", 0, 255);
+	if ( thr0 > thr1) {
+	   int x = thr0;
+	   thr0 = thr1;
+	   thr1 = x;
+	}
+	   
+    }
+    else {
+        croak("%s: threshold must be defined",method);
+    }
+
+    if ( pexist( neighborhood)) {
+       neighborhood = pget_i( neighborhood);
+       if ( neighborhood != 4 && neighborhood != 8)
+          croak( "%s: cannot handle neighborhoods other than 4 and 8", method);
+    }
+       
+    return hysteresis(img,thr0,thr1,neighborhood==8);
 }
