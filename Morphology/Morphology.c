@@ -29,7 +29,7 @@ XS( boot_IPA__Morphology)
     XSRETURN(1);
 }
 
-PImage bw8bpp_transform(const char *method,PImage img,const char *transtbl,int expandEdges)
+PImage bw8bpp_transform(const char *method,PImage img, const Byte *transtbl,int expandEdges)
 {
     PImage oimg;
     int x,y;
@@ -152,13 +152,15 @@ PImage IPA__Morphology_BWTransform(PImage img,HV *profile)
             STRLEN tbllen;
             transtbl=SvPV(tblstr,tbllen);
             if (tbllen!=512) {
-                croak("%s: %d is incorrect length of the table",method,tbllen);
+                croak("%s: 'lookup' is %d bytes long, must be 512",method,tbllen);
             }
         }
         else {
-            croak("%s : not a string passed as table",method);
+            croak("%s : 'lookup' is not a string",method);
         }
-    }
+    } else {
+        croak("%s : 'lookup' option missed",method);
+    } 
 
     switch (img->type) {
         case imByte:
