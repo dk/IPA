@@ -102,6 +102,8 @@ my $make = <<EOF;
 #
 # Do not edit -- all changes will be lost.
 # Edit Makefile.PL instead.
+#
+# PREREQ_PM => { Prima => q[1] }
 
 all: project
 
