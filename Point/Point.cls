@@ -10,5 +10,7 @@ package IPA::Point {
     PImage mask( PImage msk, HV *profile);
     PImage average( SV *list);
     PImage ab( PImage in, double mul, double add);
+    PImage exp( PImage in);
+    PImage log( PImage in);
 }
 

@@ -66,6 +66,9 @@ typedef double Double;
 #define PIX_CASE(type,op) case im##type:\
    PIX_TYPE2(type,type,op)\
    break
+#define PIX_CASE2(type1,type2,op) case im##type1:\
+   PIX_TYPE2(type1,type2,op)\
+   break
 #define PIX_END_SWITCH default: croak("%s: unsupported pixel type", method); }
 #define PIX_BODY(op) \
    PIX_CASE(Byte,op);\
@@ -73,6 +76,12 @@ typedef double Double;
    PIX_CASE(Long,op);\
    PIX_CASE(Float,op);\
    PIX_CASE(Double,op);
+#define PIX_BODY2(type,op) \
+   PIX_CASE2(Byte,type,op);\
+   PIX_CASE2(Short,type,op);\
+   PIX_CASE2(Long,type,op);\
+   PIX_CASE2(Float,type,op);\
+   PIX_CASE2(Double,type,op);
 
 #define PIX_SRC_DST(src,dst,op) \
 {\
@@ -80,6 +89,15 @@ typedef double Double;
    PIX_INITARGS(src,dst)\
    PIX_SWITCH\
    PIX_BODY(op)\
+   PIX_END_SWITCH\
+}
+
+#define PIX_SRC_DST2(src,dst,type,op) \
+{\
+   dPIX_ARGS;\
+   PIX_INITARGS(src,dst)\
+   PIX_SWITCH\
+   PIX_BODY2(type,op)\
    PIX_END_SWITCH\
 }
 

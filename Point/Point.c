@@ -4,6 +4,7 @@
 #include "Point.h"
 #include "Point.inc"
 #include "PointSupp.h"
+#include <math.h>
 
 static SV **temporary_prf_Sv;
 
@@ -613,5 +614,33 @@ IPA__Point_ab( PImage in, double mul, double add)
    
    out = create_compatible_image( in, false);
    PIX_SRC_DST( in, out, *dst = *src * mul + add);
+   return out;
+}
+
+PImage
+IPA__Point_exp( PImage in)
+{
+   const char *method="IPA::Point::exp";
+   PImage out;
+   
+   if ( !in || !kind_of(( Handle) in, CImage))
+      croak("%s: not an image passed", method);
+   
+   out = createImage(in->w,in->h,imDouble);
+   PIX_SRC_DST2( in, out, double, *dst = exp(*src));
+   return out;
+}
+
+PImage
+IPA__Point_log( PImage in)
+{
+   const char *method="IPA::Point::log";
+   PImage out;
+   
+   if ( !in || !kind_of(( Handle) in, CImage))
+      croak("%s: not an image passed", method);
+   
+   out = createImage(in->w,in->h,imDouble);
+   PIX_SRC_DST2( in, out, double, *dst = log(*src));
    return out;
 }
