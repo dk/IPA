@@ -9,6 +9,7 @@ my $HOME = defined( $ENV{HOME}) ? $ENV{HOME} : '.';
 my $fdo;
 my $fds;
 my $vec = '';
+my $codecID = 0;
 
 use IPA::Global qw(/./);
 use IPA::Local qw(/./);
@@ -53,7 +54,7 @@ sub show_error
 sub load
 {
    my $x = Prima::Image-> load( @_, loadExtras => 1);
-   my $codec = $x-> {extras}-> {codecID};
+   my $codec = $codecID = $x-> {extras}-> {codecID};
    delete $x-> {extras};
    $x-> {extras}-> {codecID} = $codec;
    if ( $x) {
@@ -69,7 +70,8 @@ sub save
    my $img = shift;
    $img = $i unless defined $img;
    show_error('Nothing to save'), return unless defined $img;
-   $img-> save( @_);
+   my @codeco = exists ( $img-> {codecs}-> {codecID} ) ? () : ( 'codecID', $codecID );
+   $img-> save( @_, @codeco);
    show_error("$@") if $@; 
 }
 
@@ -156,7 +158,7 @@ $w = Prima::Window-> create(
           $fdo = Prima::ImageOpenDialog-> create unless $fdo;
           my $x = $fdo-> load;
           return unless $x;
-          my $codec = $x-> {extras}-> {codecID};
+          my $codec = $codecID = $x-> {extras}-> {codecID};
           delete $x-> {extras};
           $x-> {extras}-> {codecID} = $codec;
           $last_image = $i if $i;
@@ -166,6 +168,7 @@ $w = Prima::Window-> create(
       [ '~Save as' => 'F2' => 'F2' => sub {
           return unless $i;
           $fds = Prima::ImageSaveDialog-> create unless $fds;
+          $i-> {extras}-> { codecID} = $codecID unless exists $i-> {extras}-> { codecID};
           $fds-> save( $i);
       }],
       [],
@@ -190,6 +193,10 @@ sub command
       chdir $1;
       command('pwd');
       return;
+   }
+   if ( $cmd =~ /^my\s+([^\s=]+)/) {
+      eval "use vars '$1'";
+      $cmd =~ s/^my\s+//;
    }
    my @ret;
    eval "{\@ret = $cmd}; die \$\@ if \$\@;";
@@ -286,11 +293,10 @@ $w-> insert( ImageViewer =>
    growMode => gm::Client,
 );
 
-#eval { do "$HOME/.iterm-startup"; };
 do "$HOME/.iterm-startup";
 Prima::MsgBox::message( $@) if @$ ;
 
-command( 'load "' . $ARGV[0] . '"') if @ARGV;
+command( 'load "' . quotemeta($ARGV[0]) . '"') if @ARGV;
 
 $w-> Input-> select;
 while ($::application) {
@@ -420,6 +426,10 @@ See L<Duplicate>
 
 Reverts $i to its last value
 
+=item my VARIABLE [ = VALUE ]
+
+Declare lexical VARIABLE and assign VALUE to it.
+
 =back
 
 =head2 Example
@@ -447,6 +457,10 @@ Erode the new image
 Display the difference
 
    subtract $i, $i[0]
+
+Display the pixel value under the mouse cursor
+
+   $w-> Image-> onMouseMove( sub { show_error($i-> pixel( @_[2,3] ))});
 
 Note: iterm never asks if the changed images are desired to be saved.
 
