@@ -148,6 +148,20 @@ sub draw
    }
 }
 
+sub area
+{
+   my $region = $_[0];
+   my $i;
+   my $area = 0;
+   for ( @{$$region[0]}) {
+      my ( $a, $c) = ( $_, scalar @$_);
+      for ( $i = 0; $i < $c; $i += 2) {
+         $area += $$a[$i+1] - $$a[$i] + 1;
+      }
+   }
+   return $area;
+}
+
 sub plot
 {
    my ( $image, $region, $dx, $dy, $color) = @_;
