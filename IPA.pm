@@ -153,7 +153,7 @@ Discards C<conversionType> parameter and performs no conversion.
 If set to true value, the conversion step is omitted. 
 
 Default is 0.
- 
+
 =back
 
 =item threshold IMAGE [ minvalue, maxvalue = 255]
@@ -355,9 +355,9 @@ Supported types: Byte
 Contains methods that produce images, where every pixel is a function
 of all pixels in the source image.
 The process can be described with the mapping function 
-
+   
    s = M(R)
-  
+
 where C<s> is the pixel value in the output images, and R is the source image.
 
 =item close_edges IMAGE [ gradient, maxlen, minedgelen, mingradient ]
