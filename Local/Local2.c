@@ -101,23 +101,15 @@ PImage deriche( const char *method, PImage in, float alpha)
       deriche_WRITELINE(za,y);
    }
 
-   {
-      float min = FLT_MAX, max = -FLT_MAX;
-      for ( y = 0; y < n; y++)
-         for ( x = 0; x < n; x++)
-         {
-            if ( outf[deriche_INDEX(x,y)] < min)
-               min = outf[deriche_INDEX(x,y)];
-            if ( outf[deriche_INDEX(x,y)] > max)
-               max = outf[deriche_INDEX(x,y)];
-         }
-   }
-
    out = createImage( in-> w, in-> h, in->type);
    for ( y = 0; y < n; y++)
-      for ( x = 0; x < n; x++)
+      for ( x = 0; x < n; x++) {
+         register int z = outf[deriche_INDEX(x,y)] + 0.5;
+         if ( z < 0) z = 0;
+         if ( z > 255) z = 255;
          /* out-> data[y*out-> lineSize + x] = outf[deriche_INDEX(x,y)] < 1 ? 0 : 255;*/
-         out-> data[y*out-> lineSize + x] = outf[deriche_INDEX(x,y)] + 0.5;
+         out-> data[y*out-> lineSize + x] = z;
+      }
 
    free( z1); free( z2); free( z3);
    free( ze); free( za);

@@ -25,8 +25,15 @@ $VERSION = '0.01';
                 median 
                 unionFind
 		hysteresis
+                gaussian
+                gradients
+                canny
+                nms
+                scale
+                ridge
                );
-%EXPORT_TAGS = (enhancement => [qw(crispening)], edgedetect => [qw(sobel GEF SDEF deriche hysteresis)]);
+%EXPORT_TAGS = (enhancement => [qw(crispening)], 
+                edgedetect => [qw(sobel GEF SDEF deriche hysteresis canny)]);
 
 bootstrap IPA::Local $VERSION;
 

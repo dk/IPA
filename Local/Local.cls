@@ -1,5 +1,10 @@
 # $Id$
 local $PImage => Handle;
+local @TwoImages
+{
+   PImage magnitude;
+   PImage direction;
+}
 
 package IPA::Local {
    PImage crispening(PImage input);
@@ -11,5 +16,11 @@ package IPA::Local {
    PImage median(PImage input,HV *profile);
    PImage unionFind(PImage input,HV *profile);
    PImage hysteresis(PImage input, HV*profile);
+   PImage gaussian( int size, double sigma);
+   TwoImages gradients(PImage input);
+   PImage canny( PImage input, HV*profile);
+   PImage nms( PImage input, HV*profile);
+   PImage scale( PImage input, HV*profile);
+   PImage ridge( PImage input, HV*profile);
 }
 

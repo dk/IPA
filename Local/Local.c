@@ -491,75 +491,16 @@ PImage IPA__Local_sobel(PImage img,HV *profile)
     return oimg;
 }
 
-PImage IPA__Local_filter3x3(PImage img,HV *profile)
+static PImage
+filter3x3( const char * method, PImage img, 
+           double *matrix, double divisor, Bool rawOutput, Bool expandEdges, 
+           unsigned short conversionType, unsigned short edgecolor)
 {
-    const char *method="IPA::Local::filter3x3";
     PImage oimg,bufimg;
-    unsigned short conversionType=CONV_SCALEABS;
-    unsigned short edgecolor=0;
-    Bool rawOutput=false,expandEdges=false;
-    double matrix[9];
-    double divisor=1;
     long minval=0,maxval=0,range;
     int x,y;
     long *bufp;
     Byte *p,*pu,*pd;
-
-    if ( !img || !kind_of(( Handle) img, CImage)) 
-       croak("%s: not an image passed", method);
-
-    if (pexist(conversionType)) {
-        conversionType=pget_i(conversionType);
-        if (conversionType<1 || conversionType>4) {
-            croak("%s: conversion type value %d is not valid",method,conversionType);
-        }
-    }
-    if (pexist(rawOutput)) {
-        rawOutput=pget_B(rawOutput);
-    }
-    if (pexist(expandEdges)) {
-        expandEdges=pget_B(expandEdges);
-    }
-    if (pexist(edgecolor)) {
-        edgecolor=pget_i(edgecolor);
-        if (edgecolor>255) {
-            croak("%s: edge color value %d is not valid",method,edgecolor);
-        }
-    }
-    if (pexist(divisor)) {
-        divisor=pget_f(divisor);
-        if (divisor==0) {
-            croak("%s: divisor cannot be equal to 0",method);
-        }
-    }
-    if (pexist(matrix)) {
-        SV *sv=pget_sv(matrix);
-        SV **mItem;
-        AV *av;
-        int i;
-        if (!SvROK(sv) || (SvTYPE(SvRV(sv))!=SVt_PVAV)) {
-            croak("%s: matrix is not an array",method);
-        }
-        av=(AV*)SvRV(sv);
-        if (av_len(av)!=8) {
-            croak("%s: incorrect length of matrix array",method);
-        }
-        for (i=0; i<9; i++) {
-            mItem=av_fetch(av,i,0);
-            if (!mItem) {
-                croak("%s: empty matrix element #%d",method,i);
-            }
-            if (SvNOK(*mItem) || looks_like_number(*mItem)) {
-                matrix[i]=SvNV(*mItem);
-            }
-            else {
-                croak("%s: matrix's element #%d are not of type double or int",method,i);
-            }
-        }
-    }
-    else {
-        croak("%s: matrix required",method);
-    }
 
     switch (img->type) {
         case imByte:
@@ -720,6 +661,7 @@ PImage IPA__Local_filter3x3(PImage img,HV *profile)
                 minval=tmp;
             }
             range=maxval-minval;
+            if ( range == 0) range = 1;
         }
         oimg=createNamedImage(img->w,img->h,imByte,"filter3x3 result");
         if (oimg) {
@@ -761,6 +703,73 @@ PImage IPA__Local_filter3x3(PImage img,HV *profile)
 
     return oimg;
 }
+
+PImage IPA__Local_filter3x3(PImage img,HV *profile)
+{
+    const char *method="IPA::Local::filter3x3";
+    unsigned short conversionType=CONV_SCALEABS;
+    unsigned short edgecolor=0;
+    Bool rawOutput=false,expandEdges=false;
+    double matrix[9];
+    double divisor=1;
+
+    if ( !img || !kind_of(( Handle) img, CImage)) 
+       croak("%s: not an image passed", method);
+
+    if (pexist(conversionType)) {
+        conversionType=pget_i(conversionType);
+        if (conversionType<1 || conversionType>4) {
+            croak("%s: conversion type value %d is not valid",method,conversionType);
+        }
+    }
+    if (pexist(rawOutput)) {
+        rawOutput=pget_B(rawOutput);
+    }
+    if (pexist(expandEdges)) {
+        expandEdges=pget_B(expandEdges);
+    }
+    if (pexist(edgecolor)) {
+        edgecolor=pget_i(edgecolor);
+        if (edgecolor>255) {
+            croak("%s: edge color value %d is not valid",method,edgecolor);
+        }
+    }
+    if (pexist(divisor)) {
+        divisor=pget_f(divisor);
+        if (divisor==0) {
+            croak("%s: divisor cannot be equal to 0",method);
+        }
+    }
+    if (pexist(matrix)) {
+        SV *sv=pget_sv(matrix);
+        SV **mItem;
+        AV *av;
+        int i;
+        if (!SvROK(sv) || (SvTYPE(SvRV(sv))!=SVt_PVAV)) {
+            croak("%s: matrix is not an array",method);
+        }
+        av=(AV*)SvRV(sv);
+        if (av_len(av)!=8) {
+            croak("%s: incorrect length of matrix array",method);
+        }
+        for (i=0; i<9; i++) {
+            mItem=av_fetch(av,i,0);
+            if (!mItem) {
+                croak("%s: empty matrix element #%d",method,i);
+            }
+            if (SvNOK(*mItem) || looks_like_number(*mItem)) {
+                matrix[i]=SvNV(*mItem);
+            }
+            else {
+                croak("%s: matrix's element #%d are not of type double or int",method,i);
+            }
+        }
+    }
+    else {
+        croak("%s: matrix required",method);
+    }
+    return filter3x3( method, img, matrix, divisor, rawOutput, expandEdges, conversionType, edgecolor);
+}    
 
 PImage fast_median(PImage srcimg, int wx, int wy)
 {
@@ -1690,9 +1699,8 @@ PImage IPA__Local_hysteresis(PImage img,HV *profile)
     if ( !img || !kind_of(( Handle) img, CImage))
       croak("%s: not an image passed", method);
 
-    if (img->type!=imByte) {
-        croak("%s: incorrect image type",method);
-    }
+    if ( img-> type != imByte)
+       croak("%s: image is not 8-bit grayscale", method);
 
     if (pexist(threshold)) {
         SV * sv = pget_sv(threshold), **ssv;
@@ -1728,4 +1736,534 @@ PImage IPA__Local_hysteresis(PImage img,HV *profile)
     }
        
     return hysteresis(img,thr0,thr1,neighborhood==8);
+}
+
+static PImage
+gaussian( const char * method, int size, double sigma)
+{
+   register int j, k;
+   double x, y, *e=0;
+   int ls,s=size/2;
+   PImage out;
+   Byte *dst;
+   /* check parameters */
+   if (size < 2 || size % 2 == 0) 
+       croak("%s: size of gaussian must be an odd number greater than two", method);
+   if (sigma <= 0.0) 
+       croak("%s: standard deviation of gaussian must be positive", method);
+   if (!(e = (double *)malloc(((size/2)+1)*sizeof(double)))) {
+      croak("%s: not enough memory\n", method);
+   }
+   out = createImage( size, size, imByte);
+   dst = out-> data;
+   ls = out-> lineSize;
+   sigma = 2*sigma*sigma;
+
+   /* store one dimensional components */
+   for (k=0; k<size/2; k++) {
+       x = ((double)(k-s)*(double)(k-s))/sigma;
+       e[k] = exp(-x);
+   }
+   /* symmetric quadrants */
+   for (j=0; j<s; j++) {
+       for (k=0; k<s; k++) {
+           dst[j*ls+k] =
+           dst[j*ls+size-k-1] =
+           dst[(size-j-1)*ls+k] =
+           dst[(size-j-1)*ls+size-k-1] =
+           e[k]*e[j]*255+.5;
+       }
+   }
+   /* zero coordinates */
+   for (j=0; j<size; j++) {
+       y = ((double)(j-s)*(double)(j-s))/sigma;
+       dst[j*ls+s] = dst[((int)s)*ls+j]=exp(-y)*255+.5;
+   }
+   free(e);
+   return out;
+}
+
+PImage IPA__Local_gaussian( int size, double sigma)
+{
+   return gaussian( "IPA::Local::gaussian", size, sigma);
+}
+
+static PImage 
+convolution( const char * method, PImage in, PImage kernel_img)
+{ 
+   register int j, k, l, m, n;
+   double sum, ksum;
+   int size = kernel_img-> w;
+   int kls = kernel_img-> lineSize - size;
+   int dls, sls, marg = size/2;
+   Byte * dst, *src, *kernel;
+   PImage out;
+
+   if (( kernel_img-> type & imBPP) != 8)
+      croak("%s: kernel is not 8-bit image (%x)", method, kernel_img-> type & imBPP);
+   if ( kernel_img-> w != kernel_img-> h) 
+      croak("%s: kernel sides must be equal", method);
+   kernel = kernel_img-> data;
+   if ( size % 2 == 0) 
+      croak("%s: kernel size (%d) must be odd", method, size);
+   if ( in-> w < size || in-> h < size) 
+      croak("%s: kernel size (%d) must be smaller than dimensions of image (%d %d)", 
+            method, size, in-> w, in-> h);
+   out = create_compatible_image(in,false);
+   dst = out-> data;
+   dls = out-> lineSize;
+   src = in-> data;
+   sls = in-> lineSize;
+   ksum = kernel_img-> self-> get_stats(( Handle) kernel_img, isSum);
+ 
+   for (j=marg; j<in->h-marg; j++) {
+       for (k=marg; k<in->w-marg; k++) {
+           for (sum=0.0,n=0,l=0; l<size; l++, n += kls) {
+               for (m=0; m<size; m++) {
+                   sum += (double)src[(j-marg+l)*sls+k-marg+m]*(double)kernel[n++];
+               }
+           }
+           sum /= ksum;
+           if ( sum < 0.0) {
+              dst[j*dls+k] = 0;
+           } else if ( sum > 255.0) {
+              dst[j*dls+k] = 255;
+           } else {
+              dst[j*dls+k] = sum + .5;
+           }
+       }
+   }
+   /* top and bottom margins */
+   for (j=0; j<marg; j++) {
+       for (k=0; k<in->w-marg; k++) {
+           dst[j*dls+k] = dst[marg*dls+k];
+           dst[(in->h-j-1)*dls+k] = dst[(in->h-marg-1)*dls+k];
+       }
+   }
+ 
+   /* left and right margins */
+   for (j=0; j<in->h; j++) {
+       for (k=0; k<marg; k++) {
+           dst[j*dls+k]=dst[j*dls+marg];
+           dst[j*dls+in->w-k-1] = dst[j*dls+in->w-marg-1];
+       }
+   }
+
+   return out;
+}
+
+/*-General Information--------------------------------------------------------*/
+/*                                                                            */
+/*   This function computes a two-dimensional gradient (magnitude and         */
+/*   direction) of an image, using two user-supplied convolution kernels.     */
+/*   The magnitude is computed as the vector magnitude of the output          */
+/*   of the two kernels, and the direction is computed as the angle           */
+/*   between the two orthogonal gradient vectors.                             */
+/*                                                                            */
+/*----------------------------------------------------------------------------*/
+/*-Background Information-----------------------------------------------------*/
+/*                                                                            */
+/*   Robinson, G.S.:                                                          */
+/*   "Detection and Coding of Edges Using Directional Masks."                 */
+/*   Optical Engineering, Vol. 16, No. 6 (Nov/Dec 1977), pp. 580-585          */
+/*                                                                            */
+/*----------------------------------------------------------------------------*/
+/* Copyright (c) 1988 by the University of Arizona Digital Image Analysis Lab */
+/*-Interface Information------------------------------------------------------*/
+#define PI 3.14159
+static TwoImages 
+gradients(
+const char * method,          
+PImage in,      /*  I   Pointer to the input image.                           */
+double *vert,      /*  I   Pointer to a square convolution kernel[size][size] for*/
+                /*      the y-derivative. It should return positive values    */
+                /*      for gradients increasing to the "top" of the image.   */
+double *horz,      /*  I   Pointer to a square convolution kernel[size][size] for*/
+                /*      the x-derivative. It should return positive values    */
+                /*      for gradients increasing to the "right" of the image. */
+int size       /*  I   Kernel size in lines and pixels/line.                 */
+/*----------------------------------------------------------------------------*/
+) { register int j, k, l, m;
+    double dv, dh;
+    int sls, dls, n=size/2;
+    Byte * src, *dst1, *dst2;
+    TwoImages out;
+    
+    if ( in-> type != imByte)
+       croak("%s: image is not 8-bit grayscale", method);
+    if (size < 2 ||size%2 == 0)
+        croak("%s: size of convolution mask must be an odd number greater than two", method);
+    if (size > in->h ||  size > in->w) 
+        croak("%s: image size must be equal to or greater than convolution mask size", method);
+
+    /* create images of appropriate size */
+    out. magnitude = ( Handle) create_compatible_image( in, false);
+    out. direction = ( Handle) create_compatible_image( in, false);
+    src = in-> data;
+    dst1 = PImage(out.magnitude)->data;
+    dst2 = PImage(out.direction)->data;
+    sls = in-> lineSize;
+    dls = PImage(out.magnitude)-> lineSize;
+
+    /* compute convolution */
+    for (j=n; j<in->h-n; j++) {
+        for (k=n; k<in->w-n; k++) {
+            int v;
+            dv = dh = 0.0;
+            for (l=0; l<size; l++) {
+                for (m=0; m<size; m++) {
+                    dv += (double)vert[l*size+m]*(double)src[(j-n+l)*sls+k-n+m];
+                    dh += (double)horz[l*size+m]*(double)src[(j-n+l)*sls+k-n+m];
+                }
+            }
+            v = sqrt(dv*dv+dh*dh)+.5;
+            if ( v > 255) v = 255;
+            dst1[j*dls+k] = v;
+            /*
+            if (dh == 0.0) {
+                if (dv > 0.0) {
+                    dst2[j*dls+k] = 128+PI*80.0/2.0+.5;
+                } else if (dv < 0.0) {
+                    dst2[j*dls+k] = 128-PI*80.0/2.0+.5;
+                } else {
+                    dst2[j*dls+k] = 128;
+                }
+            } else {
+                dst2[j*dls+k] = 128+atan2(dv,dh)*80.0+.5;
+            }
+            */
+            dv *= dv; 
+            dh *= dh; 
+            v = (dv-dh)*(dv-dh);
+            if ( v > 255) v = 255;
+            dst2[j*dls+k] = v; 
+        }
+    }
+
+    /* fill top and bottom margins */
+    for (j=0; j<n; j++) {
+        for (k=n; k<in->w-n; k++) {
+            dst1[j*dls+k] = dst1[n*dls+k];
+            dst1[(in->h-j-1)*dls+k] = dst1[(in->h-n-1)*dls+k];
+            dst2[j*dls+k] = dst2[n*dls+k];
+            dst2[(in->h-j-1)*dls+k] = dst2[(in->h-n-1)*dls+k];
+        }
+    }
+
+    /* fill left and right margins */
+    for (j=0; j<in->h; j++) {
+        for (k=0; k<n; k++) {
+            dst1[j*dls+k] = dst1[j*dls+n];
+            dst1[j*dls+in->w-k-1] = dst1[j*dls+in->w-n-1];
+            dst2[j*dls+k] = dst2[j*dls+n];
+            dst2[j*dls+in->w-k-1] = dst2[j*dls+in->w-n-1];
+        }
+    }
+    return out;
+}
+
+static double firstdiff_y[3][3] = { { 0.0,  0.0,  0.0 }, 
+                                    { 0.0,  1.0,  1.0 }, 
+                                    { 0.0, -1.0, -1.0 } };
+ 
+static double firstdiff_x[3][3] = { { 0.0,  0.0,  0.0 }, 
+                                    { 0.0, -1.0,  1.0 }, 
+                                    { 0.0, -1.0,  1.0 } };
+
+TwoImages 
+IPA__Local_gradients( PImage img)
+{
+   const char *method="IPA::Local::gradients";
+   if ( !img || !kind_of(( Handle) img, CImage))
+      croak("%s: not an image passed", method);
+   if ( img-> type != imByte)
+      croak("%s: image is not 8-bit grayscale", method);
+   return gradients( method, img, (double*)firstdiff_y, (double*)firstdiff_x, 3);
+}   
+
+/* converts byte-coded angle into sector code */
+static int 
+angle2sector( Byte theta)
+{    
+    static Byte initialized = false;
+    static Byte lut[256];
+
+    if ( !initialized) {
+       int i, v, sectornum; 
+       for ( i = 0; i < 255; i++) {
+          v = (i - 128) / 80.0;
+          /* Convert to positive angle */
+          if ( v < 0) v += 2.0 * PI;
+          
+          if (v < (PI / 8.0)  && 0 <= v) {
+              sectornum = 0;
+          } else if (v <= (2*PI)  && ((15.0*PI)/8.0) <= v) {
+              sectornum = 0;
+          } else if (v < ((3.0*PI)/8.0)  && (PI/8.0) <= v) {
+              sectornum = 1;
+          } else if (v < ((5.0*PI)/8.0)  && ((3.0*PI)/8.0) <= v) {
+              sectornum = 2;
+          } else if (v < ((7.0*PI)/8.0)  && ((5.0*PI)/8.0) <= v) {
+              sectornum = 3;
+          } else if (v < ((9.0*PI)/8.0)  && ((7.0*PI)/8.0) <= v) {
+              sectornum = 0;
+          } else if (v < ((11.0*PI)/8.0)  && ((9.0*PI)/8.0) <= v) {
+              sectornum = 1;
+          } else if (v < ((13.0*PI)/8.0)  && ((11.0*PI)/8.0) <= v) {
+              sectornum = 2;
+          } else {  /* if (v < ((15.0*PI)/8.0)  && ((13.0*PI)/8.0) <= v) */
+              sectornum = 3;
+          }
+          lut[i] = sectornum;
+       }
+       initialized = true;
+    }
+    return lut[theta];
+}
+
+/* Canny edge detector  */
+static PImage
+canny( const char * method,
+       PImage in, 
+       int size,      /*  Size of gaussian smoothing filter.                   */
+       double sigma /*  Std. deviation of gaussian smoothing filter.         */
+       )
+{ 
+   register int j, k;
+   PImage g, smoothed, out;
+   TwoImages FoG;
+   Byte *mag, *dir, *dst;
+   int ls, dls;
+
+   /* create gaussian smoothing filter */
+   g = gaussian( method, size, sigma);
+   out = create_compatible_image( in, false);
+   dst = out-> data;
+   dls = out-> lineSize;
+
+   /* convolve with the gaussian */
+   smoothed = convolution( method, in, g);
+   Object_destroy(( Handle) g);
+   /* return smoothed */
+   /* create the First Order Gaussian filtered image */
+   FoG = gradients(method,smoothed,(double*)firstdiff_y, (double*)firstdiff_x, 3);
+   Object_destroy(( Handle) smoothed);
+   mag = PImage(FoG.magnitude)->data;
+   dir = PImage(FoG.direction)->data;
+   ls  = PImage(FoG.magnitude)->lineSize;
+   
+   /* perform gradient-based non-maxima supression */
+   for (j=0; j<in->h; j++) {
+       for (k=0; k<in->w; k++) {
+           switch ( angle2sector(dir[j*ls+k])) {
+           case 0:
+               if (((k>0)&&(mag[j*ls+k-1] > mag[j*ls+k]))
+                   || ((k<in->w-1)&&(mag[j*ls+k+1] > mag[j*ls+k]))) {
+                       dst[j*dls+k] = 0;
+               } else {
+                   dst[j*dls+k] = mag[j*ls+k];
+               }
+               break;
+           case 1: 
+               if (((j>0 && k<in->w-1)&&(mag[ls*(j-1)+k+1] > mag[j*ls+k]))
+                   || ((j<in->w-1 && k>0)&&(mag[ls*(j+1)+k-1] > mag[ls*j+k]))) {
+                       dst[dls*j+k] = 0;
+               } else {
+                   dst[dls*j+k] = mag[dls*j+k];
+               }
+               break; 
+           case 2:
+               if (((j>0)&&(mag[ls*(j-1)+k] > mag[ls*j+k]))
+                   || ((j<in->w-1)&&(mag[ls*(j+1)+k] > mag[ls*j+k]))) {
+                       dst[j*dls+k] = 0;
+               } else {
+                   dst[j*dls+k] = mag[j*ls+k];
+               }
+               break;
+           default:
+               /*if (sectorval == 3)*/
+               if (((j>0 && k>0)&&(mag[ls*(j-1)+k-1] > mag[ls*j+k]))
+                   || ((j<in->w-1 && k<in->w-1)&&(mag[ls*(j+1)+k+1] > mag[ls*j+k]))) {
+                       dst[j*dls+k] = 0;
+               } else {
+                   dst[j*dls+k] = mag[j*ls+k];
+               }
+           }
+       }
+   }
+   return out;       
+}
+
+
+PImage IPA__Local_canny(PImage img,HV *profile)
+{
+    const char *method="IPA::Local::canny";
+    int size = 3;
+    double sigma = 2;
+
+    if ( !img || !kind_of(( Handle) img, CImage))
+      croak("%s: not an image passed", method);
+
+    if ( img-> type != imByte)
+       croak("%s: image is not 8-bit grayscale", method);
+
+    if (pexist(size)) size = pget_i( size);
+    if (pexist(sigma)) sigma = pget_f( sigma);
+
+    return canny(method,img,size,sigma);
+}
+
+/* non-maxima suppression */
+static PImage
+nms( const char * method,
+       PImage in,
+       int color
+       )
+{ 
+   int x, y;
+   PImage out;
+   Byte *src, *dst, *prev, *next;
+   int ls;
+
+   out = create_compatible_image( in, true);
+   dst = out-> data;
+   ls = out-> lineSize;
+   src  = in-> data;
+   prev = src - ls;
+   next = src + ls;
+
+   for (y=0; y<in->h; y++, src+=ls, next += ls, prev += ls, dst += ls) 
+       for (x=0; x<in->w; x++) 
+           if (
+                (y > 0 && (
+                   (x > 0 && prev[x-1] > src[x]) || (x < in-> w - 1 && prev[x+1] > src[x]) 
+                )) || 
+                (y < in->h-1 && (
+                   (x > 0 && next[x-1] > src[x]) || (x < in-> w - 1 && next[x+1] > src[x]) 
+                )) || 
+                (x > 0 && src[x-1] > src[x]) || (x < in-> w - 1 && src[x+1] > src[x])
+              ) 
+              dst[x] = color;
+   return out;       
+}
+
+PImage IPA__Local_nms(PImage img,HV *profile)
+{
+    int color = 0;
+    const char *method="IPA::Local::nms";
+
+    if ( !img || !kind_of(( Handle) img, CImage))
+      croak("%s: not an image passed", method);
+
+    if ( img-> type != imByte)
+       croak("%s: image is not 8-bit grayscale", method);
+
+    if ( pexist(color)) color = pget_i(color);
+
+    return nms(method,img,color);
+}
+
+static PImage
+scale( const char * method,
+       PImage in, 
+       int size,      /*  Size of gaussian smoothing filter.                   */
+       double t       /*  scale */
+       )
+{ 
+   PImage g, smoothed;
+   /* create gaussian smoothing filter */
+   if ( t < 0) croak("%s: 't' must be positive", method);
+   g = gaussian( method, size, sqrt(t));
+   /* normalize the gaussian */
+
+   /* convolve with the gaussian */
+   smoothed = convolution( method, in, g); 
+   Object_destroy(( Handle) g);
+   /* return smoothed */
+   return smoothed;
+}
+
+PImage IPA__Local_scale(PImage img,HV *profile)
+{
+    const char *method="IPA::Local::scale";
+    int size = 3;
+    double t = 4;
+
+    if ( !img || !kind_of(( Handle) img, CImage))
+      croak("%s: not an image passed", method);
+
+    if ( img-> type != imByte)
+       croak("%s: image is not 8-bit grayscale", method);
+
+    if (pexist(size)) size = pget_i( size);
+    if (pexist(t)) t = pget_f( t);
+
+    return scale(method,img,size,t);
+}
+                        
+PImage IPA__Local_ridge(PImage img,HV *profile)
+{
+    PImage xx, yy, xy, yx, tmp;
+    Bool anorm = false;
+    const char *method="IPA::Local::ridge";
+    double yyf[9] = { 0,0,0,0,-1,-1,0,1,1};
+    double xxf[9] = { 0,0,0,0,-1,1,0,-1,1};
+    double xyf[9] = { 0,0,-0.5,0,-1,1,-0.5,1,0};
+    double yxf[9] = { -0.5,0,0,1,-1,0,0,1,-0.5};
+    double mul = 1;
+    int ls, y, x, yls;
+
+    if ( !img || !kind_of(( Handle) img, CImage))
+      croak("%s: not an image passed", method);
+
+    if ( img-> type != imByte)
+       croak("%s: image is not 8-bit grayscale", method);
+
+    if ( pexist(a)) anorm = pget_B(a);
+    if ( pexist(mul)) mul = pget_f(mul);
+
+    /* Lxx */
+    tmp = filter3x3( method, img, xxf, 1, false, false, CONV_TRUNCABS, 0);
+    xx  = filter3x3( method, tmp, xxf, 1, false, false, CONV_TRUNCABS, 0);
+    Object_destroy(( Handle)tmp);
+    /* Lyy */
+    tmp = filter3x3( method, img, yyf, 1, false, false, CONV_TRUNCABS, 0);
+    yy  = filter3x3( method, tmp, yyf, 1, false, false, CONV_TRUNCABS, 0);
+    Object_destroy(( Handle)tmp);
+    /* Lxy */
+    tmp = filter3x3( method, img, xyf, 1, false, false, CONV_TRUNCABS, 0);
+    xy  = filter3x3( method, tmp, xyf, 1, false, false, CONV_TRUNCABS, 0);
+    Object_destroy(( Handle)tmp);
+    /* Lyx */
+    tmp = filter3x3( method, img, yxf, 1, false, false, CONV_TRUNCABS, 0);
+    yx  = filter3x3( method, tmp, yxf, 1, false, false, CONV_TRUNCABS, 0);
+    Object_destroy(( Handle)tmp);
+
+    /* 
+       N= t^(4y)   (Lxx+Lyy)^2((Lxx-Lyy)^2 + 4Lxy^2). 
+       A= t^(2y) ((Lxx-Lyy)^2 + 4Lxy^2). 
+       
+       Lindeberg 1994. 
+       t ( scale ) and y ( gamma-normalizer ) can be represented by 'mul'
+       Don't know exactly, but suppose Lxy^2 == Lxy*Lyx 
+     */
+    tmp = create_compatible_image( img, false);
+    for ( y = 0, ls = img-> lineSize, yls = 0; y < img-> h; y++, yls += ls) {
+       for ( x = 0; x < img-> w; x++) {
+          double 
+             Lxx = xx-> data[ yls + x],
+             Lyy = yy-> data[ yls + x],
+             Lxy = xy-> data[ yls + x],
+             Lyx = yx-> data[ yls + x];
+          double A = mul * ((Lxx - Lyy) * (Lxx - Lyy) + 4 * Lxy * Lyx);
+          if ( !anorm) A = sqrt( A * ( Lxx + Lyy) * ( Lxx + Lyy));
+          if ( A > 255.0) A = 255;
+          tmp-> data[ yls + x] = A + .5;
+       }
+    }
+    Object_destroy(( Handle)xx);
+    Object_destroy(( Handle)yy);
+    Object_destroy(( Handle)xy);
+    Object_destroy(( Handle)yx);
+    return tmp;
 }
