@@ -26,7 +26,7 @@ sub pow2wrapper1
 {
    my ($i,$profile) = @_;
 
-   my ($oh, $ow) = $i-> size;
+   my ($ow, $oh) = $i-> size;
    my ( $okw, $w1) = pow2( $oh);
    my ( $okh, $h1) = pow2( $ow);
    my $resize = !$okw || !$okh;
@@ -38,12 +38,12 @@ sub pow2wrapper1
       $i = $i-> dup;
       $i-> size( $w1, $h1);
    }
-   return ( $i, $oh, $ow, $resize);
+   return ( $i, $ow, $oh, $resize);
 }   
 
 sub pow2wrapper2
 {
-   my ( $i, $oh, $ow, $resize) = @_;
+   my ( $i, $ow, $oh, $resize) = @_;
    $i-> size( $ow, $oh) if $i && $resize;
    return $i;
 }   
