@@ -18,7 +18,7 @@ use IPA::Point qw(/./);
 use IPA::Morphology qw(/./);
 
 
-use vars qw($i $j @i @windows);
+use vars qw($i $j @i @windows $last_image);
 
 $i = Prima::Image-> create;
 $j = Prima::Image-> create;
@@ -52,8 +52,12 @@ sub show_error
 
 sub load
 {
-   my $x = Prima::Image-> load( @_);
+   my $x = Prima::Image-> load( @_, loadExtras => 1);
+   my $codec = $x-> {extras}-> {codecID};
+   delete $x-> {extras};
+   $x-> {extras}-> {codecID} = $codec;
    if ( $x) {
+      $last_image = $i if $i;
       $i = $x;
    } else {
       show_error( "error loading: $@");
@@ -80,6 +84,16 @@ sub zoom
    $w-> Image-> zoom( $_[0]);
 }
 
+sub undo
+{
+   if ( $last_image) {
+      $i = $last_image;
+      $last_image = undef;
+   } else {
+      show_error ( "No undo image" );
+   }
+}
+
 sub window
 {
    my $z;
@@ -97,6 +111,7 @@ sub window
            [ '~Export' , 'Ctrl+Ins' , km::Ctrl | kb::Insert , sub { 
               my $x = $_[0]-> Image-> image; 
               return unless $x;
+              $last_image = $i if $i;
               $i = $x-> dup;
               show;
            }],
@@ -141,6 +156,10 @@ $w = Prima::Window-> create(
           $fdo = Prima::ImageOpenDialog-> create unless $fdo;
           my $x = $fdo-> load;
           return unless $x;
+          my $codec = $x-> {extras}-> {codecID};
+          delete $x-> {extras};
+          $x-> {extras}-> {codecID} = $codec;
+          $last_image = $i if $i;
           $i = $x;
           show;
       }],
@@ -185,6 +204,7 @@ sub command
          my $w = window();
          $w-> Image-> image( $i[$w->{id}] = $z);
       } else {
+         $last_image = $i if $i;
          $i = $z-> dup;
          $ifound = 1;
       }
@@ -395,6 +415,10 @@ Opens a new, empty additional window.
 =item dup
 
 See L<Duplicate>
+
+=item undo
+
+Reverts $i to its last value
 
 =back
 
