@@ -241,6 +241,9 @@ dist: tardist
 \t\$(RM) $PRJ-$VERSION.tar.gz
 \t\@gzip -9 $PRJ-$VERSION.tar
 
+test:
+\t\@echo no tests defined, sorry
+
 EOF
 
 # WARNING - dist targets work only for Prima-1.06 and higher
