@@ -758,7 +758,7 @@ Ranges: hue: 0-360, saturation: 0-1, value: 0-1 .
 =item combine_channels [IMAGES], [ MODE = 'rgb' ]
 
 Combines list of channel IMAGES into single image, with the selected 
-MODE, which currently can be C<'rgb'> or C<'hsv'> string constants. 
+MODE, which currently can be C<'rgb'> , C<'hsv'>, C<'alphaNUM'> string constants. 
 Returns the combined image.
 
 =over
@@ -773,6 +773,12 @@ Returns: RGB image .
 Supported types: Float .
 Returns: RGB image .
 Channel ranges: hue: 0-360, saturation: 0-1, value: 0-1
+
+=item alphaNUM
+
+Supported types: RGB, Byte .
+Returns: Same type as input .
+NUM range: 0 - 255 .
 
 =back
 

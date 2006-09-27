@@ -183,6 +183,7 @@ IPA__Misc_combine_channels( SV * input, char * mode)
    
    if ( stricmp( mode, "rgb") == 0) m = 0; else
    if ( stricmp( mode, "hsv") == 0) m = 1; else
+   if ( strncmp( mode, "alpha", 5) == 0) m = 2; else
    croak("%s: unknown mode %s", METHOD, mode);
 
    switch ( m) {
@@ -256,6 +257,56 @@ IPA__Misc_combine_channels( SV * input, char * mode)
          return ret;
       }
       break;
+   case 2: {
+      char * eptr;
+      int  mul, xw, lw, ls;
+      Byte * i1, * i2, * dst;
+      PImage ret;
+      float mul1, mul2;
+      mul = strtol( mode + 5, &eptr, 10);
+      if (*eptr || mul < 0 || mul > 255) 
+         croak("%s: format alphaNUM where NUM in 0..255", METHOD);
+      if ( n != 2) croak( "%s: mode 'alpha' expects 2 images", METHOD);
+      if ( mul == 255) 
+         return (PImage) CImage(ch[0])-> dup(ch[0]);
+      if ( mul == 0) 
+         return (PImage) CImage(ch[1])-> dup(ch[1]);
+      mul1 = (float) mul / 256;
+      mul2 = 1.0 - mul1;
+
+      if ( PImage(ch[0])-> type == imByte) {
+         if ( PImage(ch[1])-> type != imByte)
+            croak( "%s: type of image #1 is not Byte", METHOD);
+         if ( !( ret = createImage( w, h, imByte)))
+            croak("%s: error creating image", METHOD);
+	 xw = 1;
+      } else if ( PImage(ch[0])-> type == imRGB) {
+         if ( PImage(ch[1])-> type != imRGB)
+            croak( "%s: type of image #1 is not RGB", METHOD);
+         if ( !( ret = createImage( w, h, imRGB)))
+            croak("%s: error creating image", METHOD);
+	 xw = 3;
+      } else {
+         croak("%s: mode 'alpha' expects either RGB or Byte images", METHOD);
+      }
+      i1   = (Byte*) PImage(ch[0])-> data;
+      i2   = (Byte*) PImage(ch[1])-> data;
+      dst  = ret-> data;
+      lw   = w * xw;
+      ls   = ret-> lineSize - lw;
+
+      while (h--) {
+         register int x = lw;
+         while ( x--) {
+	    *(dst++) = (int)((((float)*(i1++)) * mul1) + (((float)*(i2++)) * mul2) + .5);
+         }
+         i1 += ls;
+         i2 += ls;
+         dst += ls;
+      }
+      return ret;
+      
+      } break;
    }
 
    return nilHandle;
