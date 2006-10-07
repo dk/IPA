@@ -726,6 +726,14 @@ by the offset, specified by integer C<size>.
 Supported types: all, except that the horizontal transformation does not
 support 1- and 4- bit images.
 
+=item rotate90 IMAGE [ clockwise = true ]
+
+Rotates image on 90 degrees clockwise or counter-clockwise
+
+=item rotate180 IMAGE
+
+Rotates image on 180 degrees
+
 =back
 
 =head2 IPA::Misc

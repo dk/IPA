@@ -4,6 +4,8 @@ local $PImage => Handle;
 
 package IPA::Geometry {
     PImage mirror( PImage input, HV *profile);
+    PImage rotate90( PImage input, Bool clockwise = true);
+    PImage rotate180( PImage input);
     PImage shift_rotate( PImage img, HV *profile);
 }
 

@@ -172,3 +172,153 @@ PImage IPA__Geometry_mirror(PImage img,HV *profile)
 
     return oimg;
 }
+
+PImage IPA__Geometry_rotate90(PImage img, Bool clockwise)
+{
+	const char *method="IPA::Geometry::rotate90";
+	PImage nimg;
+
+	register Byte *src;
+	int bs, sdw, ddh, w, y;
+
+	if ( !img || !kind_of(( Handle) img, CImage))
+		croak("%s: not an image passed", method);
+
+	if (( img-> type & imBPP) < 8) {
+	   	Handle convt, type8;
+	        convt = img-> self-> dup((Handle) img);
+		CImage(convt)-> set_type( convt, imbpp8);
+		type8 = ( Handle) IPA__Geometry_rotate90((PImage) convt, clockwise);
+		Object_destroy( convt);
+
+		CImage(type8)-> set_conversion( type8, ictNone);
+		CImage(type8)-> set_type( type8, img-> type);
+		CImage(type8)-> set_conversion( type8, img-> conversion);
+		return (PImage) type8;
+	}
+
+	nimg = createImage( img-> h, img-> w, img-> type);
+	memcpy( nimg-> palette, img-> palette, ( nimg-> palSize = img-> palSize) * 3);
+
+	w = img-> w;
+	bs = (img-> type & imBPP) / 8;
+	src = img-> data;
+	sdw = img-> lineSize - w * bs;
+	ddh = nimg-> lineSize;
+
+	if ( clockwise) {
+	   	if ( bs == 1) {
+			Byte * dst0 = nimg-> data + nimg-> w - 1;
+			for ( y = 0; y < img-> h; y++) {
+			   	register int x = w;
+			   	register Byte * dst = dst0--;
+				while (x--) 
+					*(dst += ddh) = *src++;
+				src += sdw;
+			}
+		} else {
+			Byte * dst0 = nimg-> data + ( nimg-> w - 1) * bs;
+			ddh -= bs;
+			for ( y = 0; y < img-> h; y++) {
+			   	register int x = w;
+			   	register Byte * dst = dst0;
+				while (x--) {
+				   	register b = bs;
+					while ( b--) 
+						*dst++ = *src++;
+					dst += ddh;
+					
+				}
+				src += sdw;
+				dst0 -= bs;
+			}
+		}
+	} else {
+	   	if ( bs == 1) {
+			Byte * dst0 = nimg-> data + nimg-> h * nimg-> lineSize;
+			for ( y = 0; y < img-> h; y++) {
+			   	register int x = w;
+			   	register Byte * dst = dst0++;
+				while (x--) 
+					*(dst -= ddh) = *src++;
+				src += sdw;
+			}
+		} else {
+			Byte * dst0 = nimg-> data + ( nimg-> h - 1) * nimg-> lineSize;
+			ddh += bs;
+			for ( y = 0; y < img-> h; y++) {
+			   	register int x = w;
+			   	register Byte * dst = dst0;
+				while (x--) {
+				   	register b = bs;
+					while ( b--) 
+						*dst++ = *src++;
+					dst -= ddh;
+				}
+				src += sdw;
+				dst0 += bs;
+			}
+		}
+	}
+
+	return nimg;
+}
+
+PImage IPA__Geometry_rotate180(PImage img)
+{
+	const char *method="IPA::Geometry::rotate180";
+	PImage nimg;
+
+	register Byte *src, *dst;
+	int bs, dw, w, y;
+
+	if ( !img || !kind_of(( Handle) img, CImage))
+		croak("%s: not an image passed", method);
+
+	if (( img-> type & imBPP) < 8) {
+	   	Handle convt, type8;
+	        convt = img-> self-> dup((Handle) img);
+		CImage(convt)-> set_type( convt, imbpp8);
+		type8 = ( Handle) IPA__Geometry_rotate180((PImage) convt);
+		Object_destroy( convt);
+
+		CImage(type8)-> set_conversion( type8, ictNone);
+		CImage(type8)-> set_type( type8, img-> type);
+		CImage(type8)-> set_conversion( type8, img-> conversion);
+		return (PImage) type8;
+	}
+
+	nimg = createImage( img-> w, img-> h, img-> type);
+	memcpy( nimg-> palette, img-> palette, ( nimg-> palSize = img-> palSize) * 3);
+
+	w = img-> w;
+	bs  = (img-> type & imBPP) / 8;
+	dw  = img-> lineSize - w * bs;
+	src = img-> data;
+	dst = nimg-> data + nimg-> h * nimg-> lineSize - dw - bs;
+
+   	if ( bs == 1) {
+		for ( y = 0; y < img-> h; y++) {
+		   	register int x = w;
+			while (x--) 
+				*dst-- = *src++;
+			src += dw;
+			dst -= dw;
+		}
+	} else {
+	   	int bs2 = bs + bs;
+		for ( y = 0; y < img-> h; y++) {
+		   	register int x = w;
+			while (x--) {
+			   	register b = bs;
+				while ( b--) 
+					*dst++ = *src++;
+				dst -= bs2;
+			}
+			src += dw;
+			dst -= dw;
+		}
+	}
+
+	return nimg;
+}
