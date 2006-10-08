@@ -9,7 +9,7 @@ use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 @ISA = qw(Exporter DynaLoader);
 $VERSION = '0.01';
 @EXPORT = qw();
-@EXPORT_OK = qw(combine threshold gamma remap subtract mask equalize ab log exp);
+@EXPORT_OK = qw(combine threshold gamma remap subtract mask equalize ab log exp average);
 %EXPORT_TAGS = ();
 sub dl_load_flags { 0x01 };
 
