@@ -490,39 +490,39 @@ IPA__Point_average( SV *list)
 
 #define DO_COPY( type) \
     { \
-	type *pSrc = ( type *) img->data; \
-	double *pDst = ( double *) fimg->data; \
+	Byte *pSrc = img->data; \
+	Byte *pDst = fimg->data; \
         int h = img-> h; \
-        for ( ; h--; (( Byte*) pSrc) += img-> lineSize, (( Byte*) pDst) += fimg-> lineSize) {\
+        for ( ; h--; pSrc += img-> lineSize, pDst += fimg-> lineSize) {\
            register int w = img-> w;\
-           register type *src = pSrc;\
-           register double *dst = pDst;\
+           register type *src = ( type *) pSrc;\
+           register double *dst = ( double *) pDst;\
            while ( w--) *(dst++) = ( double)(*(src++));\
         } \
     }
     
 #define DO_AVERAGE( type) \
     { \
-	type *pSrc = ( type *) img->data; \
-	double *pDst = ( double *) fimg->data; \
+	Byte *pSrc = img->data; \
+	Byte *pDst = fimg->data; \
         int h = img-> h; \
-        for ( ; h--; (( Byte*) pSrc) += img-> lineSize, (( Byte*) pDst) += fimg-> lineSize) {\
+        for ( ; h--; pSrc += img-> lineSize, pDst += fimg-> lineSize) {\
            register int w = img-> w;\
-           register type *src = pSrc;\
-           register double *dst = pDst;\
+           register type *src = ( type *) pSrc;\
+           register double *dst = ( double *) pDst;\
            while ( w--) *(dst++) += ( double)(*(src++));\
         } \
     }
 
 #define DO_COPYBACK( type) \
     { \
-	double *pSrc = ( double *) fimg->data; \
-	type *pDst = ( type *) oimg->data; \
+	Byte *pSrc = fimg->data; \
+	Byte *pDst = oimg->data; \
         int h = img-> h; \
-        for ( ; h--; (( Byte*) pSrc) += fimg-> lineSize, (( Byte*) pDst) += oimg-> lineSize) {\
+        for ( ; h--; pSrc += fimg-> lineSize, pDst += oimg-> lineSize) {\
            register int w = img-> w;\
-           register double *src = pSrc;\
-           register type *dst = pDst;\
+           register double *src = ( double *) pSrc;\
+           register type *dst = ( type *) pDst;\
            while ( w--) *(dst++) = ( type) ((*(src++)) / imgCount + .5);\
         } \
     }

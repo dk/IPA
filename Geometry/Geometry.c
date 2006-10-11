@@ -223,7 +223,7 @@ PImage IPA__Geometry_rotate90(PImage img, Bool clockwise)
 			   	register int x = w;
 			   	register Byte * dst = dst0;
 				while (x--) {
-				   	register b = bs;
+				   	register int b = bs;
 					while ( b--) 
 						*dst++ = *src++;
 					dst += ddh;
@@ -250,7 +250,7 @@ PImage IPA__Geometry_rotate90(PImage img, Bool clockwise)
 			   	register int x = w;
 			   	register Byte * dst = dst0;
 				while (x--) {
-				   	register b = bs;
+				   	register int b = bs;
 					while ( b--) 
 						*dst++ = *src++;
 					dst -= ddh;
@@ -310,7 +310,7 @@ PImage IPA__Geometry_rotate180(PImage img)
 		for ( y = 0; y < img-> h; y++) {
 		   	register int x = w;
 			while (x--) {
-			   	register b = bs;
+			   	register int b = bs;
 				while ( b--) 
 					*dst++ = *src++;
 				dst -= bs2;
