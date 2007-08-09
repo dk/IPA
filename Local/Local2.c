@@ -120,6 +120,7 @@ PImage deriche( const char *method, PImage in, float alpha)
 
 PImage IPA__Local_GEF(PImage img,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Local::gef";
     PImage oimg;
     double a0=1.3,s=0.7;
@@ -299,6 +300,7 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
 
 PImage IPA__Local_SDEF(PImage img,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Local::sdef";
     PImage oimg;
     int xpos,ypos,shift;

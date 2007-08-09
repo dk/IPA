@@ -6,8 +6,6 @@
 #include "Local.inc"
 #include "LocalSupp.h"
 
-static SV **temporary_prf_Sv;
-
 /* Флаги для быстрого Sobel */
 #define SOBEL_COLUMN            0x0001
 #define SOBEL_ROW               0x0002
@@ -441,6 +439,7 @@ PImage fast_sobel( PImage srcimg,
 
 PImage IPA__Local_sobel(PImage img,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Local::sobel";
     PImage oimg;
     unsigned short jobMask=SOBEL_NWSE|SOBEL_NESW;
@@ -706,6 +705,7 @@ filter3x3( const char * method, PImage img,
 
 PImage IPA__Local_filter3x3(PImage img,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Local::filter3x3";
     unsigned short conversionType=CONV_SCALEABS;
     unsigned short edgecolor=0;
@@ -965,6 +965,7 @@ PImage fast_median(PImage srcimg, int wx, int wy)
 
 PImage IPA__Local_median(PImage img,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Local::median";
     PImage oimg;
     int wx=0,wy=0;
@@ -1146,6 +1147,7 @@ PImage union_find_ave( PImage in, int threshold)
 
 PImage IPA__Local_unionFind(PImage img,HV *profile)
 {
+    dPROFILE;
     typedef enum {
         UAve, Unknown=-1
     } UMethod;
@@ -1206,6 +1208,7 @@ PImage IPA__Local_unionFind(PImage img,HV *profile)
 
 PImage IPA__Local_deriche(PImage img,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Local::deriche";
     float alpha;
 
@@ -1278,6 +1281,7 @@ hysteresis( PImage img, int thr0, int thr1, int conn8)
 
 PImage IPA__Local_hysteresis(PImage img,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Local::hysteresis";
     int thr1, thr0, neighborhood = 8;
 
@@ -1723,6 +1727,7 @@ canny( const char * method,
 
 PImage IPA__Local_canny(PImage img,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Local::canny";
     int size = 3;
     double sigma = 2;
@@ -1744,6 +1749,7 @@ PImage IPA__Local_canny(PImage img,HV *profile)
 /* non-maxima suppression */
 PImage IPA__Local_nms(PImage img,HV *profile)
 {
+    dPROFILE;
     double color = 0;
     const char *method="IPA::Local::nms";
     PImage out;
@@ -1789,6 +1795,7 @@ scale( const char * method,
 
 PImage IPA__Local_scale(PImage img,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Local::scale";
     int size = 3;
     double t = 4;
@@ -1861,6 +1868,7 @@ d_rotate90( PImage in)
  */
 PImage IPA__Local_ridge(PImage img,HV *profile)
 {
+    dPROFILE;
     PImage xx, yy, xy, yx, lxx, lyy, lxy, lyx, l, tmp;
     Bool anorm = false;
     const char *method="IPA::Local::ridge";
@@ -1953,6 +1961,7 @@ PImage IPA__Local_ridge(PImage img,HV *profile)
 PImage 
 IPA__Local_zerocross(PImage img,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Local::zerocross";
     double cmp = 0;
     int p, n;

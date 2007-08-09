@@ -4,8 +4,6 @@
 #include "Morphology.h"
 #include "MorphologySupp.h"
 
-static SV **temporary_prf_Sv;
-
 #ifndef max
 #define max(A,B)  ((A) > (B) ? (A) : (B))
 #endif
@@ -290,6 +288,7 @@ IPA__Morphology_thinning( PImage i, HV *profile)
 PImage
 IPA__Morphology_dilate( PImage IMi, HV *profile)
 {
+   dPROFILE;
    PImage IMo;
    int w, h, x, y, maxy, maxx;
    int neighborhood = 8;
@@ -340,6 +339,7 @@ IPA__Morphology_dilate( PImage IMi, HV *profile)
 PImage
 IPA__Morphology_erode( PImage IMi, HV *profile)
 {
+   dPROFILE;
    PImage IMo;
    int w, h, x, y, maxy, maxx;
    int neighborhood = 8;
@@ -412,6 +412,7 @@ IPA__Morphology_erode( PImage IMi, HV *profile)
 PImage
 IPA__Morphology_algebraic_difference( PImage i1, PImage i2, HV *profile)
 {
+   dPROFILE;
    Bool inPlace = false;
    PImage o = i1;
    int w, h, y, x;
@@ -503,6 +504,7 @@ watershed_sorting_step( U8 *img, int N, int *hmin, int *hmax, U32 *fr)
 PImage
 IPA__Morphology_watershed( PImage IMi, HV *profile)
 {
+   dPROFILE;
    int neighborhood = 4;
    U32 *sorted;
    I16 *out;
@@ -512,8 +514,8 @@ IPA__Morphology_watershed( PImage IMi, HV *profile)
    int hmin, hmax, h;
    U32 p, pp, pbs;
    U16 dist;
-U16 maxdist = 1;
-int maxqueue = 0, qn = 0;
+   U16 maxdist = 1;
+   int maxqueue = 0, qn = 0;
    I16 label;
    U32 freq[ 256];
    U32 pbis[8];
@@ -934,6 +936,7 @@ IPA__Morphology_reconstruct( PImage I, PImage J, HV *profile)
 /* Mask image I
  Marker image J
  if inPlace turned on, the result will be placed into J */
+   dPROFILE;
    Bool inPlace = false;
    int neighborhood = 8;
    SV * name;

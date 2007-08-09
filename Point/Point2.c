@@ -4,8 +4,6 @@
 #include "Point.h"
 #include "PointSupp.h"
 
-static SV **temporary_prf_Sv;
-
 #undef METHOD
 #define METHOD "IPA::Point::mask"
 
@@ -34,6 +32,7 @@ static PImage constant( int w, int h, int type, I32 vv) {
 }
 
 PImage IPA__Point_mask( PImage mask, HV *profile) {
+   dPROFILE;
    PImage ifMatch = nil;
    PImage ifNoMatch = nil;
    PImage itest = nil;

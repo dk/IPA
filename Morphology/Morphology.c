@@ -8,8 +8,6 @@
 #define bwt_pix(x,n)      (((x) ? 1 : 0)<<(n))
 
 
-static SV **temporary_prf_Sv;
-
 PImage_vmt CImage;
 
 XS( boot_IPA__Morphology)
@@ -138,6 +136,7 @@ PImage bw8bpp_transform(const char *method,PImage img, const Byte *transtbl,int 
 
 PImage IPA__Morphology_BWTransform(PImage img,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Morphology::BWTransform";
     PImage oimg;
     unsigned char *transtbl = nil;

@@ -6,8 +6,6 @@
 #include "PointSupp.h"
 #include <math.h>
 
-static SV **temporary_prf_Sv;
-
 #define pix( img, x, y)     ( (img)->type == imByte ? *( (img)->data + (img)->lineSize * (y) + (x)) : ( (img)->type == imShort ? ( ( short*)( (img)->data + (img)->lineSize * (y)))[(x)] : ( ( long*)( (img)->data + (img)->lineSize * (y)))[(x)]));
 
 #ifndef PRIMA_TRUNC_PRESENT
@@ -54,6 +52,7 @@ PImage color_remap(const char *method,PImage img, unsigned char *lookup_table)
 
 PImage IPA__Point_combine(HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Point::combine";
     PImage *img = nil, oimg, bimg;
     int imgnum = 0;
@@ -265,6 +264,7 @@ imgmin( PImage img)
 
 PImage IPA__Point_threshold(PImage img,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Point::threshold";
     double minvalue=imgmin(img),maxvalue=imgmax(img);
     Bool preserve = 0;
@@ -292,6 +292,7 @@ PImage IPA__Point_threshold(PImage img,HV *profile)
 
 PImage IPA__Point_gamma(PImage img,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Point::gamma";
     double origGamma=1,destGamma=1;
     unsigned char lookup_table[256];
@@ -325,6 +326,7 @@ PImage IPA__Point_gamma(PImage img,HV *profile)
 
 PImage IPA__Point_remap(PImage img,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Point::remap";
     unsigned char lookup_table[256];
 
@@ -375,6 +377,7 @@ PImage IPA__Point_remap(PImage img,HV *profile)
 
 PImage IPA__Point_subtract(PImage img1,PImage img2,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Point::subtract";
     int ypos,xpos,xbuf;
     long minval=0,maxval=0,range;

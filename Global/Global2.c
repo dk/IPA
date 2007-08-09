@@ -4,8 +4,6 @@
 #include "Global.h"
 #include "GlobalSupp.h"
 
-static SV **temporary_prf_Sv;
-
 #define lcUnclassified  0
 #define lcEdge          1
 #define lcSmall         2
@@ -382,6 +380,7 @@ find_lag_components( PLAG lag, int edgeSize, Bool eightConnectivity)
 PImage
 IPA__Global_fill_holes( PImage in, HV *profile)
 {
+   dPROFILE;
    Bool inPlace = false;
    PImage out = in;
    int edgeSize = 1;
@@ -441,6 +440,7 @@ IPA__Global_fill_holes( PImage in, HV *profile)
 PImage
 IPA__Global_area_filter( PImage in, HV *profile)
 {
+   dPROFILE;
    Bool inPlace = false;
    PImage out = in;
    int edgeSize = 1;
@@ -520,6 +520,7 @@ SV*
 /* [[x00,y00,x01,y01,...,x0n,y0n,x00,y00],[x10,y10,x11,y11,...],[x20,y20,x21,y21,...]] */
 IPA__Global_identify_contours( PImage in, HV *profile)
 {
+   dPROFILE;
    int edgeSize = 1;
    int backColor = 0;
    int foreColor = 255;
@@ -636,6 +637,7 @@ SV*
 /* [[x1,x2,y,...]],[x1,x2,y...]] */
 IPA__Global_identify_scanlines( PImage in, HV *profile)
 {
+   dPROFILE;
    PLAG lag;
    PLAGLine line;
    int i;

@@ -8,8 +8,6 @@
 
 PImage_vmt CImage;
 
-static SV **temporary_prf_Sv;
-
 XS( boot_IPA__Global)
 {
     dXSARGS;
@@ -28,6 +26,7 @@ XS( boot_IPA__Global)
 
 PImage IPA__Global_close_edges(PImage img,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Global::close_edges";
     PImage gradient;
     int maxlen,minedgelen,mingradient;

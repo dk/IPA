@@ -32,8 +32,6 @@ He's a smooth operator
 #define fail(err)       {failed=true;warn("%s: err",METHOD); goto EXIT;}   
 
 
-static SV **temporary_prf_Sv;
-
 static void fft_2d(double * data, int nn, int mm, int isign, double * buffer);
 
 static Bool pow2( int k) 
@@ -52,8 +50,9 @@ static Bool pow2( int k)
 */
 PImage 
 IPA__Global_fft(PImage img,HV *profile)
-{
+{ 
 #define METHOD "IPA::Global::fft"
+   dPROFILE;
    Bool inverse = 0, failed = false;
    PImage ret = nil;
    double * buffer = nil;
@@ -262,6 +261,7 @@ PImage
 IPA__Global_band_filter(PImage img,HV *profile)
 {
 #define METHOD "IPA::Global::band_filter"
+   dPROFILE;
    PImage ret;
    int spatial = 1, homomorph = 0, lw, failed = 0, LowPass = 0;
    double MinVal = 0.0, Power = 2.0, CutOff = 20.0, Boost = 0.7;

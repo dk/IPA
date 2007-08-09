@@ -5,8 +5,6 @@
 #include "Geometry.inc"
 #include "GeometrySupp.h"
 
-static SV **temporary_prf_Sv;
-
 PImage_vmt CImage;
 
 XS( boot_IPA__Geometry)
@@ -27,6 +25,7 @@ XS( boot_IPA__Geometry)
 
 PImage IPA__Geometry_mirror(PImage img,HV *profile)
 {
+    dPROFILE;
     const char *method="IPA::Geometry::mirror";
     PImage oimg;
     int mType=0;
