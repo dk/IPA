@@ -207,7 +207,7 @@ PImage IPA__Geometry_rotate90(PImage img, Bool clockwise)
 
 	if ( clockwise) {
 	   	if ( bs == 1) {
-			Byte * dst0 = nimg-> data + nimg-> w - 1;
+			Byte * dst0 = nimg-> data + nimg-> w - ddh - 1;
 			for ( y = 0; y < img-> h; y++) {
 			   	register int x = w;
 			   	register Byte * dst = dst0--;
