@@ -19,24 +19,6 @@ typedef enum {
     sobelNESW=3
 } OPERATOR_TYPE;
 
-PImage_vmt CImage;
-
-XS( boot_IPA__Local)
-{
-    dXSARGS;
-
-    (void)items;
-
-    XS_VERSION_BOOTCHECK;
-
-    register_IPA__Local_Package();
-
-    CImage = (PImage_vmt)gimme_the_vmt( "Prima::Image");
-
-    ST(0) = &sv_yes;
-    XSRETURN(1);
-}
-
 /*******************************************************************
  * Function    : crispeningByte
  * Parameters  : PImage img
@@ -1750,25 +1732,27 @@ PImage IPA__Local_canny(PImage img,HV *profile)
 PImage IPA__Local_nms(PImage img,HV *profile)
 {
     dPROFILE;
-    double color = 0;
+    double set   = 0xFF;
+    double clear = 0;
     const char *method="IPA::Local::nms";
     PImage out;
 
     if ( !img || !kind_of(( Handle) img, CImage))
       croak("%s: not an image passed", method);
 
-    if ( pexist(color)) color = pget_f(color);
+    if ( pexist(set))   set   = pget_f(set);
+    if ( pexist(clear)) clear = pget_f(clear);
     out = create_compatible_image( img, true);
     PIX_SRC_DST( img, out, 
               *dst = (
                 (y > 0 && (
-                   (x > 0 && src[src_ls-1] > *src) || (x < w - 1 && src[src_ls+1] > *src) 
+                   (x > 0 && src[-src_ls-1] > *src) || (x < w - 1 && src[-src_ls+1] > *src) || (src[-src_ls] > *src)
                 )) || 
                 (y < h-1 && (
-                   (x > 0 && src[src_ls-1] > *src) || (x < w - 1 && src[src_ls+1] > *src) 
+                   (x > 0 && src[src_ls-1] > *src) || (x < w - 1 && src[src_ls+1] > *src) || (src[src_ls] > *src)
                 )) || 
                 (x > 0 && src[-1] > *src) || (x < w - 1 && src[1] > *src)
-              ) ? color : *src
+              ) ? clear : set
     ); 
     return out;
 }

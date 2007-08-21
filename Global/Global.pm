@@ -1,19 +1,15 @@
 # $Id$
 package IPA::Global;
 use strict;
-use IPA;
 require Exporter;
-require DynaLoader;
 
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-@ISA = qw(Exporter DynaLoader);
-$VERSION = '0.01';
+@ISA = qw(Exporter);
+$VERSION = '0.02';
 @EXPORT = qw();
-@EXPORT_OK = qw(close_edges fill_holes area_filter identify_contours fft band_filter butterworth fourier);
+@EXPORT_OK = qw(close_edges fill_holes area_filter identify_contours 
+	fft band_filter butterworth fourier identify_scanlines);
 %EXPORT_TAGS = (tracks => [qw(close_edges)]);
-
-sub dl_load_flags { 0x01 };
-bootstrap IPA::Global $VERSION;
 
 sub pow2
 {

@@ -39,8 +39,8 @@
 #define CONV_FIRST              CONV_TRUNCABS
 #define CONV_LAST               CONV_SCALEABS
 
-extern int                              AV2intp(SV *,int **);
 extern PImage                           create_compatible_image(PImage,Bool);
+extern PImage_vmt                       CImage;
 
 typedef float Float;
 typedef double Double;

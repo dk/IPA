@@ -12,24 +12,6 @@
    #define trunc(x)  ((( x) < 0) ? ceil( x) : floor( x))
 #endif
 
-PImage_vmt CImage;
-
-XS( boot_IPA__Point)
-{
-    dXSARGS;
-
-    (void)items;
-
-    XS_VERSION_BOOTCHECK;
-
-    register_IPA__Point_Package();
-
-    CImage = (PImage_vmt)gimme_the_vmt( "Prima::Image");
-
-    ST(0) = &sv_yes;
-    XSRETURN(1);
-}
-
 PImage color_remap(const char *method,PImage img, unsigned char *lookup_table)
 {
     int ypos,xpos;

@@ -1,10 +1,7 @@
 # $Id$
 package IPA::Morphology;
 use strict;
-use IPA;
-use Carp;
 require Exporter;
-require DynaLoader;
 
 use vars qw(
             $VERSION
@@ -17,17 +14,15 @@ use vars qw(
 
             %transform_luts
            );
-@ISA = qw(Exporter DynaLoader);
-$VERSION = '0.01';
+@ISA = qw(Exporter);
+$VERSION = '0.02';
 @EXPORT = qw();
 @EXPORT_OK = qw(BWTransform
                 dilate erode opening closing
                 algebraic_difference gradient
                 reconstruct watershed thinning);
 %EXPORT_TAGS = (binary => [qw(BWTransform)]);
-sub dl_load_flags { 0x01 };
 
-bootstrap IPA::Morphology $VERSION;
 
 sub opening {
    my $in = shift;

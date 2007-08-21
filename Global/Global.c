@@ -6,24 +6,6 @@
 #include "GlobalSupp.h"
 #include "gsclose.h"
 
-PImage_vmt CImage;
-
-XS( boot_IPA__Global)
-{
-    dXSARGS;
-
-    (void)items;
-
-    XS_VERSION_BOOTCHECK;
-
-    register_IPA__Global_Package();
-
-    CImage = (PImage_vmt)gimme_the_vmt( "Prima::Image");
-
-    ST(0) = &sv_yes;
-    XSRETURN(1);
-}
-
 PImage IPA__Global_close_edges(PImage img,HV *profile)
 {
     dPROFILE;

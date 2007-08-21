@@ -7,25 +7,6 @@
 
 #define bwt_pix(x,n)      (((x) ? 1 : 0)<<(n))
 
-
-PImage_vmt CImage;
-
-XS( boot_IPA__Morphology)
-{
-    dXSARGS;
-
-    (void)items;
-
-    XS_VERSION_BOOTCHECK;
-
-    register_IPA__Morphology_Package();
-
-    CImage = (PImage_vmt)gimme_the_vmt( "Prima::Image");
-
-    ST(0) = &sv_yes;
-    XSRETURN(1);
-}
-
 PImage bw8bpp_transform(const char *method,PImage img, const Byte *transtbl,int expandEdges)
 {
     PImage oimg;

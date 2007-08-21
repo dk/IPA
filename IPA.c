@@ -1,10 +1,15 @@
 /* $Id$ */
 
 #include "IPAsupp.h"
-#include "IPA.h"
-#include "IPA.inc"
 
 PImage_vmt CImage;
+
+extern void register_IPA__Global_Package( void);
+extern void register_IPA__Geometry_Package( void);
+extern void register_IPA__Misc_Package( void);
+extern void register_IPA__Local_Package( void);
+extern void register_IPA__Point_Package( void);
+extern void register_IPA__Morphology_Package( void);
 
 XS( boot_IPA)
 {
@@ -14,17 +19,16 @@ XS( boot_IPA)
 
     XS_VERSION_BOOTCHECK;
 
-    register_IPA_Package();
-
     CImage = (PImage_vmt)gimme_the_vmt( "Prima::Image");
+    register_IPA__Global_Package( );
+    register_IPA__Geometry_Package( );
+    register_IPA__Misc_Package( );
+    register_IPA__Local_Package( );
+    register_IPA__Point_Package( );
+    register_IPA__Morphology_Package( );
 
     ST(0) = &sv_yes;
     XSRETURN(1);
-}
-
-int AV2intp(SV *asv,int **array)
-{
-    return 0;
 }
 
 PImage create_compatible_image(PImage img,Bool copyData)
@@ -34,9 +38,9 @@ PImage create_compatible_image(PImage img,Bool copyData)
     if (!oimg) {
         return NULL;
     }
-    memcpy(oimg->palette,img->palette,img->palSize);
-    if (copyData) {
+    if ((( img-> type & imBPP) <= 8) && !(img->type & imGrayScale))
+       memcpy(oimg->palette,img->palette,img->palSize * 3);
+    if (copyData)
         memcpy(oimg->data,img->data,img->dataSize);
-    }
     return oimg;
 }

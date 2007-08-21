@@ -1,7 +1,7 @@
 # $Id$
 package IPA;
-use Prima::Classes;
 use strict;
+use Prima;
 require Exporter;
 require DynaLoader;
 
@@ -10,7 +10,7 @@ use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $__import);
 
 sub dl_load_flags { 0x01 };
 
-$VERSION = '1.03';
+$VERSION = '1.04';
 @EXPORT = qw();
 @EXPORT_OK = qw();
 %EXPORT_TAGS = ();
@@ -238,6 +238,18 @@ Returns a histogram-equalized image.
 
 Supported types: Byte
 
+=item ab IMAGE, a, b
+
+Returns C<IMAGE*a+b>.
+
+=item exp IMAGE
+
+Retuns C<exp(IMAGE)>
+
+=item log IMAGE
+
+Retuns C<log(IMAGE)>
+
 =back
 
 =head2 IPA::Local
@@ -358,7 +370,7 @@ See L<combine>
 
 =back
 
-=item median IMAGE [ w = 0, h = 0 ]
+=item median IMAGE [ w = 3, h = 3 ]
 
 Performs adaptive thresholding with median filter with window dimensions C<w> and C<h>.
 
@@ -380,6 +392,62 @@ Default value of neighborhood is 8.
 
 Supported types: Byte
 
+=item gaussian SIZE, SIGMA
+
+Generates a square image of the given SIZe and populates with with gaussian
+function with given SIGMA.
+
+=item laplacian SIZE, SIGMA
+
+Generates a square image of the given SIZe and populates with with inverse 
+gaussian function with given SIGMA.
+
+=item gradients IMAGE
+
+This function computes a two-dimensional gradient (magnitude and direction) of
+an image, using two convolution kernels.  The magnitude is computed as the
+vector magnitude of the output of the two kernels, and the direction is
+computed as the angle between the two orthogonal gradient vectors.                        
+
+The convolution kernels are (currently limited to) 3x3 masks for calculating
+separate vertical and horizontal derivatives.
+
+(Copyright (c) 1988 by the University of Arizona Digital Image Analysis Lab).
+
+=item canny IMAGE [ size = 3, sigma = 2, ridge = 0 ]
+
+First part of the Canny edge detector (without ridge strength
+selection). The ridge strength must be supplied by the user.
+
+=item nms IMAGE [ set = 255, clear = 0 ]
+
+Applies non-maximal suppression to the image, and replaces all
+non-maximal pixels with the C<clear> color, and maximal with C<set> color.
+
+=item scale IMAGE [ size = 3, sigma_square = 4 ]
+
+Convolves a given image with a gaussian, where the latter is
+calculated with the given size and square root of sigma_square.
+
+=item ridge IMAGE [ anorm = false, mul = 1, scale = 2, size = 3 ]
+
+First part of the Lindeberg edge detector (without scale selection).  The scale
+must be supplied by the user. C<size> is used in generation of the gaussian
+kernel. C<mul> is the custom multiply factor to the calclated ridge strength,
+the maximum absolute value to the principal curvatures. C<anorm> selects
+whether the Laplacian blob response should be included ( C<false> ) ), or
+suppressed ( C<true> ).
+
+=item convolution IMAGE, KERNEL
+
+Convolves IMAGE with the given KERNEL.
+
+=item zerocross IMAGE, cmp = 0
+
+Creates a map from IMAGE where white pixels are assigned to spots
+where image crosses the zero plane. The zero level is 0 by default,
+but can be changed by setting the C<cmp> argument.
+
 =back
 
 =head2 IPA::Global
@@ -391,6 +459,8 @@ The process can be described with the mapping function
    s = M(R)
 
 where C<s> is the pixel value in the output images, and R is the source image.
+
+=over
 
 =item close_edges IMAGE [ gradient, maxlen, minedgelen, mingradient ]
 
@@ -529,6 +599,8 @@ Threshold value of the filter.
 =item boost FLOAT
 
 Multiplication factor used in homomorph equalization.
+
+=back
 
 =item butterworth IMAGE [ low = 0, spatial = 1, homomorph = 0, power = 2.0, cutoff = 20.0, boost = 0.7 ]
 
@@ -793,7 +865,7 @@ NUM range: 0 - 255 .
 
 =item histogram IMAGE
 
-Returns anonymous array of 256 integers, each representing
+Returns array of 256 integers, each representing
 number of pixels with the corresponding value for IMAGE.
 
 Supported types: 8-bit
@@ -845,6 +917,17 @@ Intell., vol. 13, no. 6, pp. 583-598, 1991
 L. Vincent. Morphological Grayscale Reconstruction in Image Analysis: 
 Applications and Efficient Algorithms. 
 IEEE Transactions on Image Processing, vol. 2, no. 2, April 1993, pp. 176-201.
+
+=item * 
+
+J. Canny, "A computational approach to edge detection, " IEEE Transactions on
+Pattern Analysis and Machine Intelligence, vol. 8, pp. 679--698, 1986. 18 Weber
+and Malik
+
+=item * 
+
+Tony Lindeberg .  "Edge Detection and Ridge Detection with Automatic Scale Selection ".
+International Journal of Computer Vision, vol. 30, n. 2, pp. 77--116, 1996.  
 
 =back
 

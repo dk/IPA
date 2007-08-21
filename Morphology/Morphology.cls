@@ -5,8 +5,6 @@ package IPA::Morphology {
     PImage BWTransform(PImage img,HV *profile);
     PImage dilate( PImage IMi, HV *profile);
     PImage erode( PImage IMi, HV *profile);
-#    import PImage opening( PImage IMi, HV *profile);  # see Morphology.pm
-#    import PImage closing( PImage IMi, HV *profile);  # see Morphology.pm
     PImage algebraic_difference( PImage i1, PImage i2, HV *profile);
     PImage watershed( PImage IMi, HV *profile);
     PImage reconstruct( PImage I, PImage J, HV *profile);

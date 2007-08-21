@@ -1,11 +1,8 @@
 # $Id$
 package IPA::Local;
-use strict;
-use IPA;
-require Exporter;
-require DynaLoader;
 
-sub dl_load_flags { 0x01 };
+use strict;
+require Exporter;
 
 use constant sobelColumn         => 1;
 use constant sobelRow            => 2;
@@ -13,8 +10,8 @@ use constant sobelNWSE           => 4;
 use constant sobelNESW           => 8;
 
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-@ISA = qw(Exporter DynaLoader);
-$VERSION = '0.01';
+@ISA = qw(Exporter);
+$VERSION = '0.02';
 @EXPORT = qw();
 @EXPORT_OK = qw(crispening 
                 sobel 
@@ -37,8 +34,6 @@ $VERSION = '0.01';
                );
 %EXPORT_TAGS = (enhancement => [qw(crispening)], 
                 edgedetect => [qw(sobel GEF SDEF deriche hysteresis canny)]);
-
-bootstrap IPA::Local $VERSION;
 
 1;
 
