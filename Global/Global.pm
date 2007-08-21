@@ -86,7 +86,7 @@ IPA::Global - methods that produce images where every pixel is a function of all
 Contains methods that produce images, where every pixel is a function of all
 pixels in the source image.  The process can be described with the mapping
 function 
-   
+
    s = M(R)
 
 where C<s> is the pixel value in the output images, and R is the source image.

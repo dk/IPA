@@ -84,7 +84,7 @@ If the kernel is to be drawn as
   | (-1,1) (0,1) (1,1) |
   | (-1,0) (0,0) (1,0) |
   | (-1,-1)(0,-1)(1,-1)|
-   
+
 Then the constants mask the following points:
 
    sobelRow      - (-1,0),(1,0)

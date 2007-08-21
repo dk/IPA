@@ -71,7 +71,6 @@ NUM range: 0 - 255 .
 
 =back
 
-
 =item histogram IMAGE
 
 Returns array of 256 integers, each representing

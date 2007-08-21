@@ -25,6 +25,8 @@ __DATA__
 
 IPA::Geometry - mapping pixels from one location to another
 
+=head1 API
+
 =over
 
 =item mirror IMAGE [ type ]
