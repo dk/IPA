@@ -160,3 +160,166 @@ sub X8 { return ($_[0] & 0x100 ? 255 : 0); };
                 );
 
 1;
+
+__DATA__
+
+=pod
+
+=head1 NAME
+
+IPA::Morphology - morphological operators
+
+=head1 DESCRIPTION
+
+Quote from L<http://www.dai.ed.ac.uk/HIPR2/morops.htm>:
+
+Morphological operators often take a binary image and a structuring element as input 
+and combine them using a set operator (intersection, union, inclusion, complement). 
+They process objects in the input image based on characteristics of its shape, which are 
+encoded in the structuring element. 
+
+Usually, the structuring element is sized 3x3 and has its origin at the center pixel. 
+It is shifted over the image and at each pixel of the image its elements are compared with 
+the set of the underlying pixels. If the two sets of elements match the condition defined 
+by the set operator (e.g. if the set of pixels in the structuring element is a subset 
+of the underlying image pixels), the pixel underneath the origin of the structuring 
+element is set to a pre-defined value (0 or 1 for binary images). 
+A morphological operator is therefore defined by its structuring element and the 
+applied set operator. 
+
+Morphological operators can also be applied to gray-level images, e.g. 
+to reduce noise or to brighten the image. 
+
+=over
+
+=item BWTransform IMAGE [ lookup ]
+
+Applies 512-byte C<lookup> LUT string ( look-up table ) to image and returns 
+the convolution result ( hit-and-miss transform). Each byte of C<lookup> is a set 
+of bits, each corresponding to the 3x3 kernel index:
+
+   |4 3 2|
+   |5 0 1|
+   |6 7 8|
+
+Thus, for example, the X-shape would be represented by offset 2**0 + 2**2 + 2**4 + 2**6 + 2**8 = 341 .
+The byte value, corresponding to the offset in C<lookup> string is stored in the output
+image.
+
+C<IPA::Morphology> defines several basic LUT transforms, which can be invoked by the following
+code:
+
+    IPA::Morphological::bw_METHOD( $image);
+
+or its alternative
+
+    IPA::Morphology::BWTransform( $image, lookup => $IPA::Morphology::transform_luts{METHOD}->());
+
+Where METHOD is one of the following string constants:
+
+=over
+
+=item dilate
+
+Morphological dilation
+
+=item erode
+
+Morphological erosion
+
+=item isolatedremove
+
+Remove isolated pixels
+
+=item togray
+
+Convert binary image to grayscale by applying the mean filter
+
+=item invert
+
+Inversion operator
+
+=item prune
+
+Removes 1-connected end points
+
+=item break_node
+
+Removes node points that connect 3 or more lines
+
+=back
+
+Supported types: Byte
+
+=item dilate IMAGE [ neighborhood = 8 ]
+
+Performs morphological dilation operation on IMAGE and returns the result.
+C<neighborhood> determines whether the algorithm assumes 4- or 8- pixel connectivity.
+
+Supported types: Byte, Short, Long, Float, Double
+
+=item erode IMAGE [ neighborhood = 8 ]
+
+Performs morphological erosion operation on IMAGE and returns the result.
+C<neighborhood> determines whether the algorithm assumes 4- or 8- pixel connectivity.
+
+Supported types: Byte, Short, Long, Float, Double
+
+=item opening IMAGE [ neighborhood = 8 ]
+
+Performs morphological opening operation on IMAGE and returns the result.
+C<neighborhood> determines whether the algorithm assumes 4- or 8- pixel connectivity.
+
+Supported types: Byte, Short, Long, Float, Double
+
+=item closing IMAGE [ neighborhood = 8 ]
+
+Performs morphological closing operation on IMAGE and returns the result.
+C<neighborhood> determines whether the algorithm assumes 4- or 8- pixel connectivity.
+
+Supported types: Byte, Short, Long, Float, Double
+
+=item gradient IMAGE [ neighborhood = 8 ]
+
+Returns the result or the morphological gradient operator on IMAGE.
+C<neighborhood> determines whether the algorithm assumes 4- or 8- pixel connectivity.
+
+Supported types: Byte, Short, Long, Float, Double
+
+=item algebraic_difference IMAGE1, IMAGE2 [ inPlace = 0 ]
+
+Performs the algebraic difference between IMAGE1 and IMAGE2.
+Although this is not a morphological operator, it is often used is
+conjunction with ones. If the boolean flag C<inPlace> is set, 
+IMAGE1 contains the result.
+
+Supported types: Byte, Short, Long, Float, Double
+
+=item watershed IMAGE [ neighborhood = 4 ]
+
+Applies the watershed segmentation to IMAGE with given C<neighborhood>.
+
+Supported types: Byte
+
+=item reconstruct IMAGE1, IMAGE2 [ neighborhood = 8, inPlace = 0 ]
+
+Performs morphological reconstruction of IMAGE1 under the mask IMAGE2. Images can be two 
+intensity images or two binary images with the same size. The returned image, is an intensity 
+or binary image, respectively. 
+
+If boolean C<inPlace> flag is set, IMAGE2 contains the result.
+
+C<neighborhood> determines whether the algorithm assumes 4- or 8- pixel connectivity.
+
+Supported types: Byte, Short, Long, Float, Double
+
+=item thinning IMAGE
+
+Applies the skeletonization algorithm, returning image with binary object maximal
+euclidian distance points set.
+
+Supported types: Byte
+
+=back
+
+=cut

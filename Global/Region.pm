@@ -9,39 +9,6 @@ use constant BOTTOM => 2;
 use constant WIDTH  => 3;
 use constant HEIGHT => 4;
 
-=pod
-
-=head1 NAME
-
-IPA::Region 
-
-=head1 API
-
-Contains functions that work with region data structures.
-
-=over
-
-=item contour2region CONTOUR
-
-A contour is a 8-connected point set that is returned by
-IPA::Global::identify_contours function. A region is
-a set of horizontal lines, describing an 2D area.
-The contour2region function converts contour to region
-and returns the region array and starting y-position.
-The contour has to contain no less that 2 unique points.
-The ultimate requirement is that all points have to be
-8-connected and the contour contains no holes.
-
-Example: 
-
-          3.3                3.3-3.3
-      2.2     4.2   ->    2.2-------4.2
-  1.1 2.1 3.1 4.1      1.1----------4.1
-
-      contour                region
-
-=cut
-
 sub contour2region
 {
    my $cont = $_[0];
@@ -380,9 +347,50 @@ __END__
 
 =pod
 
-=item plot DRAWABLE, REGION, OFFSET_X, OFFSET_Y
+=head1 NAME
+
+IPA::Region - region data structures
+
+=head1 DESCRIPTION
+
+A contour is a 8-connected point set that is returned by
+IPA::Global::identify_contours function. A region is a set of horizontal lines,
+describing an 2D area. The contour2region function converts contour output of
+C<IPA::Global::identify_contours> and C<IPA::Global::identify_scanlines> to a
+region and returns the region array and its starting y-position.  The contour
+has to contain no less that 2 unique points.  The ultimate requirement is that
+all points have to be 8-connected and the contour contains no holes.
+
+Example: 
+
+          3.3                3.3-3.3
+      2.2     4.2   ->    2.2-------4.2
+  1.1 2.1 3.1 4.1      1.1----------4.1
+
+      contour                region
+
+The module provides various manipluation routines for these regions.
+
+
+=head1 API
+
+=over
+
+=item contour2region CONTOUR
+
+Converts output of C<IPA::Global::identify_contours> to a region. 
+
+=item scanlines2region CONTOUR
+
+Converts output of C<IPA::Global::identify_scanlines> to a region. 
+
+=item draw DRAWABLE, REGION, OFFSET_X, OFFSET_Y
 
 Plots REGION onto DRAWABLE with OFFSET_X and OFFSET_Y
+
+=item plot DRAWABLE, REGION, OFFSET_X, OFFSET_Y
+
+Same as C<draw> but optimized for speed, and DRAWABLE must be an image.
 
 =item outline DRAWABLE, REGION, OFFSET_X, OFFSET_Y
 
@@ -410,6 +418,14 @@ Returns deep copy of REGION
 
 Shifts REGION by OFFSET_X and OFFSET_Y
 
+=item area REGION
+
+Returns area occupied by a region
+
 =back
+
+=head1 SEE ALSO
+
+L<IPA::Global/identify_contours>, L<IPA::Global/identify_scanlines>
 
 =cut

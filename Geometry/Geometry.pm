@@ -17,3 +17,46 @@ use constant horizontal => 2;
 
 1;
 
+__DATA__
+
+=pod
+
+=head1 NAME
+
+IPA::Geometry - mapping pixels from one location to another
+
+=over
+
+=item mirror IMAGE [ type ]
+
+Mirrors IMAGE vertically or horizontally, depending on integer C<type>,
+which can be one of the following constants:
+
+   IPA::Geometry::vertical
+   IPA::Geometry::horizontal
+
+Supported types: all
+
+=item shift_rotate IMAGE [ where, size ]
+
+Shifts image in direction C<where>, which is one of the following constants
+
+   IPA::Geometry::vertical
+   IPA::Geometry::horizontal
+
+by the offset, specified by integer C<size>.
+
+Supported types: all, except that the horizontal transformation does not
+support 1- and 4- bit images.
+
+=item rotate90 IMAGE [ clockwise = true ]
+
+Rotates image on 90 degrees clockwise or counter-clockwise
+
+=item rotate180 IMAGE
+
+Rotates image on 180 degrees
+
+=back
+
+=cut

@@ -106,4 +106,12 @@ WriteMakefile(
 		@files),
 	},
 	EXE_FILES         => ['bin/iterm'],
+	MAN3PODS          => {
+		'IPA.pm'                                  => '$(INST_MAN3DIR)/IPA.$(MAN3EXT)',
+		'Global/Region.pm'                        => '$(INST_MAN3DIR)/IPA::Region.$(MAN3EXT)',
+		# MANPAGES
+		( map { ( "$_->{src}.pm"                  => "\$(INST_MAN3DIR)/IPA::$_->{name}.\$(MAN3EXT)") } 
+		grep { $_-> {is_class} }
+		@files),
+	},
 );
