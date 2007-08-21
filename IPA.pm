@@ -175,16 +175,23 @@ International Journal of Computer Vision, vol. 30, n. 2, pp. 77--116, 1996.
 
 =back
 
+=head1 SEE ALSO
 
+L<Prima>, L<iterm>,
+
+
+=head2 COPYRIGHT AND LICENSE
+
+(c) 1997-2002 The Protein Laboratory, University of Copenhagen
+(c) 2003-2007 Dmitry Karasik
+
+This library is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
 
 =head1 AUTHORS
 
 Anton Berezin E<lt>tobez@tobez.orgE<gt>,
 Vadim Belman E<lt>voland@lflat.orgE<gt>,
 Dmitry Karasik E<lt>dmitry@karasik.eu.orgE<gt>
-
-=head1 SEE ALSO
-
-L<Prima>, L<iterm>,
 
 =cut
