@@ -6,6 +6,10 @@
 #include <apricot.h>
 #include <Image.h>
 
+#ifndef dPROFILE
+#define dPROFILE  SV ** temporary_prf_Sv
+#endif
+
 #define createImage(w,h,type)               create_object("Prima::Image","iii","width",(w),"height",(h),"type",(type))
 #define createNamedImage(w,h,type,name)     create_object("Prima::Image","iiis","width",(w),"height",(h),"type",(type),"name",(name))
 #define destroyImage(img)                   Object_destroy((Handle)img)
