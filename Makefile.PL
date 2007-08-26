@@ -9,6 +9,7 @@ eval {
 	$d  = join(' ', map { "-D$_" } @{$Prima::Config::Config{cdefs}});
 	$i  = join(' ', map { "-I$_" } @{$Prima::Config::Config{incpaths}}, qw(include include/generic));
 	$l  = $Prima::Config::Config{libname} if $^O =~ /win32|os2/i;
+	$l  = "-L$Config{installsitearch}/auto/Prima -lPrima" if $^O eq 'cygwin';
 	$co = $Prima::Config::Config{cobjflag};
 };
 
