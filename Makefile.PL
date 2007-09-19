@@ -3,7 +3,7 @@ package MY;
 use ExtUtils::MakeMaker;
 use Config;
 
-my ( $i, $d, $l, $co) = ('','','','');
+my ( $gencls, $i, $d, $l, $co) = ('gencls', '','','','');
 eval { 
 	require Prima::Config;
 	$d  = join(' ', map { "-D$_" } @{$Prima::Config::Config{cdefs}});
@@ -11,6 +11,7 @@ eval {
 	$l  = $Prima::Config::Config{libname} if $^O =~ /win32|os2/i;
 	$l  = "-L$Config{installsitearch}/auto/Prima -lPrima" if $^O eq 'cygwin';
 	$co = $Prima::Config::Config{cobjflag};
+	$gencls = $Prima::Config::Config{gencls};
 };
 
 my @files = map {
@@ -40,7 +41,7 @@ sub postamble
 	  	$t .= <<H
 
 include/generic/$n.h: Makefile $c.cls
-\tgencls --inc --h $c.cls include/generic
+\t$gencls --inc --h $c.cls include/generic
 
 $c$o: Makefile $c.c include/IPAsupp.h include/generic/$n.h include/generic/$n.inc
 
