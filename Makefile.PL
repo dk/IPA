@@ -13,6 +13,9 @@ eval {
 	$co = $Prima::Config::Config{cobjflag};
 	$gencls = $Prima::Config::Config{gencls};
 };
+if ( $@) {
+	warn "** warning: Prima is required as a prerequisite to the build\n";
+}
 
 my @files = map {
 	s/\.c$//;
