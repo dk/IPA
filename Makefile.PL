@@ -4,6 +4,8 @@ use ExtUtils::MakeMaker;
 use Config;
 
 my ( $gencls, $i, $d, $l, $co) = ('gencls', '','','','');
+my $severe = grep { $_ eq '--severe' } @ARGV;
+@ARGV      = grep { $_ ne '--severe' } @ARGV;
 eval { 
 	require Prima::Config;
 	$d  = join(' ', map { "-D$_" } @{$Prima::Config::Config{cdefs}});
@@ -14,8 +16,15 @@ eval {
 	$gencls = $Prima::Config::Config{gencls};
 };
 if ( $@) {
-	warn "** warning: Prima is required as a prerequisite to the build\n";
+	warn "** Prima is required for build\n";
+	if ( $severe) {
+		unlink 'Makefile';
+		exit 1;
+	}
+	$prima_failed = 1;
 }
+
+$prima_failed = 1 if @ARGV;
 
 my @files = map {
 	s/\.c$//;
@@ -32,6 +41,20 @@ $_-> {is_class} = 1 for grep { -f $_-> {src} . '.cls' } @files;
 );
 
 my $o = $Config{obj_ext};
+
+sub post_initialize
+{
+	my $self = shift;
+	my $t = $self->SUPER::post_initialize(@_);
+	$t = <<PRE if $prima_failed;
+
+ipa_init_state:
+	$^X Makefile.PL --severe
+	$Config{make}
+
+PRE
+	return $t;
+}
 
 sub postamble
 {
