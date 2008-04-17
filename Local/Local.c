@@ -1478,7 +1478,7 @@ IPA__Local_convolution( PImage img, PImage kernel_img)
 /*----------------------------------------------------------------------------*/
 /* Copyright (c) 1988 by the University of Arizona Digital Image Analysis Lab */
 /*-Interface Information------------------------------------------------------*/
-#define PI 3.14159
+#define PI 3.14159265358979323846264338327950288419716939937510
 static TwoImages 
 gradients(
 const char * method,          
@@ -1885,7 +1885,7 @@ PImage IPA__Local_ridge(PImage img,HV *profile)
     msize = size * 1.5;
     if (( msize % 2) == 0) msize++;
     l = gaussian( method, msize, sqrt(scale), 1, 0, 1);
-    tmp = d_rotate( l, 3.14159/4);
+    tmp = d_rotate( l, PI/4);
     lxy = ( PImage) tmp-> self-> extract(( Handle) tmp, tmp-> w - size, tmp-> h - size, size, size);
     lxx = ( PImage) l-> self-> extract(( Handle) l, l-> w - size, l-> h - size, size, size);
     lyy = d_rotate90( lxx);

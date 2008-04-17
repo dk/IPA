@@ -6,7 +6,7 @@
 #include "PointSupp.h"
 #include <math.h>
 
-#define pix( img, x, y)     ( (img)->type == imByte ? *( (img)->data + (img)->lineSize * (y) + (x)) : ( (img)->type == imShort ? ( ( short*)( (img)->data + (img)->lineSize * (y)))[(x)] : ( ( long*)( (img)->data + (img)->lineSize * (y)))[(x)]));
+#define pix( img, x, y)     ( (img)->type == imByte ? *( (img)->data + (img)->lineSize * (y) + (x)) : ( (img)->type == imShort ? ( ( Short*)( (img)->data + (img)->lineSize * (y)))[(x)] : ( ( Long*)( (img)->data + (img)->lineSize * (y)))[(x)]));
 
 #ifndef PRIMA_TRUNC_PRESENT
    #define trunc(x)  ((( x) < 0) ? ceil( x) : floor( x))
@@ -42,7 +42,7 @@ PImage IPA__Point_combine(HV *profile)
     int combineType=COMBINE_SUM;
     Bool rawOutput=false;
     int minval=0,maxval=0,range;
-    long *bufp;
+    Long *bufp;
     int x,y,i;
 
     if (pexist(images)) {
@@ -106,14 +106,14 @@ PImage IPA__Point_combine(HV *profile)
 
     bimg=createNamedImage(img[0]->w,img[0]->h,imLong,"combine buffer");
     /*
-    imp=(long**)malloc(sizeof(long*)*imgnum);
+    imp=(Long**)malloc(sizeof(Long*)*imgnum);
     for (i=0; i<imgnum; i++) {
-        imp[i]=(long*)img[i]->data;
+        imp[i]=(Long*)img[i]->data;
     }
     */
-    for (y=0,bufp=(long*)bimg->data; y<img[0]->h; y++,(*((Byte**)&bufp))+=bimg->lineSize) {
+    for (y=0,bufp=(Long*)bimg->data; y<img[0]->h; y++,(*((Byte**)&bufp))+=bimg->lineSize) {
         for (x=0; x<img[0]->w; x++) {
-            long absmax = 0, sum=0, val, absval, origmax = 0;
+            Long absmax = 0, sum=0, val, absval, origmax = 0;
             for (i=0; i<imgnum; i++) {
                 val = pix( img[i], x, y);
                 absval = abs( val);
@@ -150,7 +150,7 @@ PImage IPA__Point_combine(HV *profile)
                     bufp[x]=sum;
                     break;
                 case COMBINE_SQRT:
-                    bufp[x]=(long)sqrt(sum);
+                    bufp[x]=(Long)sqrt(sum);
                     break;
             }
             if (!rawOutput && (conversionType==CONV_SCALEABS || conversionType==CONV_TRUNCABS)) {
@@ -185,7 +185,7 @@ PImage IPA__Point_combine(HV *profile)
             maxval=abs(maxval);
             minval=abs(minval);
             if (minval>maxval) {
-                long tmp=maxval;
+                Long tmp=maxval;
                 maxval=minval;
                 minval=tmp;
             }
@@ -195,7 +195,7 @@ PImage IPA__Point_combine(HV *profile)
             range=1;
         }
         oimg=createNamedImage(bimg->w,bimg->h,imByte,"combine result");
-        for (y=0,bufp=(long*)bimg->data,p=oimg->data; y<bimg->h; y++,(*((Byte**)&bufp))+=bimg->lineSize,p+=oimg->lineSize) {
+        for (y=0,bufp=(Long*)bimg->data,p=oimg->data; y<bimg->h; y++,(*((Byte**)&bufp))+=bimg->lineSize,p+=oimg->lineSize) {
             for (x=0; x<bimg->w; x++) {
                 switch (conversionType) {
                     case CONV_SCALE:
@@ -362,9 +362,9 @@ PImage IPA__Point_subtract(PImage img1,PImage img2,HV *profile)
     dPROFILE;
     const char *method="IPA::Point::subtract";
     int ypos,xpos,xbuf;
-    long minval=0,maxval=0,range;
+    Long minval=0,maxval=0,range;
     PImage bufimg,oimg;
-    long *dbuf;
+    Long *dbuf;
     int conversionType=CONV_SCALE;
     Bool rawOutput=false;
 
@@ -397,9 +397,9 @@ PImage IPA__Point_subtract(PImage img1,PImage img2,HV *profile)
         croak("%s: can't create buffer image",method);
     }
 
-    for (ypos=0,dbuf=(long*)bufimg->data; ypos<img1->dataSize; ypos+=img1->lineSize,(*((Byte**)&dbuf))+=bufimg->lineSize) {
+    for (ypos=0,dbuf=(Long*)bufimg->data; ypos<img1->dataSize; ypos+=img1->lineSize,(*((Byte**)&dbuf))+=bufimg->lineSize) {
         for (xpos=ypos, xbuf=0; xbuf<bufimg->w; xbuf++,xpos++) {
-            dbuf[xbuf]=(long)(img1->data[xpos])-(long)(img2->data[xpos]);
+            dbuf[xbuf]=(Long)(img1->data[xpos])-(Long)(img2->data[xpos]);
             if (conversionType==CONV_SCALEABS) {
                 dbuf[xbuf]=abs(dbuf[xbuf]);
             } /* endif */
@@ -427,7 +427,7 @@ PImage IPA__Point_subtract(PImage img1,PImage img2,HV *profile)
             range=1;
         } /* endif */
 
-        for (ypos=0,dbuf=(long*)bufimg->data; ypos<img1->dataSize; ypos+=img1->lineSize,(*((Byte**)&dbuf))+=bufimg->lineSize) {
+        for (ypos=0,dbuf=(Long*)bufimg->data; ypos<img1->dataSize; ypos+=img1->lineSize,(*((Byte**)&dbuf))+=bufimg->lineSize) {
             for (xpos=ypos, xbuf=0; xbuf<bufimg->w; xbuf++,xpos++) {
                 switch (conversionType) {
                     case CONV_TRUNC:

@@ -99,7 +99,7 @@ EXIT:
 }   
 
 #define SWAP(a,b) tempr=(a); (a)=(b); (b)=tempr
-#define TWOPI 6.28318530717959
+#define TWOPI (2*3.14159265358979323846264338327950288419716939937510)
 /*---------------------------------------------------------------------------*/
 /* Purpose:  This routine replaces DATA by its one-dimensional discrete      */
 /*           transform if ISIGN=1 or replaces DATA by its inverse transform  */
