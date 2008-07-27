@@ -23,13 +23,14 @@ hsv2rgb( float h, float s, float v, Byte * rgb)
    h /= 60;
    v *= 255;
 
-   i = h;
+   i = (long) h;
    f = h - i;
    w = v * ( 1 - s);
    q = v * ( 1 - s * f);
    t = v * ( 1 - s * ( 1 - f ));
 
-#define DRGB(R,G,B) *(rgb++)=B+.5; *(rgb++)=G+.5; *(rgb++)=R+.5; break
+#define Dch(X) *(rgb++)=(Byte)(X+.5)
+#define DRGB(R,G,B) Dch(B);Dch(G);Dch(R);break
    
    switch ( i) {
    case 0:  DRGB(v, t, w);
@@ -60,11 +61,11 @@ rgb2hsv( Byte * rgb, float * h, float * s, float * v)
    }
       
    if ( R == max)
-     *h = 0.0 + (float)( G - B ) / delta;
+     *h = (float) 0.0 + (float)( G - B ) / delta;
    else if ( G == max) 
-     *h = 2.0 + (float)( B - R ) / delta;
+     *h = (float) 2.0 + (float)( B - R ) / delta;
    else
-     *h = 4.0 + (float)( R - G ) / delta;
+     *h = (float) 4.0 + (float)( R - G ) / delta;
    if ( *h < 0) *h += 6.0;
    *h *= 60;
 }
@@ -259,10 +260,11 @@ IPA__Misc_combine_channels( SV * input, char * mode)
       break;
    case 2: {
       char * eptr;
-      int  mul, xw, lw, ls;
+      int  mul, ds;
       Byte * i1, * i2, * dst;
       PImage ret;
       float mul1, mul2;
+
       mul = strtol( mode + 5, &eptr, 10);
       if (*eptr || mul < 0 || mul > 255) 
          croak("%s: format alphaNUM where NUM in 0..255", METHOD);
@@ -271,39 +273,44 @@ IPA__Misc_combine_channels( SV * input, char * mode)
          return (PImage) CImage(ch[0])-> dup(ch[0]);
       if ( mul == 0) 
          return (PImage) CImage(ch[1])-> dup(ch[1]);
-      mul1 = (float) mul / 256;
-      mul2 = 1.0 - mul1;
 
       if ( PImage(ch[0])-> type == imByte) {
          if ( PImage(ch[1])-> type != imByte)
             croak( "%s: type of image #1 is not Byte", METHOD);
          if ( !( ret = createImage( w, h, imByte)))
             croak("%s: error creating image", METHOD);
-	 xw = 1;
       } else if ( PImage(ch[0])-> type == imRGB) {
          if ( PImage(ch[1])-> type != imRGB)
             croak( "%s: type of image #1 is not RGB", METHOD);
          if ( !( ret = createImage( w, h, imRGB)))
             croak("%s: error creating image", METHOD);
-	 xw = 3;
       } else {
          croak("%s: mode 'alpha' expects either RGB or Byte images", METHOD);
       }
-      i1   = (Byte*) PImage(ch[0])-> data;
-      i2   = (Byte*) PImage(ch[1])-> data;
-      dst  = ret-> data;
-      lw   = w * xw;
-      ls   = ret-> lineSize - lw;
 
-      while (h--) {
-         register int x = lw;
-         while ( x--) {
-	    *(dst++) = (int)((((float)*(i1++)) * mul1) + (((float)*(i2++)) * mul2) + .5);
+      i1   = PImage(ch[0])-> data;
+      i2   = PImage(ch[1])-> data;
+      dst  = ret-> data;
+      
+      mul1 = (float) mul / 256;
+      mul2 = (float) 1.0 - mul1;
+      ds   = ret-> dataSize;
+
+      if ( ds > 65536) {
+	 int i, j;
+	 Byte tab[256][256];
+         for ( i = 0; i < 256; i++) {
+            for ( j = 0; j < 256; j++) {
+               tab[i][j] = (int)((((float)(i)) * mul1) + (((float)(j)) * mul2) + .5);
+            }
          }
-         i1 += ls;
-         i2 += ls;
-         dst += ls;
+         while (ds--)
+       	    *(dst++) = tab[*(i1++)][*(i2++)];
+      } else {
+         while (ds--)
+            *(dst++) = (int)((((float)*(i1++)) * mul1) + (((float)*(i2++)) * mul2) + .5);
       }
+
       return ret;
       
       } break;
