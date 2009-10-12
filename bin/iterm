@@ -12,6 +12,7 @@ my $fds;
 my $vec = '';
 my $codecID = 0;
 
+use IPA;
 use IPA::Global qw(/./);
 use IPA::Local qw(/./);
 use IPA::Geometry qw(/./);
@@ -259,7 +260,7 @@ sub command
    }
 
    $i = Prima::Image-> create if !defined $i || !$i-> isa( 'Prima::Image');
-   $j = Prima::Image-> create if !defined $j || !$i-> isa( 'Prima::Image');
+   $j = Prima::Image-> create if !defined $j || !$j-> isa( 'Prima::Image');
    show;
    print "\n" if $cmd =~ /^print/;
 }
