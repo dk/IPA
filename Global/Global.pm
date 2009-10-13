@@ -263,6 +263,11 @@ The parameters are same as those passed to L<band_filter>.
 Realizes Hough transform. If type is "line", linear transform is performed.
 With direct transform, C<resolution> is width of the resulted image.
 
+Note: Returns a 8-bit grayscale image, which means that for all practical
+purposes the image shouldn't possibly contain more than 256 line candidates.
+
+Supported types: all
+
 =item hough2lines IMAGE [ width = 1000, height = 1000 ]
 
 Takes a Hough-transformed image, where each pixel is a line. For each non-zero
@@ -280,6 +285,8 @@ then plotting lines back (after $h was filtered) would be
    	width  => $i-> width, 
 	height => $i-> height
    ) };
+
+Supported types: 8-bit (expects result from C<hough> function).
 
 =head2 Optimized plotting
 
