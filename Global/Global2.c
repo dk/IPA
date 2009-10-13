@@ -684,3 +684,41 @@ IPA__Global_identify_scanlines( PImage in, HV *profile)
    return newRV_noinc((SV*)result);
 }
 
+#undef METHOD
+#define METHOD "IPA::Global::identify_pixels"
+
+SV*
+/* [x,y,x,y] */
+IPA__Global_identify_pixels( PImage in, HV *profile)
+{
+   dPROFILE;
+   AV *result;
+
+   Byte match = 0x0, eq = 0;
+   Byte * src;
+   int x, y; 
+
+   if ( !in || !kind_of(( Handle) in, CImage)) WHINE("Not an image passed");
+   if (( in->type & imBPP) != 8) WHINE("Not an 8-bit image image passed");
+
+   if ( pexist( match)) match = (Byte) pget_i(match);
+   if ( pexist( eq  ))  eq    = pget_B(eq);
+   
+   result = newAV();
+   if (!result)
+      WHINE( "error creating AV");
+
+   for ( y = 0, src = in-> data; y < in-> h; y++, src += in-> lineSize) {
+      for ( x = 0; x < in-> w; x++) {
+         if ( eq ) {
+             if (src[x] != match ) continue;
+	 } else {
+             if (src[x] == match ) continue;
+	 }
+         av_push( result, newSViv(x));
+         av_push( result, newSViv(y));
+      }
+   }
+
+   return newRV_noinc((SV*)result);
+}   

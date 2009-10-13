@@ -83,6 +83,8 @@ hline( PImage image, int x1, int x2, int y, double color)
       x1 = x;
    }
    if ( x2 < 0 || x1 >= image-> w || y < 0 || y >= image-> h) return;
+   if ( x1 < 0) x1 = 0;
+   if ( x2 >= image-> w ) x2 = image-> w - 1;
 
    type = image-> type;
    ls   = image-> lineSize;
@@ -176,5 +178,80 @@ void
 IPA__Global_bar( PImage input, int x1, int y1, int x2, int y2, double color)
 {
    for ( ; y1 <= y2; y1++) hline( input, x1, x2, y1, color);
+   input-> self-> update_change(( Handle) input);
+}
+
+/* Bresenham line plotting, (c) LiloHuang @ 2008, kenwu@cpan.org 
+   http://cpansearch.perl.org/src/KENWU/Algorithm-Line-Bresenham-C-0.1/Line/Bresenham/C/C.xs
+ */
+void
+IPA__Global_line( PImage input, int from_x, int from_y, int to_x, int to_y, double color) 
+{
+   int curr_maj, curr_min, to_maj, to_min, delta_maj, delta_min;
+   int delta_y = to_y - from_y;
+   int delta_x = to_x - from_x;
+   int dir = 0, d, d_inc1, d_inc2;
+   int inc_maj, inc_min;
+   int x, y, acc_x = 0, acc_y = -1, ox;
+   Color v;
+
+   if (abs(delta_y) > abs(delta_x)) dir = 1;
+   
+   if (dir) {
+      curr_maj = from_y;
+      curr_min = from_x;
+      to_maj = to_y;
+      to_min = to_x;
+      delta_maj = delta_y;
+      delta_min = delta_x;
+   } else {
+      curr_maj = from_x;
+      curr_min = from_y;
+      to_maj = to_x;
+      to_min = to_y;
+      delta_maj = delta_x;
+      delta_min = delta_y;   
+   }
+   if(!delta_maj) inc_maj = 0;
+   else inc_maj = (abs(delta_maj)==delta_maj ? 1 : -1);
+   
+   if(!delta_min) inc_min = 0;
+   else inc_min = (abs(delta_min)==delta_min ? 1 : -1);
+   
+   delta_maj = abs(delta_maj);
+   delta_min = abs(delta_min);
+   
+   d = (delta_min << 1) - delta_maj;
+   d_inc1 = (delta_min << 1);
+   d_inc2 = ((delta_min - delta_maj) << 1);
+   
+   while(1) {
+      ox = x;
+      if (dir) {
+         y = curr_maj;
+         x = curr_min;   
+      } else {
+         y = curr_min;
+         x = curr_maj;   
+      }
+      if ( acc_y != y ) {
+         if ( acc_y >= 0) 
+	    hline( input, acc_x, ox, acc_y, color);
+         acc_y = y;
+	 acc_x = x;
+      }
+
+      if(curr_maj == to_maj) break;
+      curr_maj += inc_maj;
+      if (d < 0) {
+         d += d_inc1;
+      } else {
+         d += d_inc2;
+         curr_min += inc_min;
+      }
+   }
+   if ( acc_y > 0)
+       hline( input, acc_x, x, acc_y, color);
+   
    input-> self-> update_change(( Handle) input);
 }

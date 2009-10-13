@@ -8,7 +8,8 @@ use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 $VERSION = '0.02';
 @EXPORT = qw();
 @EXPORT_OK = qw(close_edges fill_holes area_filter identify_contours 
-	fft band_filter butterworth fourier identify_scanlines);
+	fft band_filter butterworth fourier identify_scanlines hough
+	hough2lines identify_pixels);
 %EXPORT_TAGS = (tracks => [qw(close_edges)]);
 
 sub pow2
@@ -178,6 +179,11 @@ See also L<IPA::Region>.
 
 Same as C<identify_contours> but returns a set of scan lines.
 
+=item identify_pixels IMAGE [ match => 0, eq => 0 ]
+
+Returns coordinates of all pixels that match (if C<eq> is 1) or not match (C<eq> is 0)
+color C<match>.
+
 =item fft IMAGE [ inverse = 0 ]
 
 Performs direct and inverse ( governed by C<inverse> boolean flag )
@@ -252,6 +258,29 @@ The parameters are same as those passed to L<band_filter>.
 
 =back
 
+=item hough IMAGE [ type = "line", direct = 1, resolution = 500 ]
+
+Realizes Hough transform. If type is "line", linear transform is performed.
+With direct transform, C<resolution> is width of the resulted image.
+
+=item hough2lines IMAGE [ width = 1000, height = 1000 ]
+
+Takes a Hough-transformed image, where each pixel is a line. For each non-zero
+pixel a line projection on a rectangle with given width and height is
+calculated.  Returns array of quad values in format [x0,y0,x1,y2] where the
+coordinates stand for the start and the end of a line.
+
+So, if the direct transform was called as
+   
+   $h = hough( $i ); 
+
+then plotting lines back (after $h was filtered) would be
+
+   $i-> line(@$_) for @{ hough2lines( $h,
+   	width  => $i-> width, 
+	height => $i-> height
+   ) };
+
 =head2 Optimized plotting
 
 The following functions can draw lines on images, and are optimized for speed,
@@ -268,6 +297,10 @@ Fill the given rectangular area with COLOR.
 Draws set of horizontal lines as defined by LINES with COLOR.  LINES is an
 array of triplet integers, where each contains [X1, X2, Y] coordinates -
 beginning of hline, end of hline, and vline.
+
+=item line IMAGE, X1, Y1, X2, Y2, COLOR
+
+Draws a single line from X1,Y1 to X2,Y2 .
 
 =back
 
