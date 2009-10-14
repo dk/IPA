@@ -113,7 +113,9 @@ PImage IPA__Point_combine(HV *profile)
     */
     for (y=0,bufp=(Long*)bimg->data; y<img[0]->h; y++,(*((Byte**)&bufp))+=bimg->lineSize) {
         for (x=0; x<img[0]->w; x++) {
-            Long absmax = 0, sum=0, val, absval, origmax = 0;
+            Long absmax = 0, 
+	         sum=(combineType == COMBINE_MULTIPLY)?1:0, 
+		 val, absval, origmax = 0;
             for (i=0; i<imgnum; i++) {
                 val = pix( img[i], x, y);
                 absval = abs( val);
@@ -134,6 +136,9 @@ PImage IPA__Point_combine(HV *profile)
                     case COMBINE_SQRT:
                         sum += val * val;
                         break;
+                    case COMBINE_MULTIPLY:
+		        sum *= val;
+			break;
                 }
             }
             switch (combineType) {
@@ -144,9 +149,8 @@ PImage IPA__Point_combine(HV *profile)
                     bufp[x]=absmax;
                     break;
                 case COMBINE_SUMABS:
-                    bufp[x]=sum;
-                    break;
                 case COMBINE_SUM:
+                case COMBINE_MULTIPLY:
                     bufp[x]=sum;
                     break;
                 case COMBINE_SQRT:

@@ -140,6 +140,12 @@ short sobel_combine(short *pixval,unsigned short combinetype)
                 comb=sqrt(sqr);
             }
             break;
+        case COMBINE_MULTIPLY:
+            comb=pixval[sobelColumn]*
+                  pixval[sobelRow]*
+                  pixval[sobelNESW]*
+                  pixval[sobelNWSE];
+            break;
     } /* endswitch */
 
     return comb;

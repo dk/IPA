@@ -22,6 +22,7 @@ use constant combineSumAbs       => 2;
 use constant combineSum          => 3;
 use constant combineSqrt         => 4;
 use constant combineSignedMaxAbs => 5;
+use constant combineMultiply     => 6;
 
 use constant conversionTruncAbs  => 1;
 use constant conversionTrunc     => 2;

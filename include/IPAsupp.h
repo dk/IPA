@@ -29,8 +29,9 @@
 #define COMBINE_SUM             3
 #define COMBINE_SQRT            4
 #define COMBINE_SIGNEDMAXABS    5
+#define COMBINE_MULTIPLY        6
 #define COMBINE_FIRST           COMBINE_MAXABS
-#define COMBINE_LAST            COMBINE_SIGNEDMAXABS
+#define COMBINE_LAST            COMBINE_MULTIPLY
                                         
 #define CONV_TRUNCABS           1
 #define CONV_TRUNC              2
