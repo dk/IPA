@@ -15,11 +15,11 @@ PImage deriche( const char *method, PImage in, float alpha)
                                  target[ unusedIndex] = in-> data[(line)*in-> lineSize+unusedIndex];
 #define deriche_WRITELINE(source,line) for ( unusedIndex = 0; unusedIndex < n; unusedIndex++) \
                                   outf[deriche_INDEX(unusedIndex,(line))] = source[unusedIndex];
-   float a = -(1.0-exp(-alpha))*(1.0-exp(-alpha));
-   float b1 = -2.0 * exp(-alpha);
-   float b2 = exp(-2.0*alpha);
-   float a0 = -a/(1.0 - alpha * b1 - b2);
-   float a1 = a0*(alpha-1.0)*exp(-alpha);
+   float a = (float)(-(1.0-exp(-alpha))*(1.0-exp(-alpha)));
+   float b1 = (float)(-2.0 * exp(-alpha));
+   float b2 = (float)exp(-2.0*alpha);
+   float a0 = (float)(-a/(1.0 - alpha * b1 - b2));
+   float a1 = (float)(a0*(alpha-1.0)*exp(-alpha));
    float a2 = a1 - a0*b1;
    float a3 = -a0*b2;
    float *z1, *z2, *z3, *ze, *za, *im1, *im2, *outf;
@@ -96,7 +96,7 @@ PImage deriche( const char *method, PImage in, float alpha)
       for ( x = 0; x < n; x++)
       {
          z = im2[deriche_INDEX(x,y)]+z1[x];
-         za[x] = sqrt(z*z+outf[deriche_INDEX(x,y)]*outf[deriche_INDEX(x,y)]);
+         za[x] = (Byte)(sqrt(z*z+outf[deriche_INDEX(x,y)]*outf[deriche_INDEX(x,y)]));
       }
       deriche_WRITELINE(za,y);
    }
@@ -104,7 +104,7 @@ PImage deriche( const char *method, PImage in, float alpha)
    out = createImage( in-> w, in-> h, in->type);
    for ( y = 0; y < n; y++)
       for ( x = 0; x < n; x++) {
-         register int z = outf[deriche_INDEX(x,y)] + 0.5;
+         register int z = (int)(outf[deriche_INDEX(x,y)] + 0.5);
          if ( z < 0) z = 0;
          if ( z > 255) z = 255;
          /* out-> data[y*out-> lineSize + x] = outf[deriche_INDEX(x,y)] < 1 ? 0 : 255;*/
@@ -171,7 +171,7 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         for (ypos=xpos+img->lineSize; ypos<img->dataSize; ypos+=img->lineSize) { /* и стpоки - снизу ввеpх*/
             v=dx->data[ypos-img->lineSize];
             v1=img->data[ypos];
-            dx->data[ypos]=v+a0*(v1-v)+0.5;
+            dx->data[ypos]=(Byte)(v+a0*(v1-v)+0.5);
         } /* endfor */
     } /* endfor */
 
@@ -181,7 +181,7 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         for (ypos=xpos; ypos>0; ypos-=dx->lineSize) { /* и свеpху вних - по стpокам*/
             v=dx->data[ypos+dx->lineSize];
             v1=dx->data[ypos];
-            dx->data[ypos]=v+a0*(v1-v)+0.5;
+            dx->data[ypos]=(Byte)(v+a0*(v1-v)+0.5);
         } /* endfor */
     } /* endfor */
 
@@ -191,7 +191,7 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         for (xpos=ypos+1; xpos<(ypos+dx->w); xpos++) {
             v=dtmp->data[xpos-1];
             v1=dx->data[xpos];
-            dtmp->data[xpos]=v+a0*(v1-v)+0.5;
+            dtmp->data[xpos]=(Byte)(v+a0*(v1-v)+0.5);
         } /* endfor */
     } /* endfor */
 
@@ -201,7 +201,7 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         for (xpos=(ypos+w2); xpos>=ypos; xpos--) {
             v=dy->data[xpos+1];
             v1=dx->data[xpos];
-            dy->data[xpos]=v+a0*(v1-v)+0.5;
+            dy->data[xpos]=(Byte)(v+a0*(v1-v)+0.5);
         } /* endfor */
     } /* endfor */
 
@@ -223,7 +223,7 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         for (xpos=(ypos+1); xpos<(ypos+img->w); xpos++) {
             v=dy->data[xpos-1];
             v1=img->data[xpos];
-            dy->data[xpos]=v+a0*(v1-v)+0.5;
+            dy->data[xpos]=(Byte)(v+a0*(v1-v)+0.5);
         } /* endfor */
     } /* endfor */
 
@@ -232,7 +232,7 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         for (xpos=(ypos+w2); xpos>=ypos; xpos--) {
             v=dy->data[xpos+1];
             v1=dy->data[xpos];
-            dy->data[xpos]=v+a0*(v1-v)+0.5;
+            dy->data[xpos]=(Byte)(v+a0*(v1-v)+0.5);
         } /* endfor */
     } /* endfor */
 
@@ -242,7 +242,7 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         for (ypos=xpos+dy->lineSize; ypos<dy->dataSize; ypos+=dy->lineSize) {
             v=dtmp->data[ypos-dy->lineSize];
             v1=dy->data[ypos];
-            dtmp->data[ypos]=v+a0*(v1-v)+0.5;
+            dtmp->data[ypos]=(Byte)(v+a0*(v1-v)+0.5);
         } /* endfor */
     } /* endfor */
 
@@ -253,7 +253,7 @@ PImage IPA__Local_GEF(PImage img,HV *profile)
         for (ypos=xpos; ypos>0; ypos-=dy->lineSize) {
             v=oimg->data[ypos+dy->lineSize];
             v1=dy->data[ypos];
-            oimg->data[ypos]=v+a0*(v1-v)+0.5;
+            oimg->data[ypos]=(Byte)(v+a0*(v1-v)+0.5);
         } /* endfor */
     } /* endfor */
 
@@ -351,7 +351,7 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         for (ypos=xpos+img->lineSize; ypos<img->dataSize; ypos+=img->lineSize) { /* и стpоки - снизу ввеpх*/
             v=dx->data[ypos-img->lineSize];
             v1=img->data[ypos];
-            dx->data[ypos]=v+a0*(v1-v)+0.5;
+            dx->data[ypos]=(Byte)(v+a0*(v1-v)+0.5);
         } /* endfor */
     } /* endfor */
 
@@ -361,7 +361,7 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         for (ypos=xpos; ypos>0; ypos-=dx->lineSize) { /* и свеpху вних - по стpокам*/
             v=dx->data[ypos+dx->lineSize];
             v1=dx->data[ypos];
-            dx->data[ypos]=v+a0*(v1-v)+0.5;
+            dx->data[ypos]=(Byte)(v+a0*(v1-v)+0.5);
         } /* endfor */
     } /* endfor */
 
@@ -371,7 +371,7 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         for (xpos=ypos+1; xpos<(ypos+dx->w); xpos++) {
             v=ddx->data[xpos-1];
             v1=dx->data[xpos];
-            ddx->data[xpos]=v+a0*(v1-v)+0.5;
+            ddx->data[xpos]=(Byte)(v+a0*(v1-v)+0.5);
         } /* endfor */
     } /* endfor */
 
@@ -381,7 +381,7 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         for (xpos=(ypos+w2); xpos>=ypos; xpos--) {
             v=dy->data[xpos+1];
             v1=dx->data[xpos];
-            dy->data[xpos]=v+a0*(v1-v)+0.5;
+            dy->data[xpos]=(Byte)(v+a0*(v1-v)+0.5);
         } /* endfor */
     } /* endfor */
 
@@ -423,7 +423,7 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         for (xpos=(ypos+1); xpos<(ypos+img->w); xpos++) {
             v=dy->data[xpos-1];
             v1=img->data[xpos];
-            dy->data[xpos]=v+a0*(v1-v)+0.5;
+            dy->data[xpos]=(Byte)(v+a0*(v1-v)+0.5);
         } /* endfor */
     } /* endfor */
 
@@ -432,7 +432,7 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         for (xpos=(ypos+w2); xpos>=ypos; xpos--) {
             v=dy->data[xpos+1];
             v1=dy->data[xpos];
-            dy->data[xpos]=v+a0*(v1-v)+0.5;
+            dy->data[xpos]=(Byte)(v+a0*(v1-v)+0.5);
         } /* endfor */
     } /* endfor */
 
@@ -442,7 +442,7 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         for (ypos=xpos+dy->lineSize; ypos<dy->dataSize; ypos+=dy->lineSize) {
             v=ddy->data[ypos-dy->lineSize];
             v1=dy->data[ypos];
-            ddy->data[ypos]=v+a0*(v1-v)+0.5;
+            ddy->data[ypos]=(Byte)(v+a0*(v1-v)+0.5);
         } /* endfor */
     } /* endfor */
 
@@ -453,7 +453,7 @@ PImage IPA__Local_SDEF(PImage img,HV *profile)
         for (ypos=xpos; ypos>0; ypos-=dy->lineSize) {
             v=dtmp->data[ypos+dy->lineSize];
             v1=dy->data[ypos];
-            dtmp->data[ypos]=v+a0*(v1-v)+0.5;
+            dtmp->data[ypos]=(Byte)(v+a0*(v1-v)+0.5);
         } /* endfor */
     } /* endfor */
 

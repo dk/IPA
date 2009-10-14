@@ -64,7 +64,7 @@ typedef double Double;
    dst_ls=dls/sizeof(type2);\
    for ( y = 0; y < h; y++, dsrc += sls, ddst += dls, src = (type1*)dsrc, dst =(type2*)ddst){\
       for ( x = 0; x < w; x++, src++, dst++) {\
-         op;\
+         *dst = (type2)(op);\
       }\
    }\
 }

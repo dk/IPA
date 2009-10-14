@@ -100,7 +100,7 @@ hline( PImage image, int x1, int x2, int y, double color)
       case imFloat:
          {
             float * d = ( float *) data;
-            float c = color;
+            float c = (float) color;
             for ( i = x1; i <= x2; i++) *(d++) = c;
          }
          break;
@@ -119,7 +119,7 @@ hline( PImage image, int x1, int x2, int y, double color)
       case 24: 
          /* fall back to Image::pixel */
          {
-            SV * sv = newSViv( color);
+            SV * sv = newSViv(( int ) color);
             for ( i = x1; i <= x2; i++) 
                image-> self-> pixel(( Handle) image, 1, i, y, sv);
             sv_free( sv);
@@ -127,21 +127,21 @@ hline( PImage image, int x1, int x2, int y, double color)
          break;
       case 8:
          {
-            Byte c = ( color > 255) ? 255 : (( color < 0) ? 0 : color + .5);
+            Byte c = ( color > 255) ? 255 : (( color < 0) ? 0 : (Byte)(color + .5));
             for ( i = x1; i <= x2; i++) *(data++) = c;
          }
          break;
       case 16:
          {
             Short * d = ( Short *) data;
-            Short c = ( color > 32768) ? 32768 : (( color < -32767) ? -32767 : color + .5);
+            Short c = ( color > 32768) ? 32768 : (( color < -32767) ? -32767 : (Short)(color + .5));
             for ( i = x1; i <= x2; i++) *(d++) = c;
          }
          break;
       case 32:
          {
             Long * d = ( Long *) data;
-            Long c = ( color > 0x7fffffff) ? 0x7fffffff : (( color < -0x7fffffff) ? -0x7fffffff : color + .5);
+            Long c = ( color > 0x7fffffff) ? 0x7fffffff : (( color < -0x7fffffff) ? -0x7fffffff : (Long)(color + .5));
             for ( i = x1; i <= x2; i++) *(d++) = c;
          }
          break;
@@ -193,7 +193,6 @@ IPA__Global_line( PImage input, int from_x, int from_y, int to_x, int to_y, doub
    int dir = 0, d, d_inc1, d_inc2;
    int inc_maj, inc_min;
    int x, y, acc_x = 0, acc_y = -1, ox;
-   Color v;
 
    if (abs(delta_y) > abs(delta_x)) dir = 1;
    

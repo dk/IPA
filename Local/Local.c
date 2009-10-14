@@ -137,7 +137,7 @@ short sobel_combine(short *pixval,unsigned short combinetype)
                     pixval[sobelRow]*pixval[sobelRow]+
                     pixval[sobelNESW]*pixval[sobelNESW]+
                     pixval[sobelNWSE]*pixval[sobelNWSE];
-                comb=sqrt(sqr);
+                comb=(short)sqrt(sqr);
             }
             break;
         case COMBINE_MULTIPLY:
@@ -263,18 +263,18 @@ PImage fast_sobel( PImage srcimg,
                 (*(p2+1)*2L+*(pd+1));
         } /* endif */
         if (jobMask & SOBEL_NWSE) {
-            pixval[sobelNWSE]=
-                 (*(p1+1)-*(pu-1))*2L;
+            pixval[sobelNWSE]=(short)(
+                 (*(p1+1)-*(pu-1))*2L);
 
-            pixval1[sobelNWSE]=
-                 (*(pd+1)-*(p2-1))*2L;
+            pixval1[sobelNWSE]=(short)(
+                 (*(pd+1)-*(p2-1))*2L);
         } /* endif */
         if (jobMask & SOBEL_NESW) {
-            pixval[sobelNESW]=
-                 (*(p1-1)-*(pu+1))*2L;
+            pixval[sobelNESW]=(short)(
+                 (*(p1-1)-*(pu+1))*2L);
 
-            pixval1[sobelNESW]=
-                 (*(pd-1)-*(p2+1))*2L;
+            pixval1[sobelNESW]=(short)(
+                 (*(pd-1)-*(p2+1))*2L);
         } /* endif */
 
         *imgp=sobel_combine(pixval,combinetype)/divisor;
@@ -337,18 +337,18 @@ PImage fast_sobel( PImage srcimg,
                  (*pur+*pr*2L+*pdr);
         } /* endif */
         if (jobMask & SOBEL_NWSE) {
-            pixval[sobelNWSE]=
-                 *(pdl+1)*2L-*pl*2L;
+            pixval[sobelNWSE]=(short)(
+                 *(pdl+1)*2L-*pl*2L);
 
-            pixval1[sobelNWSE]=
-                 *pr*2L-*(pur-1)*2L;
+            pixval1[sobelNWSE]=(short)(
+                 *pr*2L-*(pur-1)*2L);
         } /* endif */
         if (jobMask & SOBEL_NESW) {
-            pixval[sobelNESW]=
-                 *pl*2L-*(pul+1)*2L;
+            pixval[sobelNESW]=(short)(
+                 *pl*2L-*(pul+1)*2L);
 
-            pixval1[sobelNESW]=
-                 *(pdr-1)*2L-*pr*2L;
+            pixval1[sobelNESW]=(short)(
+                 *(pdr-1)*2L-*pr*2L);
         } /* endif */
 
         *imgp=sobel_combine(pixval,combinetype)/divisor;
@@ -439,25 +439,25 @@ PImage IPA__Local_sobel(PImage img,HV *profile)
        croak("%s: not an image passed", method);
 
     if (pexist(jobMask)) {
-        jobMask=pget_i(jobMask);
+        jobMask=(unsigned short)pget_i(jobMask);
         if ((jobMask & ~(SOBEL_NESW|SOBEL_NWSE|SOBEL_COLUMN|SOBEL_ROW))!=0) {
             croak("%s: illegal job mask defined",method);
         }
     }
     if (pexist(combineType)) {
-        combineType=pget_i(combineType);
+        combineType=(unsigned short)pget_i(combineType);
         if (combineType<1 || combineType>5) {
             croak("%s: illegal combination type value %d",method,combineType);
         }
     }
     if (pexist(conversionType)) {
-        conversionType=pget_i(conversionType);
+        conversionType=(unsigned short)pget_i(conversionType);
         if (conversionType<1 || conversionType>4) {
             croak("%s: illegal conversion type value %d",method,conversionType);
         }
     }
     if (pexist(divisor)) {
-        divisor=pget_i(divisor);
+        divisor=(unsigned short)pget_i(divisor);
         if (divisor==0) {
             croak("%s: divisor must not be equal to zero",method);
         }
@@ -481,7 +481,7 @@ PImage IPA__Local_sobel(PImage img,HV *profile)
 static PImage
 filter3x3( const char * method, PImage img, 
            double *matrix, double divisor, Bool rawOutput, Bool expandEdges, 
-           unsigned short conversionType, unsigned short edgecolor)
+           int conversionType, unsigned short edgecolor)
 {
     PImage oimg,bufimg;
     long minval=0,maxval=0,range;
@@ -511,9 +511,10 @@ filter3x3( const char * method, PImage img,
                       pd+=img->lineSize,
                       (*((Byte**)&bufp))+=bufimg->lineSize) {
                     for (x=1; x<(img->w-1); x++) {
-                        bufp[x]=(matrix[0]*pu[x-1]+matrix[1]*pu[x]+matrix[2]*pu[x+1]+
+                        bufp[x]=(long)(
+			        (matrix[0]*pu[x-1]+matrix[1]*pu[x]+matrix[2]*pu[x+1]+
                                  matrix[3]* p[x-1]+matrix[4]* p[x]+matrix[5]* p[x+1]+
-                                 matrix[6]*pd[x-1]+matrix[7]*pd[x]+matrix[8]*pd[x+1])/divisor;
+                                 matrix[6]*pd[x-1]+matrix[7]*pd[x]+matrix[8]*pd[x+1])/divisor);
                         if (x==1 && y==1) {
                             minval=maxval=bufp[x];
                         }
@@ -532,14 +533,16 @@ filter3x3( const char * method, PImage img,
                     pd=img->data;
                     bufp=(long*)(bufimg->data+bufimg->lineSize);
                     /* processing bottom left/right corners */
-                    ((long*)bufimg->data)[0]=(matrix[0]* p[0]+matrix[1]* p[0]+matrix[2]* p[1]+
+                    ((long*)bufimg->data)[0]=(long)(
+		                             (matrix[0]* p[0]+matrix[1]* p[0]+matrix[2]* p[1]+
                                               matrix[3]*pd[0]+matrix[4]*pd[0]+matrix[5]*pd[1]+
-                                              matrix[6]*pd[0]+matrix[7]*pd[0]+matrix[8]*pd[1])/divisor;
+                                              matrix[6]*pd[0]+matrix[7]*pd[0]+matrix[8]*pd[1])/divisor);
                     minval=min(minval,((long*)bufimg->data)[0]);
                     maxval=max(maxval,((long*)bufimg->data)[0]);
-                    ((long*)bufimg->data)[bufimg->w-1]=(matrix[0]* p[img->w-2]+matrix[1]* p[img->w-1]+matrix[2]* p[img->w-1]+
+                    ((long*)bufimg->data)[bufimg->w-1]=(long)(
+		                                       (matrix[0]* p[img->w-2]+matrix[1]* p[img->w-1]+matrix[2]* p[img->w-1]+
                                                         matrix[3]*pd[img->w-2]+matrix[4]*pd[img->w-1]+matrix[5]*pd[img->w-1]+
-                                                        matrix[6]*pd[img->w-2]+matrix[7]*pd[img->w-1]+matrix[8]*pd[img->w-1])/divisor;
+                                                        matrix[6]*pd[img->w-2]+matrix[7]*pd[img->w-1]+matrix[8]*pd[img->w-1])/divisor);
                     minval=min(minval,((long*)bufimg->data)[bufimg->w-1]);
                     maxval=max(maxval,((long*)bufimg->data)[bufimg->w-1]);
                     /* processing left & right edges */
@@ -550,18 +553,19 @@ filter3x3( const char * method, PImage img,
                           p+=img->lineSize,
                           pd+=img->lineSize,
                           (*((Byte**)&bufp))+=bufimg->lineSize) {
-                        bufp[0]=(matrix[0]*pu[0]+matrix[1]*pu[0]+matrix[2]*pu[1]+
+                        bufp[0]=(long)((matrix[0]*pu[0]+matrix[1]*pu[0]+matrix[2]*pu[1]+
                                  matrix[3]* p[0]+matrix[4]* p[0]+matrix[5]* p[1]+
-                                 matrix[6]*pd[0]+matrix[7]*pd[0]+matrix[8]*pd[1])/divisor;
+                                 matrix[6]*pd[0]+matrix[7]*pd[0]+matrix[8]*pd[1])/divisor);
                         if (minval>bufp[0]) {
                             minval=bufp[0];
                         }
                         else if (maxval<bufp[0]) {
                             maxval=bufp[0];
                         }
-                        bufp[bufimg->w-1]=(matrix[0]*pu[img->w-2]+matrix[1]*pu[img->w-1]+matrix[2]*pu[img->w-1]+
+                        bufp[bufimg->w-1]=(long)(
+			                  (matrix[0]*pu[img->w-2]+matrix[1]*pu[img->w-1]+matrix[2]*pu[img->w-1]+
                                            matrix[3]* p[img->w-2]+matrix[4]* p[img->w-1]+matrix[5]* p[img->w-1]+
-                                           matrix[6]*pd[img->w-2]+matrix[7]*pd[img->w-1]+matrix[8]*pd[img->w-1])/divisor;
+                                           matrix[6]*pd[img->w-2]+matrix[7]*pd[img->w-1]+matrix[8]*pd[img->w-1])/divisor);
                         if (minval>bufp[bufimg->w-1]) {
                             minval=bufp[bufimg->w-1];
                         }
@@ -573,14 +577,16 @@ filter3x3( const char * method, PImage img,
                     /* processing top left/right corners (note: bufp pointing
                     at this point precisely at last image scanline as well
                     as p */
-                    ((long*)bufimg->data)[0]=(matrix[0]* p[0]+matrix[1]* p[0]+matrix[2]* p[1]+
+                    ((long*)bufimg->data)[0]=(long)(
+		                             (matrix[0]* p[0]+matrix[1]* p[0]+matrix[2]* p[1]+
                                               matrix[3]* p[0]+matrix[4]* p[0]+matrix[5]* p[1]+
-                                              matrix[6]*pd[0]+matrix[7]*pd[0]+matrix[8]*pd[1])/divisor;
+                                              matrix[6]*pd[0]+matrix[7]*pd[0]+matrix[8]*pd[1])/divisor);
                     minval=min(minval,((long*)bufimg->data)[0]);
                     maxval=max(maxval,((long*)bufimg->data)[0]);
-                    ((long*)bufimg->data)[bufimg->w-1]=(matrix[0]* p[img->w-2]+matrix[1]* p[img->w-1]+matrix[2]* p[img->w-1]+
+                    ((long*)bufimg->data)[bufimg->w-1]=(Byte)(
+		                                       (matrix[0]* p[img->w-2]+matrix[1]* p[img->w-1]+matrix[2]* p[img->w-1]+
                                                         matrix[3]* p[img->w-2]+matrix[4]* p[img->w-1]+matrix[5]* p[img->w-1]+
-                                                        matrix[6]*pd[img->w-2]+matrix[7]*pd[img->w-1]+matrix[8]*pd[img->w-1])/divisor;
+                                                        matrix[6]*pd[img->w-2]+matrix[7]*pd[img->w-1]+matrix[8]*pd[img->w-1])/divisor);
                     minval=min(minval,((long*)bufimg->data)[bufimg->w-1]);
                     maxval=max(maxval,((long*)bufimg->data)[bufimg->w-1]);
 
@@ -589,9 +595,9 @@ filter3x3( const char * method, PImage img,
                     pd=p=img->data;
                     pu=img->data+img->lineSize;
                     for (x=1; x<(img->w-1); x++) {
-                        bufp[x]=(matrix[0]*pu[x-1]+matrix[1]*pu[x]+matrix[2]*pu[x+1]+
+                        bufp[x]=(long)((matrix[0]*pu[x-1]+matrix[1]*pu[x]+matrix[2]*pu[x+1]+
                                  matrix[3]* p[x-1]+matrix[4]* p[x]+matrix[5]* p[x+1]+
-                                 matrix[6]*pd[x-1]+matrix[7]*pd[x]+matrix[8]*pd[x+1])/divisor;
+                                 matrix[6]*pd[x-1]+matrix[7]*pd[x]+matrix[8]*pd[x+1])/divisor);
                         if (minval>bufp[x]) {
                             minval=bufp[x];
                         }
@@ -603,9 +609,9 @@ filter3x3( const char * method, PImage img,
                     pd=img->data+img->lineSize*(img->h-2);
                     pu=p=pd+img->lineSize;
                     for (x=1; x<(img->w-1); x++) {
-                        bufp[x]=(matrix[0]*pu[x-1]+matrix[1]*pu[x]+matrix[2]*pu[x+1]+
+                        bufp[x]=(long)((matrix[0]*pu[x-1]+matrix[1]*pu[x]+matrix[2]*pu[x+1]+
                                  matrix[3]* p[x-1]+matrix[4]* p[x]+matrix[5]* p[x+1]+
-                                 matrix[6]*pd[x-1]+matrix[7]*pd[x]+matrix[8]*pd[x+1])/divisor;
+                                 matrix[6]*pd[x-1]+matrix[7]*pd[x]+matrix[8]*pd[x+1])/divisor);
                         if (minval>bufp[x]) {
                             minval=bufp[x];
                         }
@@ -656,16 +662,16 @@ filter3x3( const char * method, PImage img,
                 for (x=0; x<oimg->w; x++) {
                     switch (conversionType) {
                         case CONV_SCALE:
-                            p[x]=((bufp[x]-minval)*255)/range;
+                            p[x]=(Byte)(((bufp[x]-minval)*255)/range);
                             break;
                         case CONV_SCALEABS:
-                            p[x]=((abs(bufp[x])-minval)*255)/range;
+                            p[x]=(Byte)(((abs(bufp[x])-minval)*255)/range);
                             break;
                         case CONV_TRUNCABS:
                             p[x]=abs(bufp[x])>255 ? 255 : abs(bufp[x]);
                             break;
                         case CONV_TRUNC:
-                            p[x]=bufp[x]>255 ? 255 : (bufp[x]<0 ? 0 : bufp[x]);
+                            p[x]=bufp[x]>255 ? 255 : (bufp[x]<0 ? 0 : (Byte)bufp[x]);
                             break;
                     }
                 }
@@ -674,10 +680,10 @@ filter3x3( const char * method, PImage img,
                 /* Filling edges */
                 p=oimg->data+oimg->lineSize*(oimg->h-1);
                 for (x=0; x<oimg->w; x++) {
-                    oimg->data[x]=p[x]=edgecolor;
+                    oimg->data[x]=p[x]=(Byte)edgecolor;
                 }
                 for (y=1,p=oimg->data+oimg->lineSize; y<(oimg->h-1); y++,p+=oimg->lineSize) {
-                    p[0]=p[bufimg->w-1]=edgecolor;
+                    p[0]=p[bufimg->w-1]=(Byte)edgecolor;
                 }
             }
         }
@@ -695,7 +701,7 @@ PImage IPA__Local_filter3x3(PImage img,HV *profile)
 {
     dPROFILE;
     const char *method="IPA::Local::filter3x3";
-    unsigned short conversionType=CONV_SCALEABS;
+    int conversionType=CONV_SCALEABS;
     unsigned short edgecolor=0;
     Bool rawOutput=false,expandEdges=false;
     double matrix[9];
@@ -717,7 +723,7 @@ PImage IPA__Local_filter3x3(PImage img,HV *profile)
         expandEdges=pget_B(expandEdges);
     }
     if (pexist(edgecolor)) {
-        edgecolor=pget_i(edgecolor);
+        edgecolor=(unsigned short)pget_i(edgecolor);
         if (edgecolor>255) {
             croak("%s: edge color value %d is not valid",method,edgecolor);
         }
@@ -765,7 +771,7 @@ PImage fast_median(PImage srcimg, int wx, int wy)
     int xpos,ypos,y,i,ltmdn=0,mdn=0;
     int wx2,wy2,w2,wh,pelshift,inshift,outshift;
     int dx=1; /* Hапpавление сдвига по гоpизонтали */
-    unsigned histogram[256];
+    int histogram[256];
     unsigned char *p,*baseline,*dstpos;
     Bool need_turn=false; /* необходимо ли pазвеpнуть напpавление движения окна */
 
@@ -800,7 +806,7 @@ PImage fast_median(PImage srcimg, int wx, int wy)
     }
     memcpy(mimg->data,msrcimg->data,msrcimg->dataSize);
 
-    memset(histogram,0,sizeof(unsigned)*256);
+    memset(histogram,0,sizeof(int)*256);
 
     w2=(wx*wy)/2; /* Количество точек в половине окна. */
 
@@ -1208,7 +1214,7 @@ PImage IPA__Local_deriche(PImage img,HV *profile)
     }
 
     if (pexist(alpha)) {
-        alpha=pget_f(alpha);
+        alpha=(float)pget_f(alpha);
     }
     else {
         croak("%s: alpha must be defined",method);
@@ -1530,19 +1536,19 @@ int size       /*  I   Kernel size in lines and pixels/line.                 */
                     dh += (double)horz[l*size+m]*(double)src[(j-n+l)*sls+k-n+m];
                 }
             }
-            v = sqrt(dv*dv+dh*dh)+.5;
+            v = (int)(sqrt(dv*dv+dh*dh)+.5);
             if ( v > 255) v = 255;
-            dst1[j*dls+k] = v;
+            dst1[j*dls+k] = (Byte)v;
             if (dh == 0.0) {
                 if (dv > 0.0) {
-                    dst2[j*dls+k] = 128+PI*80.0/2.0+.5;
+                    dst2[j*dls+k] = (Byte)(128+PI*80.0/2.0+.5);
                 } else if (dv < 0.0) {
-                    dst2[j*dls+k] = 128-PI*80.0/2.0+.5;
+                    dst2[j*dls+k] = (Byte)(128-PI*80.0/2.0+.5);
                 } else {
                     dst2[j*dls+k] = 128;
                 }
             } else {
-                dst2[j*dls+k] = 128+atan2(dv,dh)*80.0+.5;
+                dst2[j*dls+k] = (Byte)(128+atan2(dv,dh)*80.0+.5);
             }
             /*
             dv *= dv; 
@@ -1605,9 +1611,9 @@ angle2sector( Byte theta)
     if ( !initialized) {
        int i, v, sectornum; 
        for ( i = 0; i < 255; i++) {
-          v = (i - 128) / 80.0;
+          v = (int)((i - 128) / 80.0);
           /* Convert to positive angle */
-          if ( v < 0) v += 2.0 * PI;
+          if ( v < 0) v += (int)(2.0 * PI);
           
           if (v < (PI / 8.0)  && 0 <= v) {
               sectornum = 0;
@@ -1750,7 +1756,7 @@ PImage IPA__Local_nms(PImage img,HV *profile)
     if ( pexist(clear)) clear = pget_f(clear);
     out = create_compatible_image( img, true);
     PIX_SRC_DST( img, out, 
-              *dst = (
+              (
                 (y > 0 && (
                    (x > 0 && src[-src_ls-1] > *src) || (x < w - 1 && src[-src_ls+1] > *src) || (src[-src_ls] > *src)
                 )) || 
@@ -1818,8 +1824,8 @@ d_rotate( PImage in, double alpha)
    src = (double*) in-> data;
    for ( y = 0; y < in-> h; y++, bdst += ls, dst = (double*) bdst) {
       for ( x = 0; x < in-> w; x++) {
-         nx = (x-sx) * cosa - (y-sy) * sina + sx;
-         ny = (x-sx) * sina + (y-sy) * cosa + sy;
+         nx = (int)((x-sx) * cosa - (y-sy) * sina + sx);
+         ny = (int)((x-sx) * sina + (y-sy) * cosa + sy);
          if ( nx >= 0 && nx < in-> w &&
               ny >= 0 && ny < in-> h)
              dst[x] = src[ny * ols + nx];
@@ -1878,7 +1884,7 @@ PImage IPA__Local_ridge(PImage img,HV *profile)
     if ( pexist(size)) 
        size = pget_i(size);
     else
-       size = sqrt(scale);
+       size = (int)sqrt(scale);
     if ( size < 3) size = 3;
     if (( size % 2) == 0) size++;
     if ( pexist(gamma)) gamma = pget_f(gamma);
@@ -1888,7 +1894,7 @@ PImage IPA__Local_ridge(PImage img,HV *profile)
     if ( !anorm) texp *= texp;
 
     /* prepare second derivative masks */
-    msize = size * 1.5;
+    msize = (int)(size * 1.5);
     if (( msize % 2) == 0) msize++;
     l = gaussian( method, msize, sqrt(scale), 1, 0, 1);
     tmp = d_rotate( l, PI/4);
@@ -1966,7 +1972,7 @@ IPA__Local_zerocross(PImage img,HV *profile)
     PIX_INITARGS(img,out);
     h--; w--;
     PIX_SWITCH
-    PIX_BODY( *dst = ( *src == cmp) ? 0xff : 
+    PIX_BODY(( *src == cmp) ? 0xff : 
              (
                 p = n = 0,
                 p += ( src[0] > cmp) ? 1 : 0,

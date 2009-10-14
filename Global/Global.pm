@@ -256,8 +256,6 @@ Supported types: all
 
 The parameters are same as those passed to L<band_filter>.
 
-=back
-
 =item hough IMAGE [ type = "line", direct = 1, resolution = 500 ]
 
 Realizes Hough transform. If type is "line", linear transform is performed.
@@ -287,6 +285,8 @@ then plotting lines back (after $h was filtered) would be
    ) };
 
 Supported types: 8-bit (expects result from C<hough> function).
+
+=back
 
 =head2 Optimized plotting
 

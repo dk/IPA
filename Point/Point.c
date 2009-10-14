@@ -272,7 +272,7 @@ PImage IPA__Point_threshold(PImage img,HV *profile)
     if (pexist(preserve)) preserve=pget_B(preserve);
    
     out = create_compatible_image( img, false);
-    PIX_SRC_DST( img, out, *dst = ((*src < minvalue||*src > maxvalue)?val0:(preserve?*src:val1)) );
+    PIX_SRC_DST( img, out, (*src < minvalue||*src > maxvalue)?val0:(preserve?*src:val1));
     return out;
 }
 
@@ -602,7 +602,7 @@ IPA__Point_ab( PImage in, double mul, double add)
       croak("%s: not an image passed", method);
    
    out = create_compatible_image( in, false);
-   PIX_SRC_DST( in, out, *dst = *src * mul + add);
+   PIX_SRC_DST( in, out, *src * mul + add);
    return out;
 }
 
@@ -630,6 +630,6 @@ IPA__Point_log( PImage in)
       croak("%s: not an image passed", method);
    
    out = createImage(in->w,in->h,imDouble);
-   PIX_SRC_DST2( in, out, double, *dst = log(*src));
+   PIX_SRC_DST2( in, out, double, log(*src));
    return out;
 }
