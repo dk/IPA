@@ -17,6 +17,7 @@ Global/Region.pm
 Global/fft.c
 Global/gsclose.c
 Global/gsclose.h
+Global/hough.c
 Local/Local.c
 Local/Local.cls
 Local/Local.pm
