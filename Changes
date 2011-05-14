@@ -1,0 +1,17 @@
+1.08  Build on 5.13
+
+1.07  Add Hough transform. Optimize combine_channels.
+
+1.06  Fixes for 64-bit arch
+
+1.05  Fixes for cygwin. Add tests. Migrate to ExtUtils::MakeMaker.
+
+1.04  Add rotate90 and rotate180. Add combine_channels(alphaNUM) mode.
+
+1.02  Fixes for cygwin. Add exp, log, scanlines2region, identify_scanlines,
+      area, ab, ridge, hysteresis functions. 
+      Add horizontal-line based drawing primitives.
+      
+1.01  Lots of small fixes
+
+1.00  CPAN epoch started. Add POD content.
