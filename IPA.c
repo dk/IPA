@@ -27,7 +27,7 @@ XS( boot_IPA)
     register_IPA__Point_Package( );
     register_IPA__Morphology_Package( );
 
-    ST(0) = &sv_yes;
+    ST(0) = &PL_sv_yes;
     XSRETURN(1);
 }
 

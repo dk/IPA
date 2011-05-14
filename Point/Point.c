@@ -344,7 +344,7 @@ PImage IPA__Point_remap(PImage img,HV *profile)
                 if (!lItem) {
                     croak("%s: empty lookup table element #%d",method,i);
                 }
-                if (SvIOK(*lItem) || (looks_like_number(*lItem) && strchr(SvPV(*lItem,na),'.')==NULL)) {
+                if (SvIOK(*lItem) || (looks_like_number(*lItem) && strchr(SvPV(*lItem,PL_na),'.')==NULL)) {
                     int tval=SvIV(*lItem);
                     if (tval>255) {
                         croak("%s: element #%d of lookup table too big",method,i);
@@ -352,7 +352,7 @@ PImage IPA__Point_remap(PImage img,HV *profile)
                     lookup_table[i]=tval;
                 }
                 else {
-                    croak("%s: element #%d of lookup table isn't a number but \'%s\'",method,i,SvPV(*lItem,na));
+                    croak("%s: element #%d of lookup table isn't a number but \'%s\'",method,i,SvPV(*lItem,PL_na));
                 }
             }
         }
