@@ -113,8 +113,8 @@ IPA__Morphology_thinning( PImage i, HV *profile)
    m = malloc( line_size * h);
    if (!m) WHINE( "no memory");
    
-   bzero( m, line_size);
-   bzero( m + maxy * line_size, line_size);
+   memset( m, 0, line_size);
+   memset( m + maxy * line_size, 0, line_size);
   
    change = true;
    while (change) {
