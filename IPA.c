@@ -18,6 +18,7 @@ XS( boot_IPA)
     (void)items;
 
     XS_VERSION_BOOTCHECK;
+    PRIMA_VERSION_BOOTCHECK;
 
     CImage = (PImage_vmt)gimme_the_vmt( "Prima::Image");
     register_IPA__Global_Package( );
