@@ -14,18 +14,15 @@ $VERSION = '0.02';
 sub equalize
 {
    my $i = $_[0];
-   my @h = ( 0, IPA::Misc::histogram( $i));
-   my $sz = $i-> width * $i-> height;
-   my @map = (0);
-   my $j;
-   for ( $j = 1; $j < @h; $j++) {
-      $map[$j] = $map[$j - 1] + $h[$j];
+   my @h = IPA::Misc::histogram( $i);
+   my $factor = 255 / ($i-> width * $i-> height);
+   my @map;
+   my $sum = 0;
+   for (@h) {
+       $sum += $_;
+       my $v = $sum * $factor;
+       push @map, ($v > 255) ? 255 : int($v); 
    }
-   for ( @map) {
-      $_ = $_ * 255 / $sz;
-      $_ = ( $_ > 255) ? 255 : int($_); 
-   }
-   shift @map;
    return IPA::Point::remap( $i, lookup => \@map);
 }
 
