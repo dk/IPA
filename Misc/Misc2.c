@@ -76,7 +76,7 @@ IPA__Misc_split_channels( PImage input, char * mode)
 {
    int m, count = 0;
    AV * av;
-   Handle ch[16];
+   PImage ch[16];
    
    if ( !input || !kind_of(( Handle) input, CImage))
       croak("%s: not an image passed", METHOD);
@@ -94,15 +94,10 @@ IPA__Misc_split_channels( PImage input, char * mode)
       if ( input-> type != imbpp24) WHINE("mode 'rgb' accepts 24 RGB images only");
       count = 3;
       for ( m = 0; m < 3; m++) {
-         HV * profile = newHV();
-         pset_i( type, imByte);
-         pset_i( width,  input-> w);
-         pset_i( height, input-> h);
-         ch[m] = Object_create( "Prima::Image", profile);
-         dst[m] = PImage(ch[m])-> data;
-         sv_free(( SV *) profile);
+         ch[m] = createImage( input->w, input->h, imByte);
+         dst[m] = ch[m]-> data;
       }
-      dstd = PImage(ch[0])-> lineSize - input-> w;
+      dstd = ch[0]-> lineSize - input-> w;
       while ( y--) {
          int x = input-> w;
          while ( x--) {
@@ -126,15 +121,10 @@ IPA__Misc_split_channels( PImage input, char * mode)
       if ( input-> type != imbpp24) WHINE("mode 'hsv' accepts 24 RGB images only");
       count = 3;
       for ( m = 0; m < 3; m++) {
-         HV * profile = newHV();
-         pset_i( type, imFloat);
-         pset_i( width,  input-> w);
-         pset_i( height, input-> h);
-         ch[m] = Object_create( "Prima::Image", profile);
-         dst[m] = ( float*) PImage(ch[m])-> data;
-         sv_free(( SV *) profile);
+         ch[m] = createImage( input->w, input->h, imFloat);
+         dst[m] = ( float*) ch[m]-> data;
       }
-      dstd = PImage(ch[0])-> lineSize - input-> w * sizeof(float);
+      dstd = ch[0]-> lineSize - input-> w * sizeof(float);
       while ( y--) {
          int x = input-> w;
          while ( x--) {
@@ -150,7 +140,7 @@ IPA__Misc_split_channels( PImage input, char * mode)
    
    av = newAV();
    for ( m = 0; m < count; m++)
-      av_push( av, newRV( SvRV( PObject(ch[m])-> mate)));
+      av_push( av, newRV( SvRV( ch[m]-> mate)));
    return newRV_noinc(( SV*) av);
 }   
 
@@ -316,5 +306,5 @@ IPA__Misc_combine_channels( SV * input, char * mode)
       } break;
    }
 
-   return nilHandle;
+   return (void*)0;
 }
