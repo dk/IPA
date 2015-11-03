@@ -705,7 +705,7 @@ if(dist>maxdist)maxdist=dist;
       }
    }
 
-   if (!FIFO_EMPTY) warn( "$s: queue is not empty - can't be", METHOD);
+   if (!FIFO_EMPTY) warn( "%s: queue is not empty - can't be", METHOD);
 
    /* Convert the result to a suitable form */
    IMo = createNamedImage( width, height, imByte, "Watershed lines");
