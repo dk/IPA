@@ -84,7 +84,7 @@ IPA__Global_fft(PImage img,HV *profile)
   
    buffer = malloc((sizeof(double) * img-> w * 2));
    if ( !buffer) {
-      warn("%s: Error allocating % bytes", METHOD, (sizeof(double) * img-> w * 2));
+      warn("%s: Error allocating %d bytes", METHOD, (int)(sizeof(double) * img-> w * 2));
       failed = 1;
       goto EXIT;
    }   
@@ -324,7 +324,7 @@ IPA__Global_band_filter(PImage img,HV *profile)
          croak("%s: image height is not a power of 2", METHOD);
       buffer = malloc((sizeof(double) * ret-> w * 2));
       if ( !buffer) {
-         warn("%s: Error allocating % bytes", METHOD, (sizeof(double) * img-> w * 2));
+         warn("%s: Error allocating %d bytes", METHOD, (int)(sizeof(double) * img-> w * 2));
          failed = 1;
          goto EXIT;
       }   
