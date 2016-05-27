@@ -141,4 +141,13 @@ WriteMakefile(
 		grep { $_-> {is_class} }
 		@files),
 	},
+	META_MERGE        => {
+		resources => {
+			repository => 'http://github.com/dk/IPA',
+		},
+		no_index  => {
+			directory  => [qw(include t)],
+			file       => [qw(Makefile.PL)],
+		},
+	},
 );
