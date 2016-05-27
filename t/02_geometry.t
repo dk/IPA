@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Prima::noX11;
-use IPA qw(Geometry);
+use Prima::IPA qw(Geometry);
 
 use Test::More tests => 8;
 

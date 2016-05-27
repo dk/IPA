@@ -1,5 +1,5 @@
 # $Id$
-package IPA::Geometry;
+package Prima::IPA::Geometry;
 
 use strict;
 require Exporter;
@@ -23,7 +23,7 @@ __DATA__
 
 =head1 NAME
 
-IPA::Geometry - mapping pixels from one location to another
+Prima::IPA::Geometry - mapping pixels from one location to another
 
 =head1 API
 
@@ -34,8 +34,8 @@ IPA::Geometry - mapping pixels from one location to another
 Mirrors IMAGE vertically or horizontally, depending on integer C<type>,
 which can be one of the following constants:
 
-   IPA::Geometry::vertical
-   IPA::Geometry::horizontal
+   Prima::IPA::Geometry::vertical
+   Prima::IPA::Geometry::horizontal
 
 Supported types: all
 
@@ -43,8 +43,8 @@ Supported types: all
 
 Shifts image in direction C<where>, which is one of the following constants
 
-   IPA::Geometry::vertical
-   IPA::Geometry::horizontal
+   Prima::IPA::Geometry::vertical
+   Prima::IPA::Geometry::horizontal
 
 by the offset, specified by integer C<size>.
 

@@ -12,13 +12,13 @@ my $fds;
 my $vec = '';
 my $codecID = 0;
 
-use IPA;
-use IPA::Global qw(/./);
-use IPA::Local qw(/./);
-use IPA::Geometry qw(/./);
-use IPA::Misc qw(/./);
-use IPA::Point qw(/./);
-use IPA::Morphology qw(/./);
+use Prima::IPA;
+use Prima::IPA::Global qw(/./);
+use Prima::IPA::Local qw(/./);
+use Prima::IPA::Geometry qw(/./);
+use Prima::IPA::Misc qw(/./);
+use Prima::IPA::Point qw(/./);
+use Prima::IPA::Morphology qw(/./);
 
 
 use vars qw($i $j @i @windows $last_image);
@@ -374,15 +374,15 @@ __END__
 
 =head1 NAME
 
-iterm - the interactive tool for IPA library
+iterm - the interactive tool for Prima::IPA library
 
 =head1 DESCRIPTION
 
 iterm is a mostly command-line tool for basic image processing.
 It has terminal representation, where the main window is capable
 of viewing the image and accepting commands. The command syntax
-is pure perl, plus all functions available in the IPA library
-( see L<IPA> ) and Prima toolkit ( see L<Prima>), and some specific
+is pure perl, plus all functions available in the Prima::IPA library
+( see L<Prima::IPA> ) and Prima toolkit ( see L<Prima>), and some specific
 iterm commands.
 
 =head1 USAGE
@@ -471,7 +471,7 @@ Reverses image
 =item stretch IMAGE
 
 Stretches image data to fit the whole range. For the histogram equalization
-see L<IPA::Point::equalize>
+see L<Prima::IPA::Point::equalize>
 
 =item save IMAGE, FILE [ options ]
 
@@ -545,7 +545,7 @@ Note: iterm never asks if the changed images are to be saved.
 
 =item *
 
-L<IPA> - the image processing library
+L<Prima::IPA> - the image processing library
 
 =item *
 

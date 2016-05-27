@@ -103,7 +103,7 @@ sub clean
 
 
 WriteMakefile(
-	NAME              => 'IPA',
+	NAME              => 'Prima::IPA',
 	VERSION_FROM      => 'IPA.pm',
 	PREREQ_PM         => {
 		'Prima'		=> 1.24,
@@ -127,17 +127,17 @@ WriteMakefile(
 		grep { $_-> {is_class} }
 		@files),
 		# CLASS HEADERS
-		( map { ( $_                              => '$(INST_LIBDIR)/IPA/' . $_ ) }
+		( map { ( $_                              => '$(INST_LIBDIR)/Prima/IPA/' . $_ ) }
 		map  { glob "$_->{name}/*.h" }
 		grep { $_-> {is_class} }
 		@files),
 	},
 	EXE_FILES         => ['bin/iterm'],
 	MAN3PODS          => {
-		'IPA.pm'                                  => '$(INST_MAN3DIR)/IPA.$(MAN3EXT)',
-		'Global/Region.pm'                        => '$(INST_MAN3DIR)/IPA::Region.$(MAN3EXT)',
+		'IPA.pm'                                  => '$(INST_MAN3DIR)/Prima::IPA.$(MAN3EXT)',
+		'Global/Region.pm'                        => '$(INST_MAN3DIR)/Prima::IPA::Region.$(MAN3EXT)',
 		# MANPAGES
-		( map { ( "$_->{src}.pm"                  => "\$(INST_MAN3DIR)/IPA::$_->{name}.\$(MAN3EXT)") } 
+		( map { ( "$_->{src}.pm"                  => "\$(INST_MAN3DIR)/Prima::IPA::$_->{name}.\$(MAN3EXT)") } 
 		grep { $_-> {is_class} }
 		@files),
 	},

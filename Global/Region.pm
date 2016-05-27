@@ -1,7 +1,7 @@
 # $Id$
 use strict;
 
-package IPA::Region;
+package Prima::IPA::Region;
 
 use constant DATA   => 0;
 use constant LEFT   => 1;
@@ -165,7 +165,7 @@ sub plot
       }
       $dy++;
    }
-   IPA::Global::hlines( $image, 0, 0, \@triplets, $color);
+   Prima::IPA::Global::hlines( $image, 0, 0, \@triplets, $color);
 }
 
 sub outline
@@ -349,14 +349,14 @@ __END__
 
 =head1 NAME
 
-IPA::Region - region data structures
+Prima::IPA::Region - region data structures
 
 =head1 DESCRIPTION
 
 A contour is a 8-connected point set that is returned by
-IPA::Global::identify_contours function. A region is a set of horizontal lines,
+Prima::IPA::Global::identify_contours function. A region is a set of horizontal lines,
 describing an 2D area. The contour2region function converts contour output of
-C<IPA::Global::identify_contours> and C<IPA::Global::identify_scanlines> to a
+C<Prima::IPA::Global::identify_contours> and C<Prima::IPA::Global::identify_scanlines> to a
 region and returns the region array and its starting y-position.  The contour
 has to contain no less that 2 unique points.  The ultimate requirement is that
 all points have to be 8-connected and the contour contains no holes.
@@ -378,11 +378,11 @@ The module provides various manipluation routines for these regions.
 
 =item contour2region CONTOUR
 
-Converts output of C<IPA::Global::identify_contours> to a region. 
+Converts output of C<Prima::IPA::Global::identify_contours> to a region. 
 
 =item scanlines2region CONTOUR
 
-Converts output of C<IPA::Global::identify_scanlines> to a region. 
+Converts output of C<Prima::IPA::Global::identify_scanlines> to a region. 
 
 =item draw DRAWABLE, REGION, OFFSET_X, OFFSET_Y
 
@@ -426,6 +426,6 @@ Returns area occupied by a region
 
 =head1 SEE ALSO
 
-L<IPA::Global/identify_contours>, L<IPA::Global/identify_scanlines>
+L<Prima::IPA::Global/identify_contours>, L<Prima::IPA::Global/identify_scanlines>
 
 =cut

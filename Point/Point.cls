@@ -1,7 +1,7 @@
 # $Id$
 local $PImage => Handle;
 
-package IPA::Point {
+package Prima::IPA::Point {
     PImage combine(HV *profile);
     PImage threshold(PImage input,HV *profile);
     PImage gamma(PImage input,HV *profile);

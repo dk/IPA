@@ -1,5 +1,5 @@
 # $Id$
-package IPA::Point;
+package Prima::IPA::Point;
 use strict;
 require Exporter;
 
@@ -14,7 +14,7 @@ $VERSION = '0.02';
 sub equalize
 {
    my $i = $_[0];
-   my @h = IPA::Misc::histogram( $i);
+   my @h = Prima::IPA::Misc::histogram( $i);
    my $factor = 255 / ($i-> width * $i-> height);
    my @map;
    my $sum = 0;
@@ -23,7 +23,7 @@ sub equalize
        my $v = $sum * $factor;
        push @map, ($v > 255) ? 255 : int($v); 
    }
-   return IPA::Point::remap( $i, lookup => \@map);
+   return Prima::IPA::Point::remap( $i, lookup => \@map);
 }
 
 
@@ -35,7 +35,7 @@ __DATA__
 
 =head1 NAME
 
-IPA::Point - single pixel transformations and image arithmetic
+Prima::IPA::Point - single pixel transformations and image arithmetic
 
 =head1 DESCRIPTION
 
@@ -127,11 +127,11 @@ Supported types: Byte
 Performs image mapping by a passed C<lookup> array
 of 256 integer values. Example: 
 
-   IPA::Point::remap( $i, lookup => [ (0) x 128, (255) x 127]);
+   Prima::IPA::Point::remap( $i, lookup => [ (0) x 128, (255) x 127]);
 
 is an equivalent of
 
-   IPA::Point::threshold( $i, minvalue => 128);
+   Prima::IPA::Point::threshold( $i, minvalue => 128);
 
 Supported types: 8-bit
 

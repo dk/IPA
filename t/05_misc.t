@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Prima::noX11;
-use IPA qw(Misc);
+use Prima::IPA qw(Misc);
 
 use Test::More tests => 2;
 

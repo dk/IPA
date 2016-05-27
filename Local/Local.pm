@@ -1,5 +1,5 @@
 # $Id$
-package IPA::Local;
+package Prima::IPA::Local;
 
 use strict;
 require Exporter;
@@ -43,7 +43,7 @@ __DATA__
 
 =head1 NAME
 
-IPA::Local - methods that produce images where every pixel is a function of pixels in the neighborhood
+Prima::IPA::Local - methods that produce images where every pixel is a function of pixels in the neighborhood
 
 =head1 DESCRIPTION
 

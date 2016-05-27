@@ -1,5 +1,5 @@
 # $Id$
-package IPA;
+package Prima::IPA;
 use strict;
 use Prima;
 require Exporter;
@@ -10,12 +10,12 @@ use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $__import);
 
 sub dl_load_flags { 0x01 };
 
-$VERSION = '1.08';
+$VERSION = '1.09';
 @EXPORT = qw();
 @EXPORT_OK = qw();
 %EXPORT_TAGS = ();
 
-bootstrap IPA $VERSION;
+bootstrap Prima::IPA $VERSION;
 
 use constant combineMaxAbs       => 1;
 use constant combineSumAbs       => 2;
@@ -36,10 +36,10 @@ sub import
       qw(Point Local Global Geometry Morphology Misc Region) 
       : @_;
    for ( @modules) {
-       eval "use IPA::$_ ();";
+       eval "use Prima::IPA::$_ ();";
        die $@ if $@;
-       Exporter::export_to_level( "IPA::$_", 1, undef, '/./') 
-          if UNIVERSAL::isa("IPA::$_", 'Exporter');
+       Exporter::export_to_level( "Prima::IPA::$_", 1, undef, '/./') 
+          if UNIVERSAL::isa("Prima::IPA::$_", 'Exporter');
    }
 }
 
@@ -51,7 +51,7 @@ __END__
 
 =head1 NAME
 
-IPA - Image Processing Algorithms
+Prima::IPA - Image Processing Algorithms
 
 =head1 DESCRIPTION
 
@@ -59,6 +59,8 @@ IPA stands for Image Processing Algorithms and represents the library of image
 processing operators and functions.  IPA is based on the Prima toolkit (
 http://www.prima.eu.org ), which in turn is a perl-based graphic library. IPA
 is designed for solving image analysis and object recognition tasks in perl.
+
+Note: This module overrides old C<IPA> module.
 
 =head1 USAGE
 
@@ -70,19 +72,19 @@ optional parameter hash. Each function has its own set of parameters. If error
 occurs, the functions call C<die>, so it is advisable to use C<eval> blocks
 around the calls.
 
-The modules namespaces can be used directly, e.g. C<use IPA::Local qw(/./)>,
-C<use IPA::Point qw(/./)> etc, with each module defining its own set of
+The modules namespaces can be used directly, e.g. C<use Prima::IPA::Local qw(/./)>,
+C<use Prima::IPA::Point qw(/./)> etc, with each module defining its own set of
 exportable names. In case when all names are to be exported, it is possible to
-use C<IPA.pm> exporter by using C<use IPA qw(Local Point)> syntax, which is
+use C<IPA.pm> exporter by using C<use Prima::IPA qw(Local Point)> syntax, which is
 equivalent to two separate C<'use'> calls above. Moreover, if all modules are
-to be loaded and namespace exported, special syntax C<use IPA 'all'> is
+to be loaded and namespace exported, special syntax C<use Prima::IPA 'all'> is
 available.
 
 For example, a code that produces a binary thresholded image out of a 8-bit 
 grayscale image:
 
    use Prima;
-   use IPA qw(Point);
+   use Prima::IPA qw(Point);
    my $i = Prima::Image-> load('8-bit-grayscale.gif');
    die "Cannot load:$@\n" if $@;
    my $binary = threshold( $i, minvalue => 128);
@@ -103,19 +105,19 @@ unless stated otherwise in L<API>.
 
 =head1 MODULES
 
-L<IPA::Geometry> - mapping pixels from one location to another
+L<Prima::IPA::Geometry> - mapping pixels from one location to another
 
-L<IPA::Point> - single pixel transformations and image arithmetic
+L<Prima::IPA::Point> - single pixel transformations and image arithmetic
 
-L<IPA::Local> - methods that produce images where every pixel is a function of pixels in the neighborhood
+L<Prima::IPA::Local> - methods that produce images where every pixel is a function of pixels in the neighborhood
 
-L<IPA::Global> - methods that produce images where every pixel is a function of all pixels in the source image
+L<Prima::IPA::Global> - methods that produce images where every pixel is a function of all pixels in the source image
 
-L<IPA::Region> - region data structures
+L<Prima::IPA::Region> - region data structures
 
-L<IPA::Morphology> - morphological operators
+L<Prima::IPA::Morphology> - morphological operators
 
-L<IPA::Misc> - miscellaneous uncategorized routines
+L<Prima::IPA::Misc> - miscellaneous uncategorized routines
 
 =head1 REFERENCES
 

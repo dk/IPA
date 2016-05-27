@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Prima::noX11;
-use IPA qw(Morphology);
+use Prima::IPA qw(Morphology);
 
 use Test::More tests => 4;
 

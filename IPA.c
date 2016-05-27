@@ -11,7 +11,7 @@ extern void register_IPA__Local_Package( void);
 extern void register_IPA__Point_Package( void);
 extern void register_IPA__Morphology_Package( void);
 
-XS( boot_IPA)
+XS( boot_Prima__IPA)
 {
     dXSARGS;
 

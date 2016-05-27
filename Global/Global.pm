@@ -1,5 +1,5 @@
 # $Id$
-package IPA::Global;
+package Prima::IPA::Global;
 use strict;
 require Exporter;
 
@@ -50,7 +50,7 @@ sub pow2wrapper2
 sub butterworth
 {
    my ( $i, %profile) = @_;
-   die "IPA::Global::band: Not an image passed\n" unless $i;
+   die "Prima::IPA::Global::band: Not an image passed\n" unless $i;
    my @psdata;
    $profile{spatial} = 1 if ($i-> type & im::Category) != im::ComplexNumber;
    ( $i, @psdata) = pow2wrapper1( $i, \%profile) if $profile{spatial};
@@ -63,7 +63,7 @@ sub butterworth
 sub fourier
 {
    my ( $i, %profile) = @_;
-   die "IPA::Global::fourier: Not an image passed\n" unless $i;
+   die "Prima::IPA::Global::fourier: Not an image passed\n" unless $i;
    my @psdata;
    ( $i, @psdata) = pow2wrapper1( $i, \%profile) if $profile{spatial};
    $i = fft( $i, %profile);
@@ -80,7 +80,7 @@ __DATA__
 
 =head1 NAME
 
-IPA::Global - methods that produce images where every pixel is a function of all pixels in the source image
+Prima::IPA::Global - methods that produce images where every pixel is a function of all pixels in the source image
 
 =head1 DESCRIPTION
 
@@ -173,7 +173,7 @@ The parameters are identical to those passed to L<fill_holes>.
 
 Supported types: Byte
 
-See also L<IPA::Region>.
+See also L<Prima::IPA::Region>.
 
 =item identify_scanlines IMAGE [ edgeSize = 1, backColor = 0, foreColor = 255, neighborhood = 4]
 

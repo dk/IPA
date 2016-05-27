@@ -1,7 +1,7 @@
 # $Id$
 local $PImage => Handle;
 
-package IPA::Morphology {
+package Prima::IPA::Morphology {
     PImage BWTransform(PImage img,HV *profile);
     PImage dilate( PImage IMi, HV *profile);
     PImage erode( PImage IMi, HV *profile);

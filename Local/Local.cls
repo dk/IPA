@@ -6,7 +6,7 @@ local @TwoImages
    PImage direction;
 }
 
-package IPA::Local {
+package Prima::IPA::Local {
    PImage crispening(PImage input);
    PImage sobel(PImage input,HV *profile);
    PImage GEF(PImage input,HV *profile);

@@ -1,5 +1,5 @@
 # $Id$
-package IPA::Misc;
+package Prima::IPA::Misc;
 use strict;
 require Exporter;
 require DynaLoader;
@@ -19,7 +19,7 @@ __DATA__
 
 =head1 NAME
 
-IPA::Misc - miscellaneous uncategorized routines
+Prima::IPA::Misc - miscellaneous uncategorized routines
 
 =over
 

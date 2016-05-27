@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Prima::noX11;
-use IPA qw(Point);
+use Prima::IPA qw(Point);
 use Test::More tests => 7;
 
 my $i = Prima::Image-> create(
@@ -24,13 +24,13 @@ my $ones = $i-> dup;
 $ones-> data("\1\1\1\1");
 
 ok( subtract( $i, $ones, 
-	conversionType => IPA::conversionTrunc
+	conversionType => Prima::IPA::conversionTrunc
 )-> data eq "\x4e\xfe\x00\x00", 'subtract');
 
 ok( combine ( 
 	images         => [ $i, $ones ], 
-	conversionType => IPA::conversionTrunc, 
-	combineType    => IPA::combineSum,
+	conversionType => Prima::IPA::conversionTrunc, 
+	combineType    => Prima::IPA::combineSum,
 )-> data eq "\x50\xff\x01\x01", 'combine');
 
 ok( ab( $i, 0.5, 1.0)-> data eq "\x28\x80\x01\x01", 'ab');

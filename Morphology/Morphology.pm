@@ -1,5 +1,5 @@
 # $Id$
-package IPA::Morphology;
+package Prima::IPA::Morphology;
 use strict;
 require Exporter;
 
@@ -28,7 +28,7 @@ sub opening {
    my $in = shift;
    my $out = erode($in,@_);
    $out = dilate($out,@_);
-   $out-> name( "IPA::Morphology::opening");
+   $out-> name( "Prima::IPA::Morphology::opening");
    return $out;
 }
 
@@ -36,7 +36,7 @@ sub closing {
    my $in = shift;
    my $out = dilate($in,@_);
    $out = erode($out,@_);
-   $out-> name( "IPA::Morphology::closing");
+   $out-> name( "Prima::IPA::Morphology::closing");
    return $out;
 }
 
@@ -49,22 +49,22 @@ sub gradient {
 
 sub AUTOLOAD {
     my ($subname)=$AUTOLOAD;
-    $subname=~s/^IPA::Morphology:://;
+    $subname=~s/^Prima::IPA::Morphology:://;
     if ($subname=~/^bw_/) {
         my ($bwmethodname)=($subname);
         $bwmethodname=~s/^bw_//;
         if (ref($transform_luts{$bwmethodname}) eq 'CODE') {
             my ($lut)=$transform_luts{$bwmethodname}->();
             eval("sub $subname { return BWTransform(\$_\[0\],lookup=>\'$lut\'); }");
-            croak("IPA::Morphology::AUTOLOAD: $@") if $@;
+            croak("Prima::IPA::Morphology::AUTOLOAD: $@") if $@;
             goto &$subname;
         }
         else {
-            croak("IPA::Morphology: internal error - not a code reference in hash for $bwmethodname");
+            croak("Prima::IPA::Morphology: internal error - not a code reference in hash for $bwmethodname");
         }
     }
     else {
-        croak("IPA::Morphology: unknown method $AUTOLOAD called");
+        croak("Prima::IPA::Morphology: unknown method $AUTOLOAD called");
     }
 }
 
@@ -167,7 +167,7 @@ __DATA__
 
 =head1 NAME
 
-IPA::Morphology - morphological operators
+Prima::IPA::Morphology - morphological operators
 
 =head1 DESCRIPTION
 
@@ -206,14 +206,14 @@ Thus, for example, the X-shape would be represented by offset 2**0 + 2**2 + 2**4
 The byte value, corresponding to the offset in C<lookup> string is stored in the output
 image.
 
-C<IPA::Morphology> defines several basic LUT transforms, which can be invoked by the following
+C<Prima::IPA::Morphology> defines several basic LUT transforms, which can be invoked by the following
 code:
 
-    IPA::Morphological::bw_METHOD( $image);
+    Prima::IPA::Morphological::bw_METHOD( $image);
 
 or its alternative
 
-    IPA::Morphology::BWTransform( $image, lookup => $IPA::Morphology::transform_luts{METHOD}->());
+    Prima::IPA::Morphology::BWTransform( $image, lookup => $Prima::IPA::Morphology::transform_luts{METHOD}->());
 
 Where METHOD is one of the following string constants:
 

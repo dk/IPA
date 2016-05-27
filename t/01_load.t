@@ -7,73 +7,73 @@ use warnings;
 my @namespace;
 
 BEGIN { @namespace = qw(
-	IPA::Geometry::rotate90
-	IPA::Geometry::rotate180
-	IPA::Geometry::mirror
-	IPA::Geometry::shift_rotate
+	Prima::IPA::Geometry::rotate90
+	Prima::IPA::Geometry::rotate180
+	Prima::IPA::Geometry::mirror
+	Prima::IPA::Geometry::shift_rotate
 
-	IPA::Global::close_edges
-	IPA::Global::fill_holes
-	IPA::Global::area_filter
-	IPA::Global::identify_contours
-	IPA::Global::identify_scanlines
-	IPA::Global::fft
-	IPA::Global::band_filter
+	Prima::IPA::Global::close_edges
+	Prima::IPA::Global::fill_holes
+	Prima::IPA::Global::area_filter
+	Prima::IPA::Global::identify_contours
+	Prima::IPA::Global::identify_scanlines
+	Prima::IPA::Global::fft
+	Prima::IPA::Global::band_filter
 
-	IPA::Local::crispening
-	IPA::Local::sobel
-	IPA::Local::GEF
-	IPA::Local::SDEF
-	IPA::Local::deriche
-	IPA::Local::filter3x3
-	IPA::Local::median
-	IPA::Local::unionFind
-	IPA::Local::hysteresis
-	IPA::Local::gaussian
-	IPA::Local::laplacian
-	IPA::Local::gradients
-	IPA::Local::canny
-	IPA::Local::nms
-	IPA::Local::scale
-	IPA::Local::ridge
-	IPA::Local::convolution
-	IPA::Local::zerocross
+	Prima::IPA::Local::crispening
+	Prima::IPA::Local::sobel
+	Prima::IPA::Local::GEF
+	Prima::IPA::Local::SDEF
+	Prima::IPA::Local::deriche
+	Prima::IPA::Local::filter3x3
+	Prima::IPA::Local::median
+	Prima::IPA::Local::unionFind
+	Prima::IPA::Local::hysteresis
+	Prima::IPA::Local::gaussian
+	Prima::IPA::Local::laplacian
+	Prima::IPA::Local::gradients
+	Prima::IPA::Local::canny
+	Prima::IPA::Local::nms
+	Prima::IPA::Local::scale
+	Prima::IPA::Local::ridge
+	Prima::IPA::Local::convolution
+	Prima::IPA::Local::zerocross
 
-	IPA::Misc::split_channels
-	IPA::Misc::combine_channels
-	IPA::Misc::histogram
+	Prima::IPA::Misc::split_channels
+	Prima::IPA::Misc::combine_channels
+	Prima::IPA::Misc::histogram
 
-	IPA::Morphology::BWTransform
-	IPA::Morphology::dilate
-	IPA::Morphology::erode
-	IPA::Morphology::algebraic_difference
-	IPA::Morphology::watershed
-	IPA::Morphology::reconstruct
-	IPA::Morphology::thinning
+	Prima::IPA::Morphology::BWTransform
+	Prima::IPA::Morphology::dilate
+	Prima::IPA::Morphology::erode
+	Prima::IPA::Morphology::algebraic_difference
+	Prima::IPA::Morphology::watershed
+	Prima::IPA::Morphology::reconstruct
+	Prima::IPA::Morphology::thinning
 
-	IPA::Point::combine
-	IPA::Point::threshold
-	IPA::Point::gamma
-	IPA::Point::remap
-	IPA::Point::subtract
-	IPA::Point::mask
-	IPA::Point::average
-	IPA::Point::ab
-	IPA::Point::exp
-	IPA::Point::log
+	Prima::IPA::Point::combine
+	Prima::IPA::Point::threshold
+	Prima::IPA::Point::gamma
+	Prima::IPA::Point::remap
+	Prima::IPA::Point::subtract
+	Prima::IPA::Point::mask
+	Prima::IPA::Point::average
+	Prima::IPA::Point::ab
+	Prima::IPA::Point::exp
+	Prima::IPA::Point::log
 );};
 
 use Test::More tests => 9 + @namespace;
 
 use_ok('Prima::noX11');
-use_ok('IPA');
+use_ok('Prima::IPA');
 
 ok( UNIVERSAL-> can($_), $_ ) for @namespace;
 
-use_ok('IPA::Local');
-use_ok('IPA::Global');
-use_ok('IPA::Point');
-use_ok('IPA::Region');
-use_ok('IPA::Morphology');
-use_ok('IPA::Misc');
-use_ok('IPA::Geometry');
+use_ok('Prima::IPA::Local');
+use_ok('Prima::IPA::Global');
+use_ok('Prima::IPA::Point');
+use_ok('Prima::IPA::Region');
+use_ok('Prima::IPA::Morphology');
+use_ok('Prima::IPA::Misc');
+use_ok('Prima::IPA::Geometry');

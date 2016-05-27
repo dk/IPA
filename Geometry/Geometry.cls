@@ -2,7 +2,7 @@
 
 local $PImage => Handle;
 
-package IPA::Geometry {
+package Prima::IPA::Geometry {
     PImage mirror( PImage input, HV *profile);
     PImage rotate90( PImage input, Bool clockwise = true);
     PImage rotate180( PImage input);
