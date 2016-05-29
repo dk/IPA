@@ -3,9 +3,8 @@ package Prima::IPA::Point;
 use strict;
 require Exporter;
 
-use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
+use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 @ISA = qw(Exporter );
-$VERSION = '0.02';
 @EXPORT = qw();
 @EXPORT_OK = qw(combine threshold gamma remap subtract mask equalize ab log exp average);
 %EXPORT_TAGS = ();

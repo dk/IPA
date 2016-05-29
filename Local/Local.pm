@@ -9,9 +9,8 @@ use constant sobelRow            => 2;
 use constant sobelNWSE           => 4;
 use constant sobelNESW           => 8;
 
-use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
+use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 @ISA = qw(Exporter);
-$VERSION = '0.02';
 @EXPORT = qw();
 @EXPORT_OK = qw(crispening 
                 sobel 

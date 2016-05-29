@@ -3,9 +3,8 @@ package Prima::IPA::Global;
 use strict;
 require Exporter;
 
-use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
+use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 @ISA = qw(Exporter);
-$VERSION = '0.02';
 @EXPORT = qw();
 @EXPORT_OK = qw(close_edges fill_holes area_filter identify_contours 
 	fft band_filter butterworth fourier identify_scanlines hough

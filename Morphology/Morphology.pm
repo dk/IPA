@@ -4,7 +4,6 @@ use strict;
 require Exporter;
 
 use vars qw(
-            $VERSION
             @ISA
             @EXPORT
             @EXPORT_OK
@@ -15,7 +14,6 @@ use vars qw(
             %transform_luts
            );
 @ISA = qw(Exporter);
-$VERSION = '0.02';
 @EXPORT = qw();
 @EXPORT_OK = qw(BWTransform
                 dilate erode opening closing
