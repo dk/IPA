@@ -106,7 +106,7 @@ WriteMakefile(
 	NAME              => 'Prima::IPA',
 	VERSION_FROM      => 'IPA.pm',
 	PREREQ_PM         => {
-		'Prima'		=> 1.24,
+		'Prima'		=> 0,
 	},
 	ABSTRACT_FROM     => 'IPA.pm',
 	AUTHOR            => 'Dmitry Karasik <dmitry@karasik.eu.org>',
