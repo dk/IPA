@@ -105,6 +105,7 @@ sub clean
 WriteMakefile(
 	NAME              => 'Prima::IPA',
 	VERSION_FROM      => 'IPA.pm',
+	MIN_PERL_VERSION  => '5.010',
 	PREREQ_PM         => {
 		'Prima'		=> 0,
 	},
