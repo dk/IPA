@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 use Test::More;
+use Prima::noX11;
 eval 'use Test::Pod::Coverage';
 plan skip_all => 'Test::Pod::Coverage required for testing POD coverage'
     if $@;
