@@ -1428,7 +1428,6 @@ convolution( const char * method, PImage in, PImage kernel_img)
    ksum = kernel_img-> self-> get_stats(( Handle) kernel_img, isSum);
    if ( ksum == 0) ksum = 1;
    kls  = kernel_img-> lineSize / sizeof(double) - size;
-   ksum=1;
  
    for (j=marg; j<in->h-marg; j++) {
        for (k=marg; k<in->w-marg; k++) {
