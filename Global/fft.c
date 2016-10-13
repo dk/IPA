@@ -69,7 +69,7 @@ IPA__Global_fft(PImage img,HV *profile)
    if ( !pow2( img-> h))
       croak("%s: image height is not a power of 2", METHOD);
    
-   if ( pexist( inverse)) inverse = pget_i( inverse);
+   if ( pexist( inverse)) inverse = pget_B( inverse);
    
    /* preparing structures */ 
    ret = ( PImage) img-> self-> dup(( Handle) img);
