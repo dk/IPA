@@ -791,15 +791,11 @@ int maxqueue = 0, qn = 0;                                                      \
    queue = malloc( w*h/4*sizeof(U32));                                         \
    qsize = w*h/4;  head = 0;  tail = 0;                                        \
                                                                                \
-if(0)debug_write( "raster"); \
    /* scan image in raster order */                                            \
    for ( y = 0; y < h; y++) {                                                  \
-if(0)debug_write( "yyyyyyy: %d", y); \
       p = lineSize * y;                                                        \
-if(0)if(y==1)debug_write( "p: %d", p); \
       for ( x = 0; x < w; x++,p+=sizeof(TYP)) {                                \
          NPLUS;                                                                \
-if(0)if(y==1)debug_write( "x: %d, nn: %d", x, nn); \
          v = *((TYP*)(j+p));                                                   \
          while (--nn >= 0) {                                                   \
             v2 = *((TYP*)(j+nabo[nn]));                                        \
@@ -810,10 +806,8 @@ if(0)if(y==1)debug_write( "x: %d, nn: %d", x, nn); \
       }                                                                        \
    }                                                                           \
                                                                                \
-if(0)debug_write( "anti"); \
    /* scan image in anti-raster order */                                       \
    for ( y = maxy; y >= 0; y--) {                                              \
-if(0)debug_write( "%d", y); \
       p = lineSize * y + (w-1)*sizeof(TYP);                                    \
       for ( x = maxx; x >= 0; x--,p-=sizeof(TYP)) {                            \
          NMINUS; nn1 = nn;                                                     \
@@ -835,7 +829,6 @@ if(0)debug_write( "%d", y); \
       }                                                                        \
    }                                                                           \
                                                                                \
-if(0)debug_write( "prop"); \
    /* propagation step */                                                      \
    while (!FIFO_EMPTY) {                                                       \
       FIFO_FIRST(p);                                                           \
