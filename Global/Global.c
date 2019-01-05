@@ -134,7 +134,7 @@ hline( PImage image, int x1, int x2, int y, double color)
       case 16:
          {
             Short * d = ( Short *) data;
-            Short c = ( color > 32768) ? 32768 : (( color < -32767) ? -32767 : (Short)(color + .5));
+            Short c = ( color > 32767) ? 32767 : (( color < -32767) ? -32767 : (Short)(color + .5));
             for ( i = x1; i <= x2; i++) *(d++) = c;
          }
          break;

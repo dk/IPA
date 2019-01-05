@@ -182,7 +182,7 @@ IPA__Misc_combine_channels( SV * input, char * mode)
       if ( n != 3) croak( "%s: mode 'rgb' expects 3 images", METHOD);
       for ( i = 0; i < 3; i++) 
          if ( PImage(ch[0])-> type != imByte)
-            croak( "%s: image #%d is not 8-bit grayscale", METHOD);
+            croak( "%s: image #%d is not 8-bit grayscale", METHOD, i);
       {
          PImage ret;
          int srcl, dstl;
@@ -217,7 +217,7 @@ IPA__Misc_combine_channels( SV * input, char * mode)
       if ( n != 3) croak( "%s: mode 'hsv' expects 3 images", METHOD);
       for ( i = 0; i < 3; i++) 
          if ( PImage(ch[0])-> type != imFloat)
-            croak( "%s: type of image #%d is not float", METHOD);
+            croak( "%s: type of image #%d is not float", METHOD, i);
       {
          PImage ret;
          int srcl, dstl;

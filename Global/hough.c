@@ -33,7 +33,7 @@ fill_trig_table( int resolution )
 	trig_table. sinx = malloc( sizeof(double) * resolution * 2);
 	if ( !trig_table. sinx)
 		croak("cannot allocate %d bytes", 
-		sizeof(double) * resolution * 2);
+		(int)sizeof(double) * resolution * 2);
 	trig_table. cosx = trig_table. sinx + resolution;
 	trig_table. size = resolution;
 	for ( i = 0; i < resolution; i++) {

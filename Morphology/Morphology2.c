@@ -578,7 +578,7 @@ IPA__Morphology_watershed( PImage IMi, HV *profile)
       if ( neighborhood == 4)
          while (n--) {
             p = sorted[i++];
-            if (inp[p] != h) croak("sort assertion failed: %d(%d) != %d", inp[p], p, h);
+            if (inp[p] != h) croak("sort assertion failed: %d(%d) != %d", inp[p], (int)p, h);
             x = p % width;
             y = p / width;
             out[p] = WMASK;

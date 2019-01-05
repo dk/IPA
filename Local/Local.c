@@ -646,8 +646,8 @@ filter3x3( const char * method, PImage img,
     }
     else {
         if (conversionType==CONV_SCALEABS) {
-            maxval=abs(maxval);
-            minval=abs(minval);
+            maxval=labs(maxval);
+            minval=labs(minval);
             if (minval>maxval) {
                 long tmp=maxval;
                 maxval=minval;
@@ -665,10 +665,10 @@ filter3x3( const char * method, PImage img,
                             p[x]=(Byte)(((bufp[x]-minval)*255)/range);
                             break;
                         case CONV_SCALEABS:
-                            p[x]=(Byte)(((abs(bufp[x])-minval)*255)/range);
+                            p[x]=(Byte)(((labs(bufp[x])-minval)*255)/range);
                             break;
                         case CONV_TRUNCABS:
-                            p[x]=abs(bufp[x])>255 ? 255 : abs(bufp[x]);
+                            p[x]=labs(bufp[x])>255 ? 255 : labs(bufp[x]);
                             break;
                         case CONV_TRUNC:
                             p[x]=bufp[x]>255 ? 255 : (bufp[x]<0 ? 0 : (Byte)bufp[x]);
@@ -1300,7 +1300,7 @@ PImage IPA__Local_hysteresis(PImage img,HV *profile)
 	   croak("%s: threshold[1] array panic",method);
 	thr1 = SvIV( *ssv);
 	if ( thr0 < 0 || thr0 > 255 || thr1 < 0 || thr1 > 255)
-	   croak("%s: treshold values must be from %d to %d", 0, 255);
+	   croak("%s: treshold values must be from %d to %d", method, 0, 255);
 	if ( thr0 > thr1) {
 	   int x = thr0;
 	   thr0 = thr1;

@@ -129,9 +129,9 @@ PImage IPA__Morphology_BWTransform(PImage img,HV *profile)
         SV *tblstr=pget_sv(lookup);
         if (SvPOK(tblstr)) {
             STRLEN tbllen;
-            transtbl=SvPV(tblstr,tbllen);
+            transtbl=(unsigned char*)SvPV(tblstr,tbllen);
             if (tbllen!=512) {
-                croak("%s: 'lookup' is %d bytes long, must be 512",method,tbllen);
+                croak("%s: 'lookup' is %d bytes long, must be 512",method,(int)tbllen);
             }
         }
         else {
