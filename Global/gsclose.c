@@ -415,7 +415,7 @@ PImage gs_close_edges(
     dstimg=createImage(edges->w,edges->h,im256);
     memcpy(dstimg->data,edges->data,edges->dataSize);
     memcpy(dstimg->palette,edges->palette,edges->palSize);
-    memcpy(dstimg->palette,pal256_16,16*sizeof(RGBColor));
+    memcpy(dstimg->palette,pal256_16,sizeof(pal256_16));
 
     cnum=50;
     candidates=(CandidateInfo*)malloc(cnum*sizeof(CandidateInfo));
