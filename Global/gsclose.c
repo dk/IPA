@@ -635,7 +635,7 @@ PImage gs_track(PImage img,int startpos,int endpos,int treshold,unsigned long fl
     srcimg=create_compatible_image(img,true);
     img=srcimg;
 
-    memcpy(dstimg->palette,pal256_16,sizeof(Color)*16);
+    memcpy(dstimg->palette,pal256_16,sizeof(pal256_16));
 
     rc=build_track(
                 img,
