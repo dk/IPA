@@ -1,8 +1,8 @@
 /*
-   Hough line transform. 
+   Hough line transform.
    Direct transform code adapted from code by Timothy Sharman
    (http://homepages.inf.ed.ac.uk/rbf/HIPR2/flatjavasrc/Hough.java)
-*/   
+*/
 
 #include "IPAsupp.h"
 #include "Global.h"
@@ -32,7 +32,7 @@ fill_trig_table( int resolution )
 	}
 	trig_table. sinx = malloc( sizeof(double) * resolution * 2);
 	if ( !trig_table. sinx)
-		croak("cannot allocate %d bytes", 
+		croak("cannot allocate %d bytes",
 		(int)sizeof(double) * resolution * 2);
 	trig_table. cosx = trig_table. sinx + resolution;
 	trig_table. size = resolution;
@@ -43,7 +43,7 @@ fill_trig_table( int resolution )
 }
 
 /* direct Hough transform */
-PImage 
+PImage
 IPA__Global_hough(PImage img,HV *profile)
 {
 #define METHOD "IPA::Global::hough"
@@ -56,24 +56,24 @@ IPA__Global_hough(PImage img,HV *profile)
 	double  h_h, dh;
 	PImage dup = NULL;
 	Byte * src, * dst;
-	
+
 	/* check input */
 	if ( !img || !kind_of(( Handle) img, CImage))
 		croak("%s: not an image passed", METHOD);
-	
+
 	if ( pexist( resolution))  resolution = pget_i( resolution);
 	if ( resolution < 4 || resolution > 16384)
 		croak("%s: bad resolution", METHOD);
-	
+
 	if ( pexist( type)) type = pget_c( type);
 	if ( strcmp( type, "line") != 0)
 		croak("%s: bad type: must be 'line'", METHOD);
-	
+
 	/* create intermediate image */
 	if ( img-> type != imByte) {
    		dup = ( PImage) img-> self-> dup(( Handle) img);
 		if ( !dup) croak( "%s: Return image allocation failed", METHOD);
-   		dup-> self-> set_type(( Handle) dup, imByte); 
+   		dup-> self-> set_type(( Handle) dup, imByte);
 		img = dup;
 	}
 
@@ -87,11 +87,11 @@ IPA__Global_hough(PImage img,HV *profile)
 	dst = ret-> data;
 	++SvREFCNT( SvRV( ret-> mate));
 	fill_trig_table(resolution);
-	
+
 	/* do the transform */
-	for ( 
+	for (
 		y = 0, src = img-> data;
-		y < img-> h; 
+		y < img-> h;
 		y++, src += img-> lineSize
 	) {
 		for ( x = 0; x < img-> w; x++) {
@@ -111,13 +111,13 @@ IPA__Global_hough(PImage img,HV *profile)
 
 	/* finalize */
 	if ( dup) destroyImage( dup);
-	--SvREFCNT( SvRV( ret-> mate));           
+	--SvREFCNT( SvRV( ret-> mate));
 	return ret;
-#undef METHOD   
+#undef METHOD
 }
 
 /* inverse Hough transform */
-SV * 
+SV *
 IPA__Global_hough2lines(PImage img, HV * profile)
 {
 #define METHOD "IPA::Global::hough2lines"
@@ -138,16 +138,16 @@ IPA__Global_hough2lines(PImage img, HV * profile)
 		height = pget_i( height);
 	if ( height < 2)
 		croak("%s: bad height", METHOD);
-	
+
 	if ( pexist( width))
 		width = pget_i( width);
 	if ( width < 2)
 		croak("%s: bad width", METHOD);
-	
+
 	result = newAV();
 	if (!result)
 		croak( "%s: error creating AV", METHOD);
-	
+
 	fill_trig_table(img-> w);
 	cx = ((double)(width))  / 2;
 	cy = ((double)(height)) / 2;
@@ -183,5 +183,5 @@ IPA__Global_hough2lines(PImage img, HV * profile)
 	}
 
 	return newRV_noinc((SV*)result);
-#undef METHOD  
+#undef METHOD
 }

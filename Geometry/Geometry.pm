@@ -33,8 +33,8 @@ Prima::IPA::Geometry - mapping pixels from one location to another
 Mirrors IMAGE vertically or horizontally, depending on integer C<type>,
 which can be one of the following constants:
 
-   Prima::IPA::Geometry::vertical
-   Prima::IPA::Geometry::horizontal
+	Prima::IPA::Geometry::vertical
+	Prima::IPA::Geometry::horizontal
 
 Supported types: all
 
@@ -42,8 +42,8 @@ Supported types: all
 
 Shifts image in direction C<where>, which is one of the following constants
 
-   Prima::IPA::Geometry::vertical
-   Prima::IPA::Geometry::horizontal
+	Prima::IPA::Geometry::vertical
+	Prima::IPA::Geometry::horizontal
 
 by the offset, specified by integer C<size>.
 

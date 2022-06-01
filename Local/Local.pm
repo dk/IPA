@@ -12,27 +12,29 @@ use constant sobelNESW           => 8;
 use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 @ISA = qw(Exporter);
 @EXPORT = qw();
-@EXPORT_OK = qw(crispening 
-                sobel 
-                GEF 
-                SDEF 
-                deriche
-                filter3x3 
-                median 
-                unionFind
-		hysteresis
-                gaussian
-                laplacian
-                gradients
-                canny
-                nms
-                scale
-                ridge
-                convolution
-                zerocross
-               );
-%EXPORT_TAGS = (enhancement => [qw(crispening)], 
-                edgedetect => [qw(sobel GEF SDEF deriche hysteresis canny)]);
+@EXPORT_OK = qw(crispening
+	sobel
+	GEF
+	SDEF
+	deriche
+	filter3x3
+	median
+	unionFind
+	hysteresis
+	gaussian
+	laplacian
+	gradients
+	canny
+	nms
+	scale
+	ridge
+	convolution
+	zerocross
+);
+%EXPORT_TAGS = (
+	enhancement => [qw(crispening)],
+	edgedetect => [qw(sobel GEF SDEF deriche hysteresis canny)]
+);
 
 1;
 
@@ -49,7 +51,7 @@ Prima::IPA::Local - methods that produce images where every pixel is a function 
 Contains functions that operate in the vicinity of a pixel, and produce
 image where every pixel is dependant on the values of the source pixel
 and the values of its neighbors.
-The process can be described with the mapping function 
+The process can be described with the mapping function
 
          |r(i,j),r(i+1,j)...|
    s = M |...               |
@@ -67,7 +69,7 @@ Supported types: Byte
 
 =item sobel IMAGE [ jobMask = sobelNWSE|sobelNESW, conversionType = conversionScaleAbs, combineType = combineMaxAbs, divisor = 1]
 
-Applies Sobel edge detector to IMAGE. 
+Applies Sobel edge detector to IMAGE.
 
 Supported types: Byte
 
@@ -93,7 +95,7 @@ Then the constants mask the following points:
 
 (0,0) point is always masked.
 
-=item divisor INTEGER 
+=item divisor INTEGER
 
 The resulting pixel value is divided to C<divisor> value after the kernel convolution is applied.
 
@@ -145,10 +147,10 @@ is used to substitute the pixels outside the image.
 
 =item edgecolor INTEGER
 
-Integer value, used for substitution of pixel values outside IMAGE, when 
-C<expandEdges> parameter is set to 1. 
+Integer value, used for substitution of pixel values outside IMAGE, when
+C<expandEdges> parameter is set to 1.
 
-=item divisor INTEGER 
+=item divisor INTEGER
 
 The resulting pixel value is divided to C<divisor> value after the kernel convolution is applied.
 
@@ -191,7 +193,7 @@ function with given SIGMA.
 
 =item laplacian SIZE, SIGMA
 
-Generates a square image of the given SIZe and populates with with inverse 
+Generates a square image of the given SIZe and populates with with inverse
 gaussian function with given SIGMA.
 
 =item gradients IMAGE
@@ -199,7 +201,7 @@ gaussian function with given SIGMA.
 This function computes a two-dimensional gradient (magnitude and direction) of
 an image, using two convolution kernels.  The magnitude is computed as the
 vector magnitude of the output of the two kernels, and the direction is
-computed as the angle between the two orthogonal gradient vectors.                        
+computed as the angle between the two orthogonal gradient vectors.
 
 The convolution kernels are (currently limited to) 3x3 masks for calculating
 separate vertical and horizontal derivatives.

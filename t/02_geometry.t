@@ -14,11 +14,11 @@ my $i = Prima::Image-> create(
 	height   => 4,
 	type     => im::Byte,
 	lineSize => 4,
-	data     => 
+	data     =>
 		"\0\0\0\xff" .
 		"\0\0\xff\x0" .
 		"\0\xff\0\0" .
-		"\0\xff\0\0" 
+		"\0\xff\0\0"
 );
 
 # 1

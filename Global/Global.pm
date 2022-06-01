@@ -6,69 +6,69 @@ require Exporter;
 use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 @ISA = qw(Exporter);
 @EXPORT = qw();
-@EXPORT_OK = qw(close_edges fill_holes area_filter identify_contours 
+@EXPORT_OK = qw(close_edges fill_holes area_filter identify_contours
 	fft band_filter butterworth fourier identify_scanlines hough
 	hough2lines identify_pixels);
 %EXPORT_TAGS = (tracks => [qw(close_edges)]);
 
 sub pow2
 {
-   my ( $i, $j) = ( 1, $_[0]);
-   $i <<= 1, $j >>= 1 while $j > 1;
-   return $i == $_[0], $i;
-}   
+	my ( $i, $j) = ( 1, $_[0]);
+	$i <<= 1, $j >>= 1 while $j > 1;
+	return $i == $_[0], $i;
+}
 # adjusting image to the power of 2 for the FFT transform
 
 sub pow2wrapper1
 {
-   my ($i,$profile) = @_;
+	my ($i,$profile) = @_;
 
-   my ($ow, $oh) = $i-> size;
-   my ( $okw, $w1) = pow2( $oh);
-   my ( $okh, $h1) = pow2( $ow);
-   my $resize = !$okw || !$okh;
-   if ( $resize) {
-      unless ( $profile->{lowquality}) {
-         $w1 *= 2 unless $okw;
-         $h1 *= 2 unless $okh;
-      }
-      $i = $i-> dup;
-      $i-> size( $w1, $h1);
-   }
-   return ( $i, $ow, $oh, $resize);
-}   
+	my ($ow, $oh) = $i-> size;
+	my ( $okw, $w1) = pow2( $oh);
+	my ( $okh, $h1) = pow2( $ow);
+	my $resize = !$okw || !$okh;
+	if ( $resize) {
+		unless ( $profile->{lowquality}) {
+			$w1 *= 2 unless $okw;
+			$h1 *= 2 unless $okh;
+		}
+		$i = $i-> dup;
+		$i-> size( $w1, $h1);
+	}
+	return ( $i, $ow, $oh, $resize);
+}
 
 sub pow2wrapper2
 {
-   my ( $i, $ow, $oh, $resize) = @_;
-   $i-> size( $ow, $oh) if $i && $resize;
-   return $i;
-}   
+	my ( $i, $ow, $oh, $resize) = @_;
+	$i-> size( $ow, $oh) if $i && $resize;
+	return $i;
+}
 
 # wrapper for ::band_filter
 sub butterworth
 {
-   my ( $i, %profile) = @_;
-   die "Prima::IPA::Global::band: Not an image passed\n" unless $i;
-   my @psdata;
-   $profile{spatial} = 1 if ($i-> type & im::Category) != im::ComplexNumber;
-   ( $i, @psdata) = pow2wrapper1( $i, \%profile) if $profile{spatial};
-   $i = band_filter( $i, %profile);
-   pow2wrapper2( $i, @psdata) if $profile{spatial};
-   return $i;
-}   
+	my ( $i, %profile) = @_;
+	die "Prima::IPA::Global::band: Not an image passed\n" unless $i;
+	my @psdata;
+	$profile{spatial} = 1 if ($i-> type & im::Category) != im::ComplexNumber;
+	( $i, @psdata) = pow2wrapper1( $i, \%profile) if $profile{spatial};
+	$i = band_filter( $i, %profile);
+	pow2wrapper2( $i, @psdata) if $profile{spatial};
+	return $i;
+}
 
 # wrapper for fft
 sub fourier
 {
-   my ( $i, %profile) = @_;
-   die "Prima::IPA::Global::fourier: Not an image passed\n" unless $i;
-   my @psdata;
-   ( $i, @psdata) = pow2wrapper1( $i, \%profile) if $profile{spatial};
-   $i = fft( $i, %profile);
-   pow2wrapper2( $i, @psdata);
-   return $i;
-}   
+	my ( $i, %profile) = @_;
+	die "Prima::IPA::Global::fourier: Not an image passed\n" unless $i;
+	my @psdata;
+	( $i, @psdata) = pow2wrapper1( $i, \%profile) if $profile{spatial};
+	$i = fft( $i, %profile);
+	pow2wrapper2( $i, @psdata);
+	return $i;
+}
 
 
 1;
@@ -85,9 +85,9 @@ Prima::IPA::Global - methods that produce images where every pixel is a function
 
 Contains methods that produce images, where every pixel is a function of all
 pixels in the source image.  The process can be described with the mapping
-function 
+function
 
-   s = M(R)
+	s = M(R)
 
 where C<s> is the pixel value in the output images, and R is the source image.
 
@@ -114,7 +114,7 @@ Specifies the gradient image
 
 Maximal edge length
 
-=item minedgelen INTEGER  
+=item minedgelen INTEGER
 
 Minimal edge length
 
@@ -204,7 +204,7 @@ Supported types: all
 
 =item band_filter IMAGE [ low = 0, spatial = 1, homomorph = 0, power = 2.0, cutoff = 20.0, boost = 0.7 ]
 
-Performs band filtering of IMAGE in frequency domain. 
+Performs band filtering of IMAGE in frequency domain.
 IMAGE must have dimensions of power of 2.
 The resulted image is always of DComplex type.
 
@@ -244,7 +244,7 @@ Multiplication factor used in homomorph equalization.
 
 =item butterworth IMAGE [ low = 0, spatial = 1, homomorph = 0, power = 2.0, cutoff = 20.0, boost = 0.7 ]
 
-Performs band filtering of IMAGE in frequency domain. 
+Performs band filtering of IMAGE in frequency domain.
 If IMAGE dimensions not of power of 2, then
 IMAGE is scaled up to the closest power of 2, and the result is scaled
 back to the original dimensions.
@@ -273,15 +273,15 @@ calculated.  Returns array of quad values in format [x0,y0,x1,y2] where the
 coordinates stand for the start and the end of a line.
 
 So, if the direct transform was called as
-   
-   $h = hough( $i ); 
+
+	$h = hough( $i );
 
 then plotting lines back (after $h was filtered) would be
 
-   $i-> line(@$_) for @{ hough2lines( $h,
-   	width  => $i-> width, 
-	height => $i-> height
-   ) };
+	$i-> line(@$_) for @{ hough2lines( $h,
+		width  => $i-> width,
+		height => $i-> height
+	) };
 
 Supported types: 8-bit (expects result from C<hough> function).
 

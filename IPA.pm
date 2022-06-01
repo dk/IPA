@@ -31,16 +31,16 @@ use constant conversionScaleAbs  => 4;
 
 sub import
 {
-   my $self = shift;
-   my @modules = ( 1 == @_ && lc($_[0]) eq 'all') ? 
-      qw(Point Local Global Geometry Morphology Misc Region) 
-      : @_;
-   for ( @modules) {
-       eval "use Prima::IPA::$_ ();";
-       die $@ if $@;
-       Exporter::export_to_level( "Prima::IPA::$_", 1, undef, '/./') 
-          if UNIVERSAL::isa("Prima::IPA::$_", 'Exporter');
-   }
+		my $self = shift;
+		my @modules = ( 1 == @_ && lc($_[0]) eq 'all') ? 
+			qw(Point Local Global Geometry Morphology Misc Region) 
+			: @_;
+		for ( @modules) {
+			eval "use Prima::IPA::$_ ();";
+			die $@ if $@;
+			Exporter::export_to_level( "Prima::IPA::$_", 1, undef, '/./') 
+				if UNIVERSAL::isa("Prima::IPA::$_", 'Exporter');
+		}
 }
 
 1;
@@ -83,22 +83,22 @@ available.
 For example, a code that produces a binary thresholded image out of a 8-bit 
 grayscale image:
 
-   use Prima;
-   use Prima::IPA qw(Point);
-   my $i = Prima::Image-> load('8-bit-grayscale.gif');
-   die "Cannot load:$@\n" if $@;
-   my $binary = threshold( $i, minvalue => 128);
+		use Prima;
+		use Prima::IPA qw(Point);
+		my $i = Prima::Image-> load('8-bit-grayscale.gif');
+		die "Cannot load:$@\n" if $@;
+		my $binary = threshold( $i, minvalue => 128);
 
 The abbreviations for pixel types are used, derived from
 the C<im::XXX> image type constants, as follows:
 
-   im::Byte     - 8-bit unsigned integer
-   im::Short    - 16-bit signed integer
-   im::Long     - 32-bit signed integer
-   im::Float    - float
-   im::Double   - double
-   im::Complex  - complex float
-   im::DComplex - complex double
+		im::Byte     - 8-bit unsigned integer
+		im::Short    - 16-bit signed integer
+		im::Long     - 32-bit signed integer
+		im::Float    - float
+		im::Double   - double
+		im::Complex  - complex float
+		im::DComplex - complex double
 
 Each function returns the newly created image object with the result of the operation,
 unless stated otherwise in L<API>.

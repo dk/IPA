@@ -14,18 +14,18 @@ my $i = Prima::Image-> create(
 	height   => 4,
 	type     => im::Byte,
 	lineSize => 4, # must stay x4 for these tests!
-	data     => 
+	data     =>
 		"\0\0\0\0" .
 		"\xff\xff\xff\0" .
-		"\xff\x00\xff\0" . 
-		"\xff\xff\xff\0" 
+		"\xff\x00\xff\0" .
+		"\xff\xff\xff\0"
 );
 
 my @h = histogram($i);
 ok( ($h[0] == 8 and $h[-1] == 8), 'histogram');
 
 my ( $r, $g, $b) = ( $i, $i-> dup, $i-> dup);
-$g-> data( ~$g-> data); 
+$g-> data( ~$g-> data);
 $b-> pixel(2,2,0xff);
 
 my $comb = combine_channels( [$r,$g,$b], 'rgb');

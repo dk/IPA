@@ -12,17 +12,17 @@ use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 # histogram equalization
 sub equalize
 {
-   my $i = $_[0];
-   my @h = Prima::IPA::Misc::histogram( $i);
-   my $factor = 255 / ($i-> width * $i-> height);
-   my @map;
-   my $sum = 0;
-   for (@h) {
-       $sum += $_;
-       my $v = $sum * $factor;
-       push @map, ($v > 255) ? 255 : int($v); 
-   }
-   return Prima::IPA::Point::remap( $i, lookup => \@map);
+	my $i = $_[0];
+	my @h = Prima::IPA::Misc::histogram( $i);
+	my $factor = 255 / ($i-> width * $i-> height);
+	my @map;
+	my $sum = 0;
+	for (@h) {
+		$sum += $_;
+		my $v = $sum * $factor;
+		push @map, ($v > 255) ? 255 : int($v);
+	}
+	return Prima::IPA::Point::remap( $i, lookup => \@map);
 }
 
 
@@ -38,21 +38,21 @@ Prima::IPA::Point - single pixel transformations and image arithmetic
 
 =head1 DESCRIPTION
 
-Single-pixel processing is a simple method of image enhancement. 
-This technique determines a pixel value in the enhanced image dependent only 
-on the value of the corresponding pixel in the input image. 
-The process can be described with the mapping function 
+Single-pixel processing is a simple method of image enhancement.
+This technique determines a pixel value in the enhanced image dependent only
+on the value of the corresponding pixel in the input image.
+The process can be described with the mapping function
 
-   s = M(r)
+	s = M(r)
 
 where C<r> and C<s> are the pixel values in the input and output images, respectively.
 
-=over   
+=over
 
 =item combine [ images, conversionType = conversionScale, combineType = combineSum, rawOutput = 0]
 
 Combines set of images of same dimension and bit depth into one
-and returns the resulting image. 
+and returns the resulting image.
 
 Supported types: Byte, Short, Long.
 
@@ -68,7 +68,7 @@ Array of image objects.
 
 An integer constant, one of the following, that indicates how the
 resulting image would be adjusted in accord to the minimal and maximal
-values of the result. C<Trunc> constants cut off the output values to the 
+values of the result. C<Trunc> constants cut off the output values to the
 bit maximum, for example, a result vector in 8-bit image [-5,0,100,300]
 would be transformed to [0,0,100,255]. C<Scale> constants scale the whole
 image without the cutoff; the previous example vector would be transformed
@@ -76,10 +76,10 @@ into [0,4,88,255]. The C<Abs> suffix shows whether the range calculation would
 use the whole domain, including the negative values, or the absolute values
 only.
 
-   conversionTruncAbs
-   conversionTrunc
-   conversionScale
-   conversionScaleAbs
+	conversionTruncAbs
+	conversionTrunc
+	conversionScale
+	conversionScaleAbs
 
 Default is C<conversionScale>.
 
@@ -88,18 +88,18 @@ Default is C<conversionScale>.
 An integer constant, indicates the type of action performed
 between pixels of same [x,y] coordinates.
 
-   combineMaxAbs          - store the maximal absolute pixel value
-   combineSignedMaxAbs    - compute the maximal absolute value, but store its original ( before abs()) value
-   combineSumAbs          - store the sum of absolute pixel values
-   combineSum             - store the sum of pixel values
-   combineSqrt            - store the square root of the sum of the squares of the pixel values
+	combineMaxAbs          - store the maximal absolute pixel value
+	combineSignedMaxAbs    - compute the maximal absolute value, but store its original ( before abs()) value
+	combineSumAbs          - store the sum of absolute pixel values
+	combineSum             - store the sum of pixel values
+	combineSqrt            - store the square root of the sum of the squares of the pixel values
 
 Default is C<combineSum>.
 
 =item rawOutput BOOLEAN
 
 Discards C<conversionType> parameter and performs no conversion.
-If set to true value, the conversion step is omitted. 
+If set to true value, the conversion step is omitted.
 
 Default is 0.
 
@@ -121,16 +121,16 @@ C<origGamma> and C<destGamma>.
 
 Supported types: Byte
 
-=item remap IMAGE [ lookup ] 
+=item remap IMAGE [ lookup ]
 
 Performs image mapping by a passed C<lookup> array
-of 256 integer values. Example: 
+of 256 integer values. Example:
 
-   Prima::IPA::Point::remap( $i, lookup => [ (0) x 128, (255) x 127]);
+	Prima::IPA::Point::remap( $i, lookup => [ (0) x 128, (255) x 127]);
 
 is an equivalent of
 
-   Prima::IPA::Point::threshold( $i, minvalue => 128);
+	Prima::IPA::Point::threshold( $i, minvalue => 128);
 
 Supported types: 8-bit
 
@@ -147,7 +147,7 @@ Test every pixel of IMAGE whether it equals to C<test>, and
 assigns the resulting pixel with either C<match> or C<mismatch> value.
 All C<test>, C<match>, and C<mismatch> scalars can be either integers
 ( in which case C<mask> operator is similar to L<threshold> ),
-or image objects. If the image objects passed, they must be of the same 
+or image objects. If the image objects passed, they must be of the same
 dimensions and bit depth as IMAGE.
 
 Supported types: Byte, Short, Long.

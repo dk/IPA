@@ -36,60 +36,60 @@
 #define PIX1(x)     ((x)==0 ? 0 : 1)
 
 typedef struct {
-    int pos;
-    int direction;
+	int pos;
+	int direction;
 } CandidateInfo;
 
 CandidateInfo *candidates;
 volatile unsigned ccount,cnum;
 
 static RGBColor pal256_16[] =
-{
-   {    0,    0,    0},    /* 0 Black */
-   { 0x80,    0,    0},    /* 1 Blue */
-   {    0, 0x80,    0},    /* 2 Green */
-   { 0x80, 0x80,    0},    /* 3 Cyan */
-   {    0,    0, 0x80},    /* 4 Red */
-   { 0x80,    0, 0x80},    /* 5 Magenta */
-   {    0, 0x80, 0x80},    /* 6 Brown */
-   { 0x80, 0x80, 0x80},    /* 7 DGray */
-   { 0xCC, 0xCC, 0xCC},    /* 8 Pale Gray */
-   { 0xFF,    0,    0},    /* 9 LBlue */
-   {    0, 0xFF,    0},    /* A LGreen */
-   { 0xFF, 0xFF,    0},    /* B LCyan */
-   {    0,    0, 0xFF},    /* C LRed */
-   { 0xFF,    0, 0xFF},    /* D LMagenta */
-   {    0, 0xFF, 0xFF},    /* E Yellow */
-   { 0xFF, 0xFF, 0xFF}     /* F White */
+	{
+	{    0,    0,    0},    /* 0 Black */
+	{ 0x80,    0,    0},    /* 1 Blue */
+	{    0, 0x80,    0},    /* 2 Green */
+	{ 0x80, 0x80,    0},    /* 3 Cyan */
+	{    0,    0, 0x80},    /* 4 Red */
+	{ 0x80,    0, 0x80},    /* 5 Magenta */
+	{    0, 0x80, 0x80},    /* 6 Brown */
+	{ 0x80, 0x80, 0x80},    /* 7 DGray */
+	{ 0xCC, 0xCC, 0xCC},    /* 8 Pale Gray */
+	{ 0xFF,    0,    0},    /* 9 LBlue */
+	{    0, 0xFF,    0},    /* A LGreen */
+	{ 0xFF, 0xFF,    0},    /* B LCyan */
+	{    0,    0, 0xFF},    /* C LRed */
+	{ 0xFF,    0, 0xFF},    /* D LMagenta */
+	{    0, 0xFF, 0xFF},    /* E Yellow */
+	{ 0xFF, 0xFF, 0xFF}     /* F White */
 };
 
 static void add_candidate(int xpos,int direction)
 {
-    if (ccount==cnum) {
-        cnum+=50;
-        candidates=realloc(candidates,cnum*sizeof(CandidateInfo));
-    } /* endif */
+	if (ccount==cnum) {
+		cnum+=50;
+		candidates=realloc(candidates,cnum*sizeof(CandidateInfo));
+	} /* endif */
 
-    candidates[ccount].pos=xpos;
-    candidates[ccount].direction=direction;
-    ccount++;
+	candidates[ccount].pos=xpos;
+	candidates[ccount].direction=direction;
+	ccount++;
 }
 
 static Bool valid_direction(PImage img,int direction,int x,int y)
 {
-    if ((x==0) && ((direction==0) || (direction==6) || (direction==7))) {
-        return false;
-    } /* endif */
-    if ((x==(img->w-1)) && ((direction>=2) && (direction<=4))) {
-        return false;
-    } /* endif */
-    if ((y==0) && ((direction>=4) && (direction<=6))) {
-        return false;
-    } /* endif */
-    if ((y==(img->h-1)) && ((direction>=0) && (direction<=2))) {
-        return false;
-    } /* endif */
-    return true;
+	if ((x==0) && ((direction==0) || (direction==6) || (direction==7))) {
+		return false;
+	} /* endif */
+	if ((x==(img->w-1)) && ((direction>=2) && (direction<=4))) {
+		return false;
+	} /* endif */
+	if ((y==0) && ((direction>=4) && (direction<=6))) {
+		return false;
+	} /* endif */
+	if ((y==(img->h-1)) && ((direction>=0) && (direction<=2))) {
+		return false;
+	} /* endif */
+	return true;
 }
 
 /*********************************************************************************/
@@ -98,98 +98,98 @@ static Bool valid_direction(PImage img,int direction,int x,int y)
 /*********************************************************************************/
 static Bool pix_is_end(PImage img,int *shift_table,int xpos,int x,int y)
 {
-    int i;
-    int cnt=0,zerocnt=0;
-    int nonzerodir=-1; /* position where the last non-zero neighbour was found */
+	int i;
+	int cnt=0,zerocnt=0;
+	int nonzerodir=-1; /* position where the last non-zero neighbour was found */
 
-    for (i=0; i<8; i++) {
-        int pval=0; /* count as 0 if we're outside image */
-        if (valid_direction(img,i,x,y)) {
-            pval=img->data[xpos+shift_table[i]];
-        } /* endif */
-        if (pval>0) {
-            if (zerocnt>0) {
-                if (nonzerodir==0 && i==7) { /* 0 and 7 are neightbors, too.
-		    Since nonzerodir has the _last_ direction, so exclude cases where they are 0 and 1 */
-                    return true;
-                } /* endif */
-                return false;
-            } /* endif */
-            nonzerodir=i;
-            cnt++;
-            if (cnt>2) {
-                return false;
-            } /* endif */
-        } /* endif */
-        else {
-            if (cnt>0) { /* got non-zero neighbours, let's count the zero-ed ones */
-                zerocnt++;
-            } /* endif */
-        } /* endelse */
-    } /* endfor */
+	for (i=0; i<8; i++) {
+		int pval=0; /* count as 0 if we're outside image */
+		if (valid_direction(img,i,x,y)) {
+			pval=img->data[xpos+shift_table[i]];
+		} /* endif */
+		if (pval>0) {
+			if (zerocnt>0) {
+				if (nonzerodir==0 && i==7) { /* 0 and 7 are neightbors, too.
+			Since nonzerodir has the _last_ direction, so exclude cases where they are 0 and 1 */
+					return true;
+				} /* endif */
+				return false;
+			} /* endif */
+			nonzerodir=i;
+			cnt++;
+			if (cnt>2) {
+				return false;
+			} /* endif */
+		} /* endif */
+		else {
+			if (cnt>0) { /* got non-zero neighbours, let's count the zero-ed ones */
+				zerocnt++;
+			} /* endif */
+		} /* endelse */
+	} /* endfor */
 
-    return (Bool)(cnt==2 || cnt==1); /* collide i the same points */
+	return (Bool)(cnt==2 || cnt==1); /* collide i the same points */
 }
 
 Bool check_edge_length(PImage img,int minlen,int *shift_table,int xpos,int fromdirection,int edgelen,Bool islong)
 {
-    short x,y,i,direction,cnt=5;
-    int newxpos;
-    Bool longedge=islong || (edgelen>minlen);
-    Bool haveNeighbours;
-    Bool backup_direction=-1;
+	short x,y,i,direction,cnt=5;
+	int newxpos;
+	Bool longedge=islong || (edgelen>minlen);
+	Bool haveNeighbours;
+	Bool backup_direction=-1;
 
-    x=xpos%img->lineSize;
-    y=xpos/img->lineSize;
+	x=xpos%img->lineSize;
+	y=xpos/img->lineSize;
 
-    if (fromdirection==-1) {
-        direction=0;
-        cnt=8;
-    } /* endif */
-    else {
-        direction=(fromdirection+5)%8;
-    } /* endelse */
+	if (fromdirection==-1) {
+		direction=0;
+		cnt=8;
+	} /* endif */
+	else {
+		direction=(fromdirection+5)%8;
+	} /* endelse */
 
-    img->data[xpos]=PIX_RESERVE;
-    do {
-        haveNeighbours=false;
-        for (i=0; i<cnt; i++) {
-            direction=(direction+1)%8;
-            if (valid_direction(img,direction,x,y)) {
-                newxpos=xpos+shift_table[direction];
-                if (img->data[newxpos]==PIX_ORIG) {
-                    Bool rc;
-                    if (fromdirection==-1) {
-                        backup_direction=(direction+4)%8;
-                    } /* endif */
-                    haveNeighbours=true;
-                    rc=check_edge_length(img,minlen,shift_table,newxpos,direction,edgelen+1,longedge);
-                    longedge=rc || longedge;
-                } /* endif */
-                else if (img->data[newxpos]==PIX_IN_LONG_EDGE) {
-                    longedge=true;
-                } /* endelse */
-            } /* endif */
-        } /* endfor */
-    /* For the case if a pixel has branching, and one of the branches is        */
-    /* long enough, while another (2nd,3rd etc) is not. This loop runs over the */
-    /* short branches to mark them as long ones                                 */
-    } while (haveNeighbours && longedge && !islong); /* enddo */
+	img->data[xpos]=PIX_RESERVE;
+	do {
+		haveNeighbours=false;
+		for (i=0; i<cnt; i++) {
+			direction=(direction+1)%8;
+			if (valid_direction(img,direction,x,y)) {
+				newxpos=xpos+shift_table[direction];
+				if (img->data[newxpos]==PIX_ORIG) {
+					Bool rc;
+					if (fromdirection==-1) {
+						backup_direction=(direction+4)%8;
+					} /* endif */
+					haveNeighbours=true;
+					rc=check_edge_length(img,minlen,shift_table,newxpos,direction,edgelen+1,longedge);
+					longedge=rc || longedge;
+				} /* endif */
+				else if (img->data[newxpos]==PIX_IN_LONG_EDGE) {
+					longedge=true;
+				} /* endelse */
+			} /* endif */
+		} /* endfor */
+	/* For the case if a pixel has branching, and one of the branches is        */
+	/* long enough, while another (2nd,3rd etc) is not. This loop runs over the */
+	/* short branches to mark them as long ones                                 */
+	} while (haveNeighbours && longedge && !islong); /* enddo */
 
-    if (longedge) {
-        if (!haveNeighbours && pix_is_end(img,shift_table,xpos,x,y)) {
-            img->data[xpos]=PIX_EDGE_CANDIDATE;
-            add_candidate(xpos,fromdirection==-1 ? backup_direction : fromdirection);
-        } /* endif */
-        else {
-            img->data[xpos]=PIX_IN_LONG_EDGE;
-        } /* endelse */
-    } /* endif */
-    else {
-        img->data[xpos]=PIX_ORIG;
-    } /* endelse */
+	if (longedge) {
+		if (!haveNeighbours && pix_is_end(img,shift_table,xpos,x,y)) {
+			img->data[xpos]=PIX_EDGE_CANDIDATE;
+			add_candidate(xpos,fromdirection==-1 ? backup_direction : fromdirection);
+		} /* endif */
+		else {
+			img->data[xpos]=PIX_IN_LONG_EDGE;
+		} /* endelse */
+	} /* endif */
+	else {
+		img->data[xpos]=PIX_ORIG;
+	} /* endelse */
 
-    return longedge;
+	return longedge;
 }
 
 /***********************************************************/
@@ -197,13 +197,13 @@ Bool check_edge_length(PImage img,int minlen,int *shift_table,int xpos,int fromd
 /***********************************************************/
 static Bool is_neighbours(int lineSize,int pos1,int pos2)
 {
-    int sx,sy;
-    sx=abs(pos1%lineSize-pos2%lineSize); /* abs(x1-x2) */
-    sy=abs(pos1/lineSize-pos2/lineSize); /* abs(y1-y2) */
-    if (sx<=1 && sy<=1) {
-        return (Bool)(sx!=0 || sy!=0);
-    } /* endif */
-    return false;
+	int sx,sy;
+	sx=abs(pos1%lineSize-pos2%lineSize); /* abs(x1-x2) */
+	sy=abs(pos1/lineSize-pos2/lineSize); /* abs(y1-y2) */
+	if (sx<=1 && sy<=1) {
+		return (Bool)(sx!=0 || sy!=0);
+	} /* endif */
+	return false;
 }
 
 /********************************************************************/
@@ -211,125 +211,125 @@ static Bool is_neighbours(int lineSize,int pos1,int pos2)
 /********************************************************************/
 static int neighbours(PImage img,int *shift_table,int pos,int *neighbourPos)
 {
-    int x=(pos%img->lineSize),y=(pos/img->lineSize);
-    int i,pixcnt=0;
+	int x=(pos%img->lineSize),y=(pos/img->lineSize);
+	int i,pixcnt=0;
 
-    for (i=0; i<8; i++) {
-        if (valid_direction(img,i,x,y) && img->data[pos+shift_table[i]]>0 && img->data[pos+shift_table[i]]!=PIX_RESERVE) {
-            if (neighbourPos!=nil) {
-                neighbourPos[i]=pos+shift_table[i];
-            } /* endif */
-            pixcnt++;
-        } /* endif */
-        else if (neighbourPos!=nil) {
-            neighbourPos[i]=-1;
-        } /* endelse */
-    } /* endfor */
+	for (i=0; i<8; i++) {
+		if (valid_direction(img,i,x,y) && img->data[pos+shift_table[i]]>0 && img->data[pos+shift_table[i]]!=PIX_RESERVE) {
+			if (neighbourPos!=nil) {
+				neighbourPos[i]=pos+shift_table[i];
+			} /* endif */
+			pixcnt++;
+		} /* endif */
+		else if (neighbourPos!=nil) {
+			neighbourPos[i]=-1;
+		} /* endelse */
+	} /* endfor */
 
-    return pixcnt;
+	return pixcnt;
 }
 
 static void trace_edges(PImage img,int minlen,int *shift_table)
 {
-    int ypos,xpos,x,y;
+	int ypos,xpos,x,y;
 
-    for (ypos=0,y=0; ypos<img->dataSize; ypos+=img->lineSize,y++) {
-        for (xpos=ypos,x=0; x<img->w; xpos++,x++) {
-            if (img->data[xpos]==PIX_ORIG) {
-                if (pix_is_end(img,shift_table,xpos,x,y)) {
-                    check_edge_length(img,minlen,shift_table,xpos,-1,1,false);
-                } /* endif */
-                else if (neighbours(img,shift_table,xpos,nil)==0) {
-                    img->data[xpos]=PIX_SINGLE;
-                } /* endelse */
-            } /* endif */
-        } /* endfor */
-    } /* endfor */
+	for (ypos=0,y=0; ypos<img->dataSize; ypos+=img->lineSize,y++) {
+		for (xpos=ypos,x=0; x<img->w; xpos++,x++) {
+			if (img->data[xpos]==PIX_ORIG) {
+				if (pix_is_end(img,shift_table,xpos,x,y)) {
+					check_edge_length(img,minlen,shift_table,xpos,-1,1,false);
+				} /* endif */
+				else if (neighbours(img,shift_table,xpos,nil)==0) {
+					img->data[xpos]=PIX_SINGLE;
+				} /* endelse */
+			} /* endif */
+		} /* endfor */
+	} /* endfor */
 }
 
 Bool make_new_edge(PImage dstimg,
-                   PImage gradient,
-                   int *shift_table,
-                   int maxlen,
-                   int mingradient,
-                   int start_pos,
-                   int xpos,
-                   int fromdirection,
-                   int edgelen
-                  )
+	PImage gradient,
+	int *shift_table,
+	int maxlen,
+	int mingradient,
+	int start_pos,
+	int xpos,
+	int fromdirection,
+	int edgelen
+)
 {
-    int i;
-    int direction=(fromdirection==-1 ? 7 : (fromdirection+6)%8),selected_direction;
-    int cnt=(fromdirection==-1 ? 8 : 3);
-    int gradientval=mingradient-1;
-    int x=xpos%dstimg->lineSize,y=xpos/dstimg->lineSize;
-    int oldval=dstimg->data[xpos];
-    Bool edge_closed;
+	int i;
+	int direction=(fromdirection==-1 ? 7 : (fromdirection+6)%8),selected_direction;
+	int cnt=(fromdirection==-1 ? 8 : 3);
+	int gradientval=mingradient-1;
+	int x=xpos%dstimg->lineSize,y=xpos/dstimg->lineSize;
+	int oldval=dstimg->data[xpos];
+	Bool edge_closed;
 
-    if (maxlen>=0 && edgelen>maxlen) {
-        return false;
-    } /* endif */
+	if (maxlen>=0 && edgelen>maxlen) {
+		return false;
+	} /* endif */
 
-    dstimg->data[xpos]=PIX_RESERVE;
+	dstimg->data[xpos]=PIX_RESERVE;
 
-    if (xpos!=start_pos) {
-        int neighbourPos[8];
-        int ncount=neighbours(dstimg,shift_table,xpos,neighbourPos);
-        edge_closed=false;
-        if (ncount>0) {
-            Bool dontClose=false;
-            for (i=0; i<8; i++) {
-                if (neighbourPos[i]==-1) {
-                    continue;
-                } /* endif */
-                /* if neighbours of the neighbours are next to the start pixel,
-		   shouldn't close the edge. Unless there is a neighbour from a short contour */
-                if (dstimg->data[neighbourPos[i]]!=PIX_IN_LONG_EDGE) {
-                    dontClose=false;
-                    break;
-                } /* endif */
-                if (is_neighbours(dstimg->lineSize,start_pos,neighbourPos[i])) {
-                    dontClose=true;
-                } /* endif */
-            } /* endfor */
-            for (i=0; i<8 && !dontClose; i++) {
-                if (neighbourPos[i]<0 || neighbourPos[i]==start_pos) {
-                    continue;
-                } /* endif */
-                /* got the edge */
-                edge_closed=true;
-                /* extra check if we have a pixel that could prolong the edge.
-		   could be a single pixel or a part of a short contour */
-                switch (dstimg->data[neighbourPos[i]]) {
-                    case PIX_SINGLE: /* isolated pixels becomes a candidate */
-                        dstimg->data[neighbourPos[i]]=PIX_EDGE_CANDIDATE;
-                        add_candidate(neighbourPos[i],i);
-                        break;
-                    case PIX_ORIG: /* didn't touch this one yet - let's check candidates and force the contour as 'long' */
-                        check_edge_length(dstimg,1,shift_table,neighbourPos[i],i,0,true);
-                        break;
-                    case PIX_EDGE_CANDIDATE:
-                        /* demote from a candidate, as the edge has closed on it already */
-                        dstimg->data[neighbourPos[i]]=PIX_OLD_CANDIDATE;
-                        break;
-                    default:
-                        break;
-                } /* endswitch */
-            } /* endfor */
-            if (edge_closed) {
-                dstimg->data[xpos]=PIX_NEW_EDGE;
-                return true;
-            } /* endif */
-        } /* endif */
-    } /* endif */
+	if (xpos!=start_pos) {
+		int neighbourPos[8];
+		int ncount=neighbours(dstimg,shift_table,xpos,neighbourPos);
+		edge_closed=false;
+		if (ncount>0) {
+			Bool dontClose=false;
+			for (i=0; i<8; i++) {
+				if (neighbourPos[i]==-1) {
+					continue;
+				} /* endif */
+				/* if neighbours of the neighbours are next to the start pixel,
+		shouldn't close the edge. Unless there is a neighbour from a short contour */
+				if (dstimg->data[neighbourPos[i]]!=PIX_IN_LONG_EDGE) {
+					dontClose=false;
+					break;
+				} /* endif */
+				if (is_neighbours(dstimg->lineSize,start_pos,neighbourPos[i])) {
+					dontClose=true;
+				} /* endif */
+			} /* endfor */
+			for (i=0; i<8 && !dontClose; i++) {
+				if (neighbourPos[i]<0 || neighbourPos[i]==start_pos) {
+					continue;
+				} /* endif */
+				/* got the edge */
+				edge_closed=true;
+				/* extra check if we have a pixel that could prolong the edge.
+		could be a single pixel or a part of a short contour */
+				switch (dstimg->data[neighbourPos[i]]) {
+					case PIX_SINGLE: /* isolated pixels becomes a candidate */
+						dstimg->data[neighbourPos[i]]=PIX_EDGE_CANDIDATE;
+						add_candidate(neighbourPos[i],i);
+						break;
+					case PIX_ORIG: /* didn't touch this one yet - let's check candidates and force the contour as 'long' */
+						check_edge_length(dstimg,1,shift_table,neighbourPos[i],i,0,true);
+						break;
+					case PIX_EDGE_CANDIDATE:
+						/* demote from a candidate, as the edge has closed on it already */
+						dstimg->data[neighbourPos[i]]=PIX_OLD_CANDIDATE;
+						break;
+					default:
+						break;
+				} /* endswitch */
+			} /* endfor */
+			if (edge_closed) {
+				dstimg->data[xpos]=PIX_NEW_EDGE;
+				return true;
+			} /* endif */
+		} /* endif */
+	} /* endif */
 
-    selected_direction=-1;
-    for (i=0; i<cnt; i++) {
-        direction=(direction+1)%8;
+	selected_direction=-1;
+	for (i=0; i<cnt; i++) {
+		direction=(direction+1)%8;
 
-        if (valid_direction(dstimg,direction,x,y)) {
-            int gval,chkpos=xpos+shift_table[direction];
-            if (dstimg->data[chkpos]==0) {
+		if (valid_direction(dstimg,direction,x,y)) {
+			int gval,chkpos=xpos+shift_table[direction];
+			if (dstimg->data[chkpos]==0) {
 /*          if (dstimg->data[chkpos]>0 && dstimg->data[chkpos]!=PIX_RESERVE) {
 //
 //              if ((chkpos!=start_pos) && (!is_neighbours(dstimg->lineSize,chkpos,start_pos))) {
@@ -355,299 +355,299 @@ Bool make_new_edge(PImage dstimg,
 //              } 
 //          } 
 //          else { */
-                gval=gradient->data[chkpos];
-                if (gval>=mingradient && gval>gradientval) {
-                    selected_direction=direction;
-                    gradientval=gval;
-                } /* endif */
-            } /* endif */
-        } /* endif */
-    } /* endfor */
+				gval=gradient->data[chkpos];
+				if (gval>=mingradient && gval>gradientval) {
+					selected_direction=direction;
+					gradientval=gval;
+				} /* endif */
+			} /* endif */
+		} /* endif */
+	} /* endfor */
 
-    if (selected_direction==-1) {
-        dstimg->data[xpos]=oldval;
-        return false;
-    } /* endif */
+	if (selected_direction==-1) {
+		dstimg->data[xpos]=oldval;
+		return false;
+	} /* endif */
 
-    edge_closed=make_new_edge(dstimg,
-                              gradient,
-                              shift_table,
-                              maxlen,
-                              mingradient,
-                              start_pos,
-                              xpos+shift_table[selected_direction],
-                              selected_direction,
-                              edgelen+1
-                             );
-    if (edge_closed && edgelen>0) {
-        dstimg->data[xpos]=PIX_NEW_EDGE;
-    } /* endif */
-    else {
-        dstimg->data[xpos]=oldval;
-    } /* endelse */
+	edge_closed=make_new_edge(dstimg,
+		gradient,
+		shift_table,
+		maxlen,
+		mingradient,
+		start_pos,
+		xpos+shift_table[selected_direction],
+		selected_direction,
+		edgelen+1
+	);
+	if (edge_closed && edgelen>0) {
+		dstimg->data[xpos]=PIX_NEW_EDGE;
+	} /* endif */
+	else {
+		dstimg->data[xpos]=oldval;
+	} /* endelse */
 
-    return edge_closed;
+	return edge_closed;
 }
 
 PImage gs_close_edges(
-                      PImage edges,
-                      PImage gradient,
-                      int maxlen,      /* max edge length */
-                      int minedgelen,  /* min length for edge to be counted as 'long' */
-                      int mingradient  /* minimal gradient value */
-                     )
+	PImage edges,
+	PImage gradient,
+	int maxlen,      /* max edge length */
+	int minedgelen,  /* min length for edge to be counted as 'long' */
+	int mingradient  /* minimal gradient value */
+)
 {
-    PImage dstimg;
-    int shift_table[8];
-    int i;
+	PImage dstimg;
+	int shift_table[8];
+	int i;
 
 
-    dstimg=createImage(edges->w,edges->h,im256);
-    memcpy(dstimg->data,edges->data,edges->dataSize);
-    memcpy(dstimg->palette,edges->palette,edges->palSize);
-    memcpy(dstimg->palette,pal256_16,sizeof(pal256_16));
+	dstimg=createImage(edges->w,edges->h,im256);
+	memcpy(dstimg->data,edges->data,edges->dataSize);
+	memcpy(dstimg->palette,edges->palette,edges->palSize);
+	memcpy(dstimg->palette,pal256_16,sizeof(pal256_16));
 
-    cnum=50;
-    candidates=(CandidateInfo*)malloc(cnum*sizeof(CandidateInfo));
-    ccount=0;
+	cnum=50;
+	candidates=(CandidateInfo*)malloc(cnum*sizeof(CandidateInfo));
+	ccount=0;
 
-    shift_table[0]=edges->lineSize-1;
-    shift_table[1]=edges->lineSize;
-    shift_table[2]=edges->lineSize+1;
-    shift_table[3]=1;
-    shift_table[4]=-edges->lineSize+1;
-    shift_table[5]=-edges->lineSize;
-    shift_table[6]=-edges->lineSize-1;
-    shift_table[7]=-1;
+	shift_table[0]=edges->lineSize-1;
+	shift_table[1]=edges->lineSize;
+	shift_table[2]=edges->lineSize+1;
+	shift_table[3]=1;
+	shift_table[4]=-edges->lineSize+1;
+	shift_table[5]=-edges->lineSize;
+	shift_table[6]=-edges->lineSize-1;
+	shift_table[7]=-1;
 
-    trace_edges(dstimg,minedgelen,shift_table);
-    for (i=0; i<ccount; i++) {
-        Bool rc;
-        if (dstimg->data[candidates[i].pos]==PIX_OLD_CANDIDATE) {
-            /* not a candidate anymore */
-            continue;
-        } /* endif */
-        rc=make_new_edge(
-                 dstimg,
-                 gradient,
-                 shift_table,
-                 maxlen,
-                 mingradient,
-                 candidates[i].pos,
-                 candidates[i].pos,
-                 candidates[i].direction,
-                 0
-                );
-        if (!rc) {
-            dstimg->data[candidates[i].pos]=PIX_BAD_CANDIDATE;
-        } /* endif */
-    } /* endfor */
+	trace_edges(dstimg,minedgelen,shift_table);
+	for (i=0; i<ccount; i++) {
+		Bool rc;
+		if (dstimg->data[candidates[i].pos]==PIX_OLD_CANDIDATE) {
+			/* not a candidate anymore */
+			continue;
+		} /* endif */
+		rc=make_new_edge(
+			dstimg,
+			gradient,
+			shift_table,
+			maxlen,
+			mingradient,
+			candidates[i].pos,
+			candidates[i].pos,
+			candidates[i].direction,
+			0
+		);
+		if (!rc) {
+			dstimg->data[candidates[i].pos]=PIX_BAD_CANDIDATE;
+		} /* endif */
+	} /* endfor */
 
-    free(candidates);
+	free(candidates);
 
-    return dstimg;
+	return dstimg;
 }
 
 Bool build_track(
-                 PImage img,
-                 PImage dstimg,
-                 int startpos,
-                 int endpos,
-                 int treshold,
-                 unsigned long flags,
-                 int *shift_table,
-                 int pos,
-                 int fromdirection,
-                 long track_len
-                )
+	PImage img,
+	PImage dstimg,
+	int startpos,
+	int endpos,
+	int treshold,
+	unsigned long flags,
+	int *shift_table,
+	int pos,
+	int fromdirection,
+	long track_len
+)
 {
-    int direction;
-    int i,selected_val,selected_direction;
-    Bool rc;
+	int direction;
+	int i,selected_val,selected_direction;
+	Bool rc;
 
-    if (track_len>100000) {
-        dstimg->data[pos]=PIX_RESERVE;
-        return false;
-    } /* endif */
+	if (track_len>100000) {
+		dstimg->data[pos]=PIX_RESERVE;
+		return false;
+	} /* endif */
 
-    if ((flags & TRACK_REACH_END_POINT)!=0) {
-        if (is_neighbours(img->lineSize,endpos,pos)) {
-            dstimg->data[endpos]=PIX_IN_TRACK;
-            dstimg->data[pos]=PIX_IN_TRACK;
-            return true;
-        }
-    } /* endif */
+	if ((flags & TRACK_REACH_END_POINT)!=0) {
+		if (is_neighbours(img->lineSize,endpos,pos)) {
+			dstimg->data[endpos]=PIX_IN_TRACK;
+			dstimg->data[pos]=PIX_IN_TRACK;
+			return true;
+		}
+	} /* endif */
 
-    dstimg->data[pos]=PIX_IN_POSSIBLE_TRACK;
+	dstimg->data[pos]=PIX_IN_POSSIBLE_TRACK;
 
-    do {
-        selected_direction=-1;
-        selected_val=((flags & TRACK_USE_MAXIMUM) ? -1 : 256);
-        direction=(fromdirection+((flags & TRACK_SLOPPY_DIRECTIONS)==0 ? 6 : 5))%8;
+	do {
+		selected_direction=-1;
+		selected_val=((flags & TRACK_USE_MAXIMUM) ? -1 : 256);
+		direction=(fromdirection+((flags & TRACK_SLOPPY_DIRECTIONS)==0 ? 6 : 5))%8;
 
-        for (i=0; i<((flags & TRACK_SLOPPY_DIRECTIONS)==0 ? 3 : 5); i++) {
-            direction=(direction+1)%8;
-            if (valid_direction(img,direction,(pos%img->lineSize)/* x */,(pos/img->lineSize)/* y */)) {
-                int chkpos=pos+shift_table[direction];
-                if (dstimg->data[chkpos]==0) {
-                    if (((flags & TRACK_USE_MAXIMUM)!=0 && img->data[chkpos]>=treshold) ||
-                        ((flags & TRACK_USE_MAXIMUM)==0 && img->data[chkpos]<=treshold)
-                       ) {
-                        if (((flags & TRACK_USE_MAXIMUM)!=0 && selected_val<img->data[chkpos]) ||
-                            ((flags & TRACK_USE_MAXIMUM)==0 && selected_val>img->data[chkpos])) {
-                            selected_val=img->data[chkpos];
-                            selected_direction=direction;
-                        } /* endif */
-                    } /* endif */
-                } /* endif */
-                else {
-                    if ((flags & TRACK_REACH_END_POINT)==0) {
-                        if (dstimg->data[chkpos]==PIX_IN_POSSIBLE_TRACK) {
-                            if ((flags & TRACK_CLOSE_ON_FIRST)==0 || chkpos==startpos) {
-                                dstimg->data[pos]=PIX_IN_TRACK;
-                                return true;
-                            } /* endif */
-                        } /* endif */
-                    } /* endif */
-                } /* endelse */
-            } /* endif */
-        } /* endfor */
+		for (i=0; i<((flags & TRACK_SLOPPY_DIRECTIONS)==0 ? 3 : 5); i++) {
+			direction=(direction+1)%8;
+			if (valid_direction(img,direction,(pos%img->lineSize)/* x */,(pos/img->lineSize)/* y */)) {
+				int chkpos=pos+shift_table[direction];
+				if (dstimg->data[chkpos]==0) {
+					if (((flags & TRACK_USE_MAXIMUM)!=0 && img->data[chkpos]>=treshold) ||
+						((flags & TRACK_USE_MAXIMUM)==0 && img->data[chkpos]<=treshold)
+					) {
+						if (((flags & TRACK_USE_MAXIMUM)!=0 && selected_val<img->data[chkpos]) ||
+							((flags & TRACK_USE_MAXIMUM)==0 && selected_val>img->data[chkpos])) {
+							selected_val=img->data[chkpos];
+							selected_direction=direction;
+						} /* endif */
+					} /* endif */
+				} /* endif */
+				else {
+					if ((flags & TRACK_REACH_END_POINT)==0) {
+						if (dstimg->data[chkpos]==PIX_IN_POSSIBLE_TRACK) {
+							if ((flags & TRACK_CLOSE_ON_FIRST)==0 || chkpos==startpos) {
+								dstimg->data[pos]=PIX_IN_TRACK;
+								return true;
+							} /* endif */
+						} /* endif */
+					} /* endif */
+				} /* endelse */
+			} /* endif */
+		} /* endfor */
 
-        if (selected_direction==-1) {
-            dstimg->data[pos]=PIX_RESERVE;
-            return false;
-        } /* endif */
+		if (selected_direction==-1) {
+			dstimg->data[pos]=PIX_RESERVE;
+			return false;
+		} /* endif */
 
-        rc=build_track(
-                       img,
-                       dstimg,
-                       startpos,
-                       endpos,
-                       treshold,
-                       flags,
-                       shift_table,
-                       pos+shift_table[selected_direction],
-                       selected_direction,
-                       track_len+1
-                      );
-        if (rc) {
-            dstimg->data[pos]=PIX_IN_TRACK;
-        } /* endif */
-    } while (!rc); /* enddo */
+		rc=build_track(
+			img,
+			dstimg,
+			startpos,
+			endpos,
+			treshold,
+			flags,
+			shift_table,
+			pos+shift_table[selected_direction],
+			selected_direction,
+			track_len+1
+		);
+		if (rc) {
+			dstimg->data[pos]=PIX_IN_TRACK;
+		} /* endif */
+	} while (!rc); /* enddo */
 
-    return true;
+	return true;
 }
 
 Bool remove_circles(
-                    PImage img,
-                    PImage dstimg,
-                    int startpos,
-                    int endpos,
-                    int treshold,
-                    unsigned long flags,
-                    int *shift_table,
-                    int prevpos,
-                    int pos
-                   )
+	PImage img,
+	PImage dstimg,
+	int startpos,
+	int endpos,
+	int treshold,
+	unsigned long flags,
+	int *shift_table,
+	int prevpos,
+	int pos
+)
 {
-    int neighbourPos[8],i,ncount;
-    Bool rc=false;
+	int neighbourPos[8],i,ncount;
+	Bool rc=false;
 
-    dstimg->data[pos]=PIX_RESERVE;
-    ncount=neighbours(dstimg,shift_table,pos,neighbourPos);
-    for (i=0; i<8; i++) {
-        if (neighbourPos[i]!=-1 && neighbourPos[i]!=prevpos) {
-            rc=remove_circles(
-                              img,
-                              dstimg,
-                              startpos,
-                              endpos,
-                              treshold,
-                              flags,
-                              shift_table,
-                              pos,
-                              neighbourPos[i]
-                             );
-        } /* endif */
-    } /* endfor */
+	dstimg->data[pos]=PIX_RESERVE;
+	ncount=neighbours(dstimg,shift_table,pos,neighbourPos);
+	for (i=0; i<8; i++) {
+		if (neighbourPos[i]!=-1 && neighbourPos[i]!=prevpos) {
+			rc=remove_circles(
+				img,
+				dstimg,
+				startpos,
+				endpos,
+				treshold,
+				flags,
+				shift_table,
+				pos,
+				neighbourPos[i]
+			);
+		} /* endif */
+	} /* endfor */
 
-    if (ncount>1) {
-        dstimg->data[pos]=PIX_TST;
-    } /* endif */
+	if (ncount>1) {
+		dstimg->data[pos]=PIX_TST;
+	} /* endif */
 
-    return rc;
+	return rc;
 }
 
 PImage gs_track(PImage img,int startpos,int endpos,int treshold,unsigned long flags)
 {
-    PImage srcimg,dstimg;
-    int shift_table[8];
-    int xs,ys,xe,ye,dx,dy;
-    int startdirection,dirshift=0;
-    Bool rc;
+	PImage srcimg,dstimg;
+	int shift_table[8];
+	int xs,ys,xe,ye,dx,dy;
+	int startdirection,dirshift=0;
+	Bool rc;
 
-    shift_table[0] = img->lineSize-1;
-    shift_table[1] = img->lineSize;
-    shift_table[2] = img->lineSize+1;
-    shift_table[3] = 1;
-    shift_table[4] = -img->lineSize-1;
-    shift_table[5] = -img->lineSize;
-    shift_table[6] = -img->lineSize+1;
-    shift_table[7] = -1;
+	shift_table[0] = img->lineSize-1;
+	shift_table[1] = img->lineSize;
+	shift_table[2] = img->lineSize+1;
+	shift_table[3] = 1;
+	shift_table[4] = -img->lineSize-1;
+	shift_table[5] = -img->lineSize;
+	shift_table[6] = -img->lineSize+1;
+	shift_table[7] = -1;
 
-    /* define the direction */
-    xs=startpos%img->lineSize;
-    ys=startpos/img->lineSize;
-    xe=endpos%img->lineSize;
-    ye=endpos/img->lineSize;
-    dx=xe-xs;
-    dy=ye-ys;
-    if ((abs(dx)<<2)>dy) {
-        dirshift+=dx>0 ? 1 : -1;
-    } /* endif */
-    if ((abs(dy)<<2)>dx) {
-        dirshift+=dy>0 ? img->lineSize : -img->lineSize;
-    } /* endif */
-    for (startdirection=0; startdirection<8; startdirection++) {
-        if (dirshift==shift_table[startdirection]) {
-            break;
-        } /* endif */
-    } /* endfor */
-    startdirection=startdirection%8;
+	/* define the direction */
+	xs=startpos%img->lineSize;
+	ys=startpos/img->lineSize;
+	xe=endpos%img->lineSize;
+	ye=endpos/img->lineSize;
+	dx=xe-xs;
+	dy=ye-ys;
+	if ((abs(dx)<<2)>dy) {
+		dirshift+=dx>0 ? 1 : -1;
+	} /* endif */
+	if ((abs(dy)<<2)>dx) {
+		dirshift+=dy>0 ? img->lineSize : -img->lineSize;
+	} /* endif */
+	for (startdirection=0; startdirection<8; startdirection++) {
+		if (dirshift==shift_table[startdirection]) {
+			break;
+		} /* endif */
+	} /* endfor */
+	startdirection=startdirection%8;
 
-    dstimg=createImage(img->w,img->h,im256);
-    srcimg=create_compatible_image(img,true);
-    img=srcimg;
+	dstimg=createImage(img->w,img->h,im256);
+	srcimg=create_compatible_image(img,true);
+	img=srcimg;
 
-    memcpy(dstimg->palette,pal256_16,sizeof(pal256_16));
+	memcpy(dstimg->palette,pal256_16,sizeof(pal256_16));
 
-    rc=build_track(
-                img,
-                dstimg,
-                startpos,
-                endpos,
-                treshold,
-                flags,
-                shift_table,
-                startpos,
-                startdirection,
-                0
-               );
-    if ((flags & TRACK_NO_CIRCLES)!=0) {
-        remove_circles(
-                       img,
-                       dstimg,
-                       startpos,
-                       endpos,
-                       treshold,
-                       flags,
-                       shift_table,
-                       -1,
-                       startpos
-                      );
-    } /* endif */
+	rc=build_track(
+		img,
+		dstimg,
+		startpos,
+		endpos,
+		treshold,
+		flags,
+		shift_table,
+		startpos,
+		startdirection,
+		0
+	);
+	if ((flags & TRACK_NO_CIRCLES)!=0) {
+		remove_circles(
+			img,
+			dstimg,
+			startpos,
+			endpos,
+			treshold,
+			flags,
+			shift_table,
+			-1,
+			startpos
+		);
+	} /* endif */
 
-    destroyImage(srcimg);
+	destroyImage(srcimg);
 
-    return dstimg;
+	return dstimg;
 }
