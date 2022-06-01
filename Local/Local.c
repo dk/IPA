@@ -6,7 +6,7 @@
 #include "Local.inc"
 #include "LocalSupp.h"
 
-/* Флаги для быстрого Sobel */
+/* flags for fast Sobel */
 #define SOBEL_COLUMN            0x0001
 #define SOBEL_ROW               0x0002
 #define SOBEL_NWSE              0x0004
@@ -79,17 +79,15 @@ PImage IPA__Local_crispening(PImage img)
 }
 
 /****************************************************************************/
-/* Быстрый Sobel-фильтр с комбинированием результатов работы разных         */
-/* вариантов фильтра (row, column, nwse и nesw).                            */
-/* Параметры функции:                                                       */
-/* srcimg      - исходный 8bpp image;                                       */
-/* jobMask     - комбинация SOBEL_* флагов, задающая, какие именно варианты */
-/*               фильтра необходимо использовать при работе;                */
-/* combineType - одна из COMBINE_* констант, задающих способ комбинирования */
-/*               результатов работы работы разных разнавидностей фильтра;   */
-/* conv        - задает способ конверсии общего результата в 8bpp image;    */
-/* divisor     - делитель;                                                  */
-/* Возвращает  - 8bpp image, если все нормально; иначе - nil                */
+/* Fast Sobel-filter with possible combining of extra filters               */
+/*row, column, nwse, nesw).                                                 */
+/* parameters:                                                              */
+/* srcimg      - source 8bpp image;                                         */
+/* jobMask     - set of SOBEL_ flags                                        */
+/* combineType - set of COMBINE_ flags                                      */
+/* conv        - how to convert image back to 8bpp                          */
+/* divisor     -                                                            */
+/* returns     - 8bpp image on success, NULL otherwise                      */
 /****************************************************************************/
 
 short sobel_combine(short *pixval,unsigned short combinetype)
@@ -161,10 +159,10 @@ PImage fast_sobel( PImage srcimg,
     PImage dstimg=nil;
     short pixval[4]={0,0,0,0},pixval1[4]={0,0,0,0};
     int ypos,xpos,y;
-    unsigned char *p1,*p2,*p3; /* Указатели на строки в image:
-                                p1 - на одну выше текущей
-                                p2 - текущая
-                                p3 - на одну ниже текущей */
+    unsigned char *p1,*p2,*p3; /* scanline pointers:
+                                p1 - -1
+                                p2 - current
+                                p3 - +1 */
     unsigned char *p,*pu,*pd,*pl,*pr,*pur,*pul,*pdr,*pdl;
     short *imgbuf,*imgp,*imgp1;
     short minval=0,maxval=0,range=0;
@@ -179,7 +177,7 @@ PImage fast_sobel( PImage srcimg,
     } /* endif */
     memset(imgbuf,0,srcimg->w*srcimg->h*sizeof(short));
 
-    p1=srcimg->data+(srcimg->lineSize<<1); /* <<1 - чтобы не множить на 2 */ 
+    p1=srcimg->data+(srcimg->lineSize<<1);
     p2=srcimg->data+srcimg->lineSize;
     p3=srcimg->data;
     imgp=imgbuf+srcimg->w;
@@ -235,14 +233,14 @@ PImage fast_sobel( PImage srcimg,
         imgp++;
     } /* endfor */
 
-    /* Обрабатываем горизонтальные границы. */
+    /* handle horizontal boundaries */
 
-    pu=srcimg->data+1;                                /* Верхняя граница */
+    pu=srcimg->data+1;                                /* upper boundary */
     p1=srcimg->data+srcimg->lineSize+1;
-    pd=srcimg->data+srcimg->lineSize*(srcimg->h-1)+1; /* Нижняя граница */
+    pd=srcimg->data+srcimg->lineSize*(srcimg->h-1)+1; /* lower boundary */
     p2=srcimg->data+srcimg->lineSize*(srcimg->h-2)+1;
-    imgp=imgbuf+1;                                    /* Верхняя граница результата */
-    imgp1=imgbuf+srcimg->w*(srcimg->h-1)+1;           /* Нижняя граница результата */
+    imgp=imgbuf+1;                                    /* upper of the result */
+    imgp1=imgbuf+srcimg->w*(srcimg->h-1)+1;           /* lower of the result */
     for (xpos=1; xpos<(srcimg->w-1); xpos++) {
         if (jobMask & SOBEL_COLUMN) {
             pixval[sobelColumn]=
@@ -307,12 +305,12 @@ PImage fast_sobel( PImage srcimg,
         imgp1++;
     } /* endfor */
 
-    /* Обрабатываем вертикальные границы */
+    /* handle vertical boundaries */
 
-    pl=srcimg->data+srcimg->lineSize;       /* Левая граница. */
+    pl=srcimg->data+srcimg->lineSize;       /* left */
     pul=pl-srcimg->lineSize;
     pdl=pl+srcimg->lineSize;
-    pr=pl+srcimg->w-1;                      /* Правая граница */
+    pr=pl+srcimg->w-1;                      /* right */
     pur=pr-srcimg->lineSize;
     pdr=pr+srcimg->lineSize;
     imgp=imgbuf+srcimg->w;
@@ -383,7 +381,7 @@ PImage fast_sobel( PImage srcimg,
         imgp1+=srcimg->w;
     } /* endfor */
 
-    /* Производим перенос результатов работы в результирующий image */
+    /* transfer bits back */
     dstimg=createNamedImage(srcimg->w,srcimg->h,imByte,"sobel result");
     if (dstimg==nil) {
         return nil;
@@ -770,10 +768,10 @@ PImage fast_median(PImage srcimg, int wx, int wy)
     PImage dstimg,mimg,msrcimg;
     int xpos,ypos,y,i,ltmdn=0,mdn=0;
     int wx2,wy2,w2,wh,pelshift,inshift,outshift;
-    int dx=1; /* Hапpавление сдвига по гоpизонтали */
+    int dx=1; /* horizontal shift direction */
     int histogram[256];
     unsigned char *p,*baseline,*dstpos;
-    Bool need_turn=false; /* необходимо ли pазвеpнуть напpавление движения окна */
+    Bool need_turn=false; /* need to reverse the window direction? */
 
     if (srcimg==nil) {
         return nil;
@@ -808,9 +806,9 @@ PImage fast_median(PImage srcimg, int wx, int wy)
 
     memset(histogram,0,sizeof(int)*256);
 
-    w2=(wx*wy)/2; /* Количество точек в половине окна. */
+    w2=(wx*wy)/2; /* number of pixels in half window */
 
-    /* Пеpвый пpоход - вычисляем медиану пеpвого окна. */
+    /* 1st run - calculcate 1st window' median */
     p=msrcimg->data;
     for (ypos=0; ypos<wy; ypos++) {
         for (xpos=0; xpos<wx; xpos++) {
@@ -820,28 +818,25 @@ PImage fast_median(PImage srcimg, int wx, int wy)
     } /* endfor */
     for (i=0; i<256; i++) {
         if ((ltmdn+histogram[i])>=w2) {
-            mdn=i; /* Вот это медиана и есть. ltmdn к этому моменту содеpжит
-                    количество точек, с уpовнем меньше медианного */
+            mdn=i; /* this is the media. ltmdn has n of pixels that has levels less than the median */
             break;
         } /* endif */
-        ltmdn+=histogram[i]; /* У нас еще есть запас для сдвижки медианы - сдвигаемся. */
+        ltmdn+=histogram[i]; /* there's still place to shift - move it */
     } /* endfor */
     mimg->data[(wy/2)*mimg->lineSize+wx/2]=mdn;
 
-    /* Имеем первое окно и его медиану. Тепеpь надо двигаться. */
-    baseline=msrcimg->data; /* базовая линия - самая нижняя в окне.
-                            Будем сдвигать ее по меpе пеpемещения по Y-кооpдинате. */
-    xpos=0;                /* смещение левого кpая окна */
-    wh=msrcimg->lineSize*wy; /* Общий pазмеp сканстpок, покpываемых окном. */
-    inshift=wx;            /* Смещение относительно левого кpая включаемой колонки */
-    outshift=0;            /* Смещение относительно левого кpая исключаемой колонки */
-    pelshift=(wy/2)*msrcimg->lineSize+wx/2; /* Смещение вычисляемой точки относительно
-                                               левого нижнего кpая окна. */
+    /* got 1st window and its median. Now moving it */
+    baseline=msrcimg->data; /* baseline - lowest in the window. Moving it together with Y-direction */
+    xpos=0;                /* left window edge (offset) */
+    wh=msrcimg->lineSize*wy; /* scanlines in window */
+    inshift=wx;            /* offset from left boundary of the included column */
+    outshift=0;            /* offset from left boundary of the excluded column */
+    pelshift=(wy/2)*msrcimg->lineSize+wx/2; /* offset from the lower boundary of the window */
     dstpos=mimg->data+pelshift+dx;
     for (; ; ) {
         unsigned char *pin,*pout;
 
-        /* Пpоходим по высоте окна, выбpасываем уходящую колонку, включаем пpиходящую */
+        /* moving on Y, removing out column, adding in column */
         if (!need_turn) {
             pin=baseline+xpos+inshift;
             pout=baseline+xpos+outshift;
@@ -857,29 +852,24 @@ PImage fast_median(PImage srcimg, int wx, int wy)
             } /* endfor */
         } /* endif */
 
-        if (ltmdn>w2) { /* Это значит, что медиана _несомненно_ сместилась, пpичем - вниз. */
-            /* Понижаем медиану */
+        if (ltmdn>w2) { /* median changed, to a lesser value - decreasing it */
             for (i=mdn-1; ; i--) {
-                /* Конец цикла можно не пpовеpять: pано или поздно ltmdn все же
-                 станет меньше w2; в "худшем" случае это пpоизойдет на 0-м
-                 цвете, тогда ltmdn пpосто станет нулем.
-                 Единственный ваpиант вылететь - ошибка пpи подсчете
-                 гистогpаммы, поскольку сумма всех значений в ней всегда
-                 должна быть pавна wx*wy */
+                /* don't need to check end of the loop as ltmdn will be less than w2;
+                   worst case it happens on color=0, and ltmdn will be 0 too.
+		   The only possibility to explode here is a code error when calculating 
+		   the histogram as sum of all values in it must be equal to wx*wy */
                 ltmdn-=histogram[i];
-                if (ltmdn<=w2) { /* только что исключили медиану */
+                if (ltmdn<=w2) { /* just excluded the median */
                     mdn=i;
                     break;
                 } /* endif */
             } /* endfor */
         } /* endif */
         else {
-            /* А тут надо пpовеpить - а не "ушла"-ли медиана ввеpх? */
+            /* checking - did the median increase? */
             for (i=mdn; ; i++) {
-                /* Здесь также конец цикла можно не пpовеpять по той же
-                пpичине, что и для случая понижения гистогpаммы.
-                Ваpиант "вылететь" - то же тот же. */
-                if ((ltmdn+histogram[i])>w2) { /* Если истина - значит i - значение медианы */
+                /* same reasons for not needing to check as above */
+                if ((ltmdn+histogram[i])>w2) { /* if true, then i is decrease of the median */
                     mdn=i;
                     break;
                 } /* endif */
@@ -894,28 +884,26 @@ PImage fast_median(PImage srcimg, int wx, int wy)
             continue;
         } /* endif */
 
-        xpos+=dx; /* Сдвигаемся к следующему пикселу по X. */
+        xpos+=dx; /* next pixel on X */
         if (dx>0) {
-            if ((xpos+wx)>=msrcimg->w) { /* Если двинемся еще pаз - пpавым кpаем
-                                         окна вылезем за пpавый кpай image */
+            if ((xpos+wx)>=msrcimg->w) { /* hit the right edge */
                 need_turn=true;
             } /* endif */
         } /* endif */
-        else { /* dx<0; тpетьего не дано */
-            if (xpos==0) { /* Следующий шаг вынесет нас за левый кpай */
+        else { /* dx<0 */
+            if (xpos==0) { /* hit the left edge */
                 need_turn=true;
             } /* endif */
         } /* endelse */
-        if (need_turn) { /* Hадо сдвинуть окно ввеpх по image, посчитать медиану */
-                         /* и двигаться дальше. */
+        if (need_turn) { /* need to move the windows up, calculate the median, and continue */
             pout=baseline+xpos;
             baseline+=msrcimg->lineSize;
             dstpos+=mimg->lineSize;
-            if ((baseline+wh)>(msrcimg->data+msrcimg->dataSize)) { /* Все, выше двигаться уже некуда */
+            if ((baseline+wh)>(msrcimg->data+msrcimg->dataSize)) { /* hit the upper edge */
                 break;
             } /* endif */
             pin=baseline+wh-msrcimg->lineSize+xpos;
-            for (i=0; i<wx; i++,pout++,pin++) { /* потопали по стpокам - включаемой и исключаемой */
+            for (i=0; i<wx; i++,pout++,pin++) { /* all lines, both included and excluded */
                 if (*pout<mdn) {
                     ltmdn--;
                 } /* endif */
@@ -925,10 +913,9 @@ PImage fast_median(PImage srcimg, int wx, int wy)
                 histogram[*pout]--;
                 histogram[*pin]++;
             } /* endfor */
-            /* Пеpесчет медианы будет пpоизведен на следующем пpоходе цикла. */
+            /* recalc the median on the next round */
 
-            /* Далее - пеpещилкиваем все значения, котоpые должны поменяться пpи 
-            pазвоpоте. */
+            /* update values if the reversal happened */
             dx=-dx;
             if (dx>0) {
                 inshift=wx;

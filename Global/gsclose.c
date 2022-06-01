@@ -8,26 +8,25 @@
 #include "gsclose.h"
 
 /***************************************************************************/
-/* Резеpвиpуемые цвета в контуpном image:                                  */
-/*       точка-кандидат на пpодление edge.                                 */
+/* reserved colors in the contoured image                 */
+/*       candidate to prolong an edge                     */
 #define PIX_EDGE_CANDIDATE              0x0B
-/*       точка была кандидатом, но нужда в ней отпала                      */
+/*       pixel was a candidate, but not anymore           */
 #define PIX_OLD_CANDIDATE               0x03
-/*       изолиpованная точка                                               */
+/*       isolated pixel                                   */
 #define PIX_SINGLE                      0x07
-/*       возможный новый участок гpаницы                                   */
+/*       possible new edge                                */
 #define PIX_NEW_EDGE                    0x09
-/*       пиксел пpинадлежит участку достаточной длины                      */
+/*       belongs to a edge that is long enough            */
 #define PIX_IN_LONG_EDGE                0x0C
-/*       пиксел pезеpвиpуется и пpовеpятся не должен                       */
+/*       pixel is reserved and not to be checked          */
 #define PIX_RESERVE                     0x01
-/* Те кандидаты, которые не дали контуров */
+/*       mask: candiates that didn't result in a contour  */
 #define PIX_BAD_CANDIDATE               0x0E
-/*       нетpонутый пиксел из исходного image                              */
+/*       original untouched pixel from the original image */
 #define PIX_ORIG                        0xFF
 
-/* Ниже - константы для трекинга                                           */
-/* Пиксел находится в контуре                                              */
+/* tracking constants when pixel is inside a contour */
 #define PIX_IN_TRACK                    PIX_ORIG
 #define PIX_IN_POSSIBLE_TRACK           PIX_RESERVE
 #define PIX_PASSED                      0x02
@@ -94,25 +93,24 @@ static Bool valid_direction(PImage img,int direction,int x,int y)
 }
 
 /*********************************************************************************/
-/* Определяет, можно ли считать точку конечной для границы. Можно в тех случаях, */
-/* когда точка имеет только одного соседа, или двух, но рядом расположенных.     */
+/* may this pixel be the edge? yes if it has only                                */
+/* one neightbor, or two but sitting together                                    */
 /*********************************************************************************/
 static Bool pix_is_end(PImage img,int *shift_table,int xpos,int x,int y)
 {
     int i;
     int cnt=0,zerocnt=0;
-    int nonzerodir=-1; /* позиция, в которой был найден последний ненулевой сосед для точки */
+    int nonzerodir=-1; /* position where the last non-zero neighbour was found */
 
     for (i=0; i<8; i++) {
-        int pval=0; /* если мы "вылазим" за пределы image - считаем, что там у нас 0 */
+        int pval=0; /* count as 0 if we're outside image */
         if (valid_direction(img,i,x,y)) {
             pval=img->data[xpos+shift_table[i]];
         } /* endif */
         if (pval>0) {
             if (zerocnt>0) {
-                if (nonzerodir==0 && i==7) { /* чтобы "замкнуть" направления 0 и 7, которые таки являются соседними
-                    поскольку nonzerodir содержит _последнее_ "ненулевое направление", то
-                    исключаются случаи, когда ненулевые на 0 и 1. */
+                if (nonzerodir==0 && i==7) { /* 0 and 7 are neightbors, too.
+		    Since nonzerodir has the _last_ direction, so exclude cases where they are 0 and 1 */
                     return true;
                 } /* endif */
                 return false;
@@ -124,13 +122,13 @@ static Bool pix_is_end(PImage img,int *shift_table,int xpos,int x,int y)
             } /* endif */
         } /* endif */
         else {
-            if (cnt>0) { /* У нас уже были ненулевые соседи, значит пора считать нулевых */
+            if (cnt>0) { /* got non-zero neighbours, let's count the zero-ed ones */
                 zerocnt++;
             } /* endif */
         } /* endelse */
     } /* endfor */
 
-    return (Bool)(cnt==2 || cnt==1); /* случаи одиночных точек исключаем */
+    return (Bool)(cnt==2 || cnt==1); /* collide i the same points */
 }
 
 Bool check_edge_length(PImage img,int minlen,int *shift_table,int xpos,int fromdirection,int edgelen,Bool islong)
@@ -173,10 +171,9 @@ Bool check_edge_length(PImage img,int minlen,int *shift_table,int xpos,int fromd
                 } /* endelse */
             } /* endif */
         } /* endfor */
-    /* Смысл этого while в том, чтобы в случае, когда в данной точке есть       */
-    /* ветвление границы, и какая-либо из ветвей достаточно длинная, а вторая - */
-    /* нет, (или вторая, третья и т.д.), то делаем еще один проход по второй и  */
-    /* и прочим чтобы отметить их как длинные                                   */
+    /* For the case if a pixel has branching, and one of the branches is        */
+    /* long enough, while another (2nd,3rd etc) is not. This loop runs over the */
+    /* short branches to mark them as long ones                                 */
     } while (haveNeighbours && longedge && !islong); /* enddo */
 
     if (longedge) {
@@ -195,10 +192,9 @@ Bool check_edge_length(PImage img,int minlen,int *shift_table,int xpos,int fromd
     return longedge;
 }
 
-/********************************************************************/
-/* Определяет, соседи ли точки, определяемые позициями pos1 и pos2. */
-/* Точки не являются соседями если они совпадают.                   */
-/********************************************************************/
+/***********************************************************/
+/* are pos1 and pos2 neighbours? they aren't if same pixel */
+/***********************************************************/
 static Bool is_neighbours(int lineSize,int pos1,int pos2)
 {
     int sx,sy;
@@ -210,10 +206,9 @@ static Bool is_neighbours(int lineSize,int pos1,int pos2)
     return false;
 }
 
-/******************************************************************************/
-/* Считает количество соседей, исключая тех, которые входят в новосоздаваемую */
-/* границу                                                                    */
-/******************************************************************************/
+/********************************************************************/
+/* gets number of neighbours excluding those already in the new edge */
+/********************************************************************/
 static int neighbours(PImage img,int *shift_table,int pos,int *neighbourPos)
 {
     int x=(pos%img->lineSize),y=(pos/img->lineSize);
@@ -287,7 +282,8 @@ Bool make_new_edge(PImage dstimg,
                 if (neighbourPos[i]==-1) {
                     continue;
                 } /* endif */
-                /* Если среди наших соседей есть соседи стартовой точки - замыкаться
+                /* if neighbours of the neighbours are next to the start pixel,
+		   shouldn't close the edge. Unless there is a neighbour from a short contour */
                  не будем. Однако если есть сосед не из длинного контура */
                 if (dstimg->data[neighbourPos[i]]!=PIX_IN_LONG_EDGE) {
                     dontClose=false;
@@ -301,23 +297,20 @@ Bool make_new_edge(PImage dstimg,
                 if (neighbourPos[i]<0 || neighbourPos[i]==start_pos) {
                     continue;
                 } /* endif */
-                /* А вот теперь можно быть уверенным, что нашли точку замыкания. */
+                /* got the edge */
                 edge_closed=true;
-                /* Дальше надо бы проверить, а не наткнулись ли мы на какую-либо
-                точку, которая может дать нам продолжение контура. Это может
-                быть единичная, или часть короткого контура. */
+                /* extra check if we have a pixel that could prolong the edge.
+		   could be a single pixel or a part of a short contour */
                 switch (dstimg->data[neighbourPos[i]]) {
-                    case PIX_SINGLE: /* Единичная точка просто становится новым кандидатом */
+                    case PIX_SINGLE: /* isolated pixels becomes a candidate */
                         dstimg->data[neighbourPos[i]]=PIX_EDGE_CANDIDATE;
                         add_candidate(neighbourPos[i],i);
                         break;
-                    case PIX_ORIG: /* Угу, нетронутый контур. Надо пошуршать на предмет кандидатов.
-                                    Поскольку готовая функция есть - мы просто убеждаем ее, что контур уже длинный */
+                    case PIX_ORIG: /* didn't touch this one yet - let's check candidates and force the contour as 'long' */
                         check_edge_length(dstimg,1,shift_table,neighbourPos[i],i,0,true);
                         break;
                     case PIX_EDGE_CANDIDATE:
-                        /*?? А вот если попалась точка-кандидат на продление -
-                        ?? она должна перестать быть таковой, ибо на нее уже замкнулись */
+                        /* demote from a candidate, as the edge has closed on it already */
                         dstimg->data[neighbourPos[i]]=PIX_OLD_CANDIDATE;
                         break;
                     default:
@@ -341,26 +334,24 @@ Bool make_new_edge(PImage dstimg,
 /*          if (dstimg->data[chkpos]>0 && dstimg->data[chkpos]!=PIX_RESERVE) {
 //
 //              if ((chkpos!=start_pos) && (!is_neighbours(dstimg->lineSize,chkpos,start_pos))) {
-//                  // Другими словами: найденная ненулевая точка не является той,
-//                  // с которой мы начали, и не является непосредственным соседом
-//                  // той точки, с которой мы начали.
-//                  if (edgelen>0) { // если edgelen==0, то точка в xpos уже промаркирована и трогать ее не стоит
+//                  // another words: the found non-zero pixel is not the starting one, 
+//                  // and neither the starting one's neighbour
+//                  if (edgelen>0) { // if edgelen==0 then pixel at xpos is marked already
 //                      dstimg->data[xpos]=PIX_NEW_EDGE;
 //                  } 
 //                  else {
 //                      dstimg->data[xpos]=oldval;
 //                  } 
 //                  if (dstimg->data[chkpos]==PIX_ORIG) {
-//                      // Очень интересно: соединямся с короткой границей.
-//                      // Поскольку стартовали с длинной границы, то новонайденную
-//                      // короткую надо к ней "присоединить".
+//                      // interesting: joining with a short edge
+//                      // since we started from a long edge, this one gets connected to it
 //                      check_edge_length(dstimg,1,shift_table,chkpos,direction,edgelen+1,true);
 //                  } 
 //                  else if (dstimg->data[chkpos]==PIX_SINGLE) {
 //                      dstimg->data[chkpos]=PIX_EDGE_CANDIDATE;
 //                      add_candidate(chkpos,direction);
 //                  } 
-//                  // Ну и дальнейшие изыскания можно прекращать.
+//                  // and that should be enough
 //                  return true;
 //              } 
 //          } 
@@ -402,9 +393,9 @@ Bool make_new_edge(PImage dstimg,
 PImage gs_close_edges(
                       PImage edges,
                       PImage gradient,
-                      int maxlen,      /* максимально допустимая длина вновь созданного участка гpаницы */
-                      int minedgelen,  /* минимальная длина "длинной" границы */
-                      int mingradient  /* минимальное значение гpадиента, котоpое будет учитываться */
+                      int maxlen,      /* max edge length */
+                      int minedgelen,  /* min length for edge to be counted as 'long' */
+                      int mingradient  /* minimal gradient value */
                      )
 {
     PImage dstimg;
@@ -434,7 +425,7 @@ PImage gs_close_edges(
     for (i=0; i<ccount; i++) {
         Bool rc;
         if (dstimg->data[candidates[i].pos]==PIX_OLD_CANDIDATE) {
-            /* Этот кандидат уже не кандидат. 8) */
+            /* not a candidate anymore */
             continue;
         } /* endif */
         rc=make_new_edge(
@@ -457,12 +448,6 @@ PImage gs_close_edges(
 
     return dstimg;
 }
-
-/*****************************************************************************/
-/*                                                                           */
-/* =========================== Алгоритм трекинга =========================== */
-/*                                                                           */
-/*****************************************************************************/
 
 Bool build_track(
                  PImage img,
@@ -611,7 +596,7 @@ PImage gs_track(PImage img,int startpos,int endpos,int treshold,unsigned long fl
     shift_table[6] = -img->lineSize+1;
     shift_table[7] = -1;
 
-    /* Определим направление, в котором начнем двигаться */
+    /* define the direction */
     xs=startpos%img->lineSize;
     ys=startpos/img->lineSize;
     xe=endpos%img->lineSize;
