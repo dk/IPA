@@ -284,7 +284,6 @@ Bool make_new_edge(PImage dstimg,
                 } /* endif */
                 /* if neighbours of the neighbours are next to the start pixel,
 		   shouldn't close the edge. Unless there is a neighbour from a short contour */
-                 не будем. Однако если есть сосед не из длинного контура */
                 if (dstimg->data[neighbourPos[i]]!=PIX_IN_LONG_EDGE) {
                     dontClose=false;
                     break;
