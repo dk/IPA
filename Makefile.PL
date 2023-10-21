@@ -65,7 +65,7 @@ sub postamble
 		my ( $n, $c) = ( $_-> {name}, $_-> {src});
 	  	$t .= <<H
 
-include/generic/$n.h: Makefile $c.cls
+include/generic/$n.h include/generic/$n.inc: Makefile $c.cls
 \t$gencls --inc --h $c.cls include/generic
 
 $c$o: Makefile $c.c include/IPAsupp.h include/generic/$n.h include/generic/$n.inc
